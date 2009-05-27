@@ -1,0 +1,22 @@
+
+Anleitung wie man zu den Daten kommt
+------------------------------------
+
+
+REPOSITORY:
+svn co http://aldebaran.ni.cs.tu-berlin.de/svn/closed/data
+user: grh
+
+in data/audio_library sind die wav files und dazugehörigen xmls
+
+data/general_everyday_sounds:
+lists: sind ein paar listen mit den sounds von flow, explosion, ...
+       -> diese Klassen versuchen aunzutrainieren
+codes: die sounds in der spike codierung
+distances: werden aus den codes berechnet, zum trainieren verwendet
+
+
+WIKI: werden library tools beschrieben
+http://aldebaran.ni.cs.tu-berlin.de/niwiki:
+http://aldebaran.ni.cs.tu-berlin.de/niwiki/index.php/Sound_Library_Tools
+-> sound library wo man bestimmte sounds abfragen kann

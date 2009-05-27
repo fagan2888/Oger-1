@@ -1,0 +1,11 @@
+
+These are some small hacks for MDP with reservoirs.
+
+in the folder "Experimentfase 1" are some basic experiments with MDP and reeservoirs.
+
+The folder "grhlib" contains additional nodes for MDP (reservoir_nodes, resample_nodes, svm_nodes), and look also in the "test" folder therein for some use cases.
+
+All other folder are some experiments with really bad code.
+
+
+Look at it at your own risk !

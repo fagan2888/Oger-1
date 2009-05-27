@@ -1,0 +1,67 @@
+22:05:25.62  Logging started, 12.01.2009                %%%%%%%%%%%%%%%%%%%%
+22:05:25.62  profiler hooks busy, trying with the slower trace hooks     % %
+22:05:25.62  ActivePassiveProfiler: starting                           %%%%%
+22:05:25.70   ______
+        #1   |99.8 %|  active_start              ...psyco/profiler.py:281
+22:05:25.93   ______
+        #1   |99.7 %|  active_start              ...psyco/profiler.py:281
+22:05:26.13   ______
+        #1   |98.8 %|  active_start              ...psyco/profiler.py:281
+        #2   | 0.5 %|  collect_states_supp           jaeger-method.py:28
+22:05:26.34   ______
+        #1   |97.5 %|  active_start              ...psyco/profiler.py:281
+        #2   | 1.3 %|  collect_states_supp           jaeger-method.py:28
+22:05:26.55   ______
+        #1   |95.9 %|  active_start              ...psyco/profiler.py:281
+        #2   | 2.4 %|  collect_states_supp           jaeger-method.py:28
+22:05:26.75   ______
+        #1   |95.2 %|  active_start              ...psyco/profiler.py:281
+        #2   | 2.7 %|  collect_states_supp           jaeger-method.py:28
+        #3   | 0.8 %|  train_esn                     jaeger-method.py:68
+22:05:26.91   ______
+        #1   |93.5 %|  active_start              ...psyco/profiler.py:281
+        #2   | 3.7 %|  collect_states_supp           jaeger-method.py:28
+        #3   | 1.0 %|  train_esn                     jaeger-method.py:68
+22:05:27.11   ______
+        #1   |90.8 %|  active_start              ...psyco/profiler.py:281
+        #2   | 5.5 %|  collect_states_supp           jaeger-method.py:28
+        #3   | 1.5 %|  train_esn                     jaeger-method.py:68
+22:05:27.32   ______
+        #1   |87.3 %|  active_start              ...psyco/profiler.py:281
+        #2   | 7.8 %|  collect_states_supp           jaeger-method.py:28
+        #3   | 2.0 %|  train_esn                     jaeger-method.py:68
+22:05:27.54   ______
+        #1   |85.4 %|  active_start              ...psyco/profiler.py:281
+        #2   | 8.5 %|  collect_states_supp           jaeger-method.py:28
+        #3   | 2.4 %|  train_esn                     jaeger-method.py:68
+22:05:27.59  tag function: __main__.collect_states_supp                    %
+22:05:27.75   ______
+        #1   |84.4 %|  active_start              ...psyco/profiler.py:281
+        #2   | 2.6 %|  train_esn                     jaeger-method.py:68
+22:05:27.90   ______
+        #1   |84.4 %|  active_start              ...psyco/profiler.py:281
+        #2   | 2.6 %|  train_esn                     jaeger-method.py:68
+22:05:28.19   ______
+        #1   |83.2 %|  active_start              ...psyco/profiler.py:281
+        #2   | 2.9 %|  train_esn                     jaeger-method.py:68
+        #3   | 1.1 %|  resetState                ...es/aureservoir.py:124
+        #4   | 1.0 %|  collectStates             ...es/aureservoir.py:236
+        #5   | 0.9 %|  run_jaeger_simulation         jaeger-method.py:200
+        #6   | 0.2 %|  asarray_chkfinite         .../function_base.py:392
+        #7   | 0.2 %|  <module>                      jaeger-method.py:6
+        #8   | 0.2 %|  find_best_lapack_type     .../linalg/lapack.py:48
+        #9   | 0.2 %|  lstsq                     ...y/linalg/basic.py:401
+        #10  | 0.2 %|  get_lapack_funcs          .../linalg/lapack.py:63
+22:05:28.32   ______
+        #1   |82.6 %|  active_start              ...psyco/profiler.py:281
+        #2   | 2.9 %|  train_esn                     jaeger-method.py:68
+        #3   | 1.0 %|  resetState                ...es/aureservoir.py:124
+        #4   | 1.0 %|  collectStates             ...es/aureservoir.py:236
+        #5   | 0.9 %|  run_jaeger_simulation         jaeger-method.py:200
+        #6   | 0.2 %|  asarray_chkfinite         .../function_base.py:392
+        #7   | 0.2 %|  <module>                      jaeger-method.py:6
+        #8   | 0.2 %|  find_best_lapack_type     .../linalg/lapack.py:48
+        #9   | 0.2 %|  lstsq                     ...y/linalg/basic.py:401
+        #10  | 0.2 %|  get_lapack_funcs          .../linalg/lapack.py:63
+22:05:28.42  memory usage: 152+ kb                                         %
+22:05:28.42  program exit, 12.01.2009                   %%%%%%%%%%%%%%%%%%%%
