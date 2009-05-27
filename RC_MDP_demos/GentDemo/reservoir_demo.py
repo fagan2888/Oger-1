@@ -1,5 +1,4 @@
 import mdp
-import aureservoir as au
 import numpy
 from scipy.lib.lapack import clapack
 from scipy.linalg import pinv
