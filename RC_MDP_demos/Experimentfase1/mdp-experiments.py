@@ -6,11 +6,11 @@ from numpy import *
 import pylab
 import testsignals
 import mdp
-import aureservoir as au
+#import aureservoir as au
 import sys
 sys.path.append("../grhlib")
-import filteresn
-from reservoir_nodes import ReservoirNode
+#import filteresn
+from Engine.reservoir_nodes import ReservoirNode
 from resample_nodes import ResampleNode
 
 
@@ -124,10 +124,10 @@ def reservoir_multiplesines():
 #    mix = mix / mix.max()
     
     # reservoir prototype
-    prot = au.DoubleESN()
-    prot.setInitParam( au.CONNECTIVITY, 0.2 )
-    prot.setInitParam( au.ALPHA, 0.8 )
-    prot.setSize(100)
+    #prot = au.DoubleESN()
+    #prot.setInitParam( au.CONNECTIVITY, 0.2 )
+    #prot.setInitParam( au.ALPHA, 0.8 )
+    #prot.setSize(100)
 #    prot.setNoise( 1e-3 )
 #    prot.setReservoirAct( au.ACT_LINEAR )
     
@@ -136,12 +136,12 @@ def reservoir_multiplesines():
 #                     mdp.nodes.TimeFramesNode(5), \
 #                    mdp.nodes.ISFANode(output_dim=3)])
 #                    mdp.nodes.NIPALSNode(output_dim=3)])
-    flow = mdp.Flow([ReservoirNode(1, 100, 'float64', prot), \
+    flow = mdp.Flow([ReservoirNode(1, 100, dtype='float64'), 
 #                     mdp.nodes.TimeFramesNode(10), \
                      mdp.nodes.SFANode(output_dim=3)])
 #    flow = mdp.Flow([ReservoirNode(1, 50, 'float64', params), \
 #                     mdp.nodes.PCANode(output_dim=3, svd=True) ])
-#    flow = mdp.Flow([ReservoirNode(1, 50, 'float64', params),])
+#    flow = mdp.Flow([ReservoirNode(1, 50, dtype='float64', params),])
     flow.train(mix)
     slow = flow(mix)
     
@@ -156,25 +156,25 @@ def hierarchical_multiplesines():
 #    mix = mix / mix.max()
     
     # reservoir prototype
-    prot = au.DoubleESN()
-    prot.setInitParam( au.CONNECTIVITY, 0.2 )
-    prot.setInitParam( au.ALPHA, 0.8 )
-    prot.setSize(100)
+    #prot = au.DoubleESN()
+    #prot.setInitParam( au.CONNECTIVITY, 0.2 )
+    #prot.setInitParam( au.ALPHA, 0.8 )
+    #prot.setSize(100)
 #    prot.setNoise( 1e-3 )
 #    prot.setReservoirAct( au.ACT_LINEAR )
     
     # Hierarchical Network with Reservoirs and SFA nodes
-    layer1 = mdp.Flow([ReservoirNode(1, 100, 'float64', prot), \
+    layer1 = mdp.Flow([ReservoirNode(1, 100, dtype='float64'), \
                        mdp.nodes.SFANode(output_dim=3), \
 #                       mdp.nodes.PCANode(output_dim=5,svd=True), \
                        ResampleNode(3, 0.4, window="hamming") ])
-    prot.setSize(50)
-    layer2 = mdp.Flow([ReservoirNode(3, 50, 'float64', prot), \
+    #prot.setSize(50)
+    layer2 = mdp.Flow([ReservoirNode(3, 50, dtype='float64'), \
                        mdp.nodes.SFANode(output_dim=3), \
 #                       mdp.nodes.PCANode(output_dim=5,svd=True), \
                        ResampleNode(3, 0.4, window="hamming") ])
-    prot.setSize(50)
-    layer3 = mdp.Flow([ReservoirNode(3, 50, 'float64', prot), \
+    #prot.setSize(50)
+    layer3 = mdp.Flow([ReservoirNode(3, 50, dtype='float64'), \
 #                       mdp.nodes.PCANode(output_dim=3,svd=True) ])
                        mdp.nodes.SFANode(output_dim=3) ])
 
@@ -197,17 +197,17 @@ def reservoir_multi():
     mix = am_mix_of_sine(size,0.0001)
     
     # reservoir prototype
-    prot = au.DoubleESN()
-    prot.setInitParam( au.CONNECTIVITY, 0.3 )
-    prot.setInitParam( au.ALPHA, 0.8 )
-    prot.setSize(10)
+   # prot = au.DoubleESN()
+   # prot.setInitParam( au.CONNECTIVITY, 0.3 )
+   # prot.setInitParam( au.ALPHA, 0.8 )
+   # prot.setSize(10)
     
     switchboard = mdp.hinet.Switchboard(input_dim=1, connections=[0,0,0,0,0])
-    layer = mdp.hinet.Layer([ReservoirNode(1, 10, 'float64', prot), \
-                             ReservoirNode(1, 10, 'float64', prot), \
-                             ReservoirNode(1, 10, 'float64', prot), \
-                             ReservoirNode(1, 10, 'float64', prot), \
-                             ReservoirNode(1, 10, 'float64', prot)])
+    layer = mdp.hinet.Layer([ReservoirNode(1, 10, dtype='float64'), \
+                             ReservoirNode(1, 10, dtype='float64'), \
+                             ReservoirNode(1, 10, dtype='float64'), \
+                             ReservoirNode(1, 10, dtype='float64'), \
+                             ReservoirNode(1, 10, dtype='float64')])
     flow = mdp.Flow([switchboard, layer, mdp.nodes.SFANode(input_dim=50,output_dim=3)])
     print flow
     print layer
@@ -228,19 +228,19 @@ def reservoir_analysis():
 #    mix = mix / mix.max()
     
     # reservoir prototype
-    prot = filteresn.IIRESN()
-    prot.setInitParam( au.CONNECTIVITY, 0.2 )
-    prot.setInitParam( au.ALPHA, 0.8 )
-    prot.setSize(100)
-#    prot.setNoise( 1e-3 )
-#    prot.setReservoirAct( au.ACT_LINEAR )
-    prot.setSimAlgorithm( au.SIM_FILTER )
-    prot.setLogBPCutoffs(f_start=0.01, f_stop=0.4, bw=0.2, fs=1.)
+    #prot = filteresn.IIRESN()
+    #prot.setInitParam( au.CONNECTIVITY, 0.2 )
+    #prot.setInitParam( au.ALPHA, 0.8 )
+    #prot.setSize(100)
+#   # prot.setNoise( 1e-3 )
+#   # prot.setReservoirAct( au.ACT_LINEAR )
+    #prot.setSimAlgorithm( au.SIM_FILTER )
+    #prot.setLogBPCutoffs(f_start=0.01, f_stop=0.4, bw=0.2, fs=1.)
 #    prot.setIIRCoeff(prot.B,prot.A,prot.serial)
     
     # define a Flow with a reservoir and a SFA output layer
-    flow = mdp.Flow([ReservoirNode(1, 100, 'float64', prot),])
-    prot.setIIRCoeff(prot.B,prot.A,prot.serial)
+    flow = mdp.Flow([ReservoirNode(1, 100, dtype='float64'),])
+    #prot.setIIRCoeff(prot.B,prot.A,prot.serial)
     flow.train(mix)
     slow = flow(mix)
     print slow.shape
@@ -254,11 +254,11 @@ def reservoir_analysis():
 
 if __name__ == "__main__":
 #    pca_multiplesines()
-    sfa_multiplesines()
+#    sfa_multiplesines()
 #    isfa_multiplesines()
 #    reservoir_multiplesines()
 #    hierarchical_multiplesines()
 #    reservoir_multi()
-#    reservoir_analysis()
+    reservoir_analysis()
     
     pylab.show()
