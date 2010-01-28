@@ -4,11 +4,6 @@ Created on Dec 4, 2009
 @author: dvrstrae
 '''
 
-'''
-Created on Aug 24, 2009
-
-@author: dvrstrae
-'''
 from Engine import datasets
 from Engine import error_measures
 from Engine import reservoir_nodes
@@ -16,18 +11,18 @@ from Engine import utility_nodes
 from Engine import crossvalidation
 
 import mdp
-import pylab
-#import scipy as sp
 
 from Engine.linear_nodes import RidgeRegressionNode
 
 if __name__ == "__main__":
-
+    '''
+        Simple example to show cross_validation on an isolated digit recognition task (subset of TI46 corpus).
+    '''
     nx, ny = 4,1
     washout=0
     train_frac = .9;
 
-    [x,y] = datasets.analog_speech(indir="/Users/dvrstrae/Lyon128")
+    [x,y] = datasets.analog_speech(indir="/Users/dvrstrae/restored/Lyon128")
     
     n_samples = len(x);
 
@@ -42,14 +37,7 @@ if __name__ == "__main__":
     flow = mdp.Flow([reservoir, readout], verbose=1)
     flownode = mdp.hinet.FlowNode(flow)
     
-    crossvalidation.cross_validate(x,y,flownode, error_measures.wer, 10)
-    
-    pylab.subplot(nx,ny,1)
-    pylab.imshow(x[0].T,aspect='auto', interpolation='nearest')
-    pylab.title("Cochleogram (input to reservoir)")
-    pylab.ylabel("Channel")
-    
-    
     print "Cross_validation..."
     # train and test it
-    
+    errors = crossvalidation.cross_validate(x,y,flownode, error_measures.wer, 10)
+    print "Mean word error rate across folds: " + str(mdp.numx.mean(errors))

@@ -15,7 +15,7 @@ class ReservoirNode(mdp.Node):
     """
     
     def __init__(self, input_dim=None, output_dim=None, spec_radius=0.9, 
-                 nonlin_func = numpy.tanh, bias = 0, input_scaling=1, dtype='float64'):
+                 nonlin_func = 'tanh', bias = 0, input_scaling=1, dtype='float64'):
         """ Initializes and constructs a random reservoir.
                 
         output_dim -- the number of outputs, which is also the number of
@@ -35,7 +35,7 @@ class ReservoirNode(mdp.Node):
         self.W *= spec_radius/get_specrad(self.W)
         
         # make a hook object (demo)
-        self.nonlin_func = nonlin_func
+        self.nonlin_func=nonlin_func
         
     def is_trainable(self):
         return False
@@ -49,6 +49,8 @@ class ReservoirNode(mdp.Node):
     def _execute(self, x):
         """ Executes simulation with input vector x.
         """
+        
+        nonlinearity = getattr(mdp.numx, self.nonlin_func)
         steps = x.shape[0]
         self.states = numpy.zeros((steps, self._output_dim), dtype=self._dtype)
         self.state = numpy.zeros(self._output_dim)
@@ -58,7 +60,7 @@ class ReservoirNode(mdp.Node):
             self.state = numpy.dot(self.W, self.state)
             self.state += numpy.dot(self.Win, x[n])
             self.state += self.Biasin
-            self.state_nonlin = self.nonlin_func(self.state)
+            self.state_nonlin = nonlinearity(self.state)
             # call the hook
             #self.hook.execute()
             

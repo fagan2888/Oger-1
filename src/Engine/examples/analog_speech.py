@@ -35,7 +35,7 @@ if __name__ == "__main__":
     wtanode = utility_nodes.WTANode();
 
     # build network with MDP framework
-    flow = mdp.Flow([reservoir, readout], verbose=1)
+    flow = mdp.Flow([reservoir, readout, mnnode], verbose=1)
     #flow = mdp.Flow([reservoir, readout], verbose=1)
 
     flownode = mdp.hinet.FlowNode(flow)

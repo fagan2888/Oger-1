@@ -233,5 +233,5 @@ def wer(input, target, discard=0):
     """
     if input.shape!=target.shape:
         raise RuntimeError("Input and target should have the same shape")
-    print input, target
+    #print input, target
     return sum(input[:] !=target[:])    

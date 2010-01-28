@@ -1,6 +1,7 @@
 from Engine import datasets 
 from Engine import error_measures
 from Engine import reservoir_nodes
+from Engine import crossvalidation
 
 import mdp
 
@@ -11,7 +12,7 @@ if __name__ == "__main__":
     system_order = 30;
     washout=30;
 
-    [inputs,outputs] = datasets.narma30(sample_len=9000)
+    [inputs,outputs] = datasets.narma30()
 
     # construct individual nodes
     reservoir = reservoir_nodes.ReservoirNode(n_inputs,100)
@@ -19,12 +20,9 @@ if __name__ == "__main__":
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout], verbose=1)
+    RC = mdp.hinet.FlowNode(flow)
    
-    # train and test it
-    for x,y in zip(inputs[0:8], outputs[0:8]): 
-        flow.train([x,[(x,y)]])
-        
-    testout = flow(inputs[9])
+   
+    errors = crossvalidation.cross_validate(inputs, outputs, RC, error_measures.nrmse, 10)
     
-    print error_measures.nrmse(outputs[9],testout, discard=washout)
-    print "finished"
+    print "Mean error: " + str(mdp.numx.mean(errors))
