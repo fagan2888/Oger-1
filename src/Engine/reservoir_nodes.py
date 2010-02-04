@@ -26,7 +26,7 @@ class ReservoirNode(mdp.Node):
         super(ReservoirNode, self).__init__(input_dim, output_dim, dtype)
         
         self.input_scaling = input_scaling
-        self.Win = self.input_scaling*(numpy.random.randint(0,2, [output_dim, input_dim])*2-1) #, output_dim))
+        self.Win = self.input_scaling*(mdp.numx_rand.randint(0,2, [output_dim, input_dim])*2-1) #, output_dim))
         self.bias = bias
         self.Biasin = numpy.ones(output_dim)*self.bias
         self.W = mdp.numx_rand.randn(output_dim,output_dim)
