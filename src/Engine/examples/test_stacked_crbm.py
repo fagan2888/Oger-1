@@ -28,15 +28,6 @@ def generate_data(N):
             u[i+18:i+38, 8] = 1
     return u
 
-def get_context(u, N=4):
-    T, D = u.shape
-    x = np.zeros((T, D * N))
-    for i in range(N - 1, T):
-        dat = u[i - 1, :]
-        for j in range(2, N + 1):
-            dat = np.concatenate((dat, u[i - j, :]), 1)
-        x[i, :] = dat
-    return x
 
 if __name__ == '__main__':
 
@@ -50,12 +41,6 @@ if __name__ == '__main__':
     epochs = 10
     crbm1_size = 100
     crbm2_size = 100
-
-    x = np.array(get_context(u, N))
-    x += np.random.normal(0, .001, x.shape)
-
-    # The context is concatenated to the input as if it where one signal.
-    v = np.concatenate((u, x), 1)
 
     # Several nodes will be created to create a hierarchy of CRBMs that use context
     # data coming from reservoirs. Moreover, one reservoir receives input that went
@@ -115,7 +100,8 @@ if __name__ == '__main__':
     x = crbmnode2(x)
 
     # And finally a linear classifier to put on top.
-    readout = Engine.linear_nodes.RidgeRegressionNode(ridge_param=.0000001, input_dim=crbm2_size, output_dim=20)
+    readout = Engine.linear_nodes.RidgeRegressionNode(ridge_param=.0000001,
+                                                      input_dim=crbm2_size, output_dim=20)
 
     readout.train(x, t)
     readout.stop_training()
