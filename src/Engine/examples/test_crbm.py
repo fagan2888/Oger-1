@@ -31,54 +31,58 @@ def get_context(u, N=4):
         x[i, :] = dat
     return x
 
+if __name__ == '__main__':
 
-u = np.array(generate_data(60))
+    u = np.array(generate_data(60))
 
-# Size of the context.
-N = 12
+    # Size of the context.
+    N = 12
 
-epochs = 10
+    epochs = 10
 
-x = np.array(get_context(u, N))
-x += np.random.normal(0, .001, x.shape)
+    x = np.array(get_context(u, N))
+    x += np.random.normal(0, .001, x.shape)
 
-crbmnode = CRBMNode(20, 600, N * 20)
+    # The context is concatenated to the input as if it where one signal.
+    v = np.concatenate((u, x), 1)
 
-t, d = u.shape
-print 'Training for %d epochs...' % epochs
-for i in range(epochs):
-    print 'Epoch', i
-    # Update every two time steps as batch gradient descent barely converges.
-    for j in range(t-1):
-        crbmnode.train(u[j:j+1, :], x[j:j+1, :], n_updates=1, epsilon=.0002, momentum=.9, decay=.0002)
-    # Check the energy and error after each training epoch.
-    # Sampling causes the training phase to end so a copy is made first.
-    crbmnode_test = crbmnode.copy()
-    hiddens, sampl_h = crbmnode_test.sample_h(u, x)
-    energy = crbmnode_test.energy(u, sampl_h, x)
-    print 'Energy:', sum(energy)
-    visibles, sampl_v = crbmnode_test.sample_v(sampl_h, x)
-    error = np.mean((u.ravel() - visibles.ravel())**2)
-    print 'MSE:', error
+    crbmnode = CRBMNode(hidden_dim=100, visible_dim=20, context_dim=N * 20)
 
-crbmnode.stop_training()
+    t, d = u.shape
+    print 'Training for %d epochs...' % epochs
+    for i in range(epochs):
+        print 'Epoch', i
+        # Update every two time steps as batch gradient descent barely converges.
+        for j in range(t-1):
+            crbmnode.train(v[j:j+1, :], n_updates=1, epsilon=.001, momentum=.9, decay=.0002)
+        # Check the energy and error after each training epoch.
+        # Sampling causes the training phase to end so a copy is made first.
+        crbmnode_test = crbmnode.copy()
+        hiddens, sampl_h = crbmnode_test.sample_h(u, x)
+        energy = crbmnode_test.energy(u, sampl_h, x)
+        print 'Energy:', sum(energy)
+        visibles, sampl_v = crbmnode_test.sample_v(sampl_h, x)
+        error = np.mean((u.ravel() - visibles.ravel())**2)
+        print 'MSE:', error
 
-hiddens, sampl_h = crbmnode.sample_h(u, x)
+    crbmnode.stop_training()
 
-print 'Sampling...'
-v_zero = np.random.normal(0, 1, u.shape)
-for i in range(25):
+    hiddens, sampl_h = crbmnode.sample_h(u, x)
+
+    print 'Sampling...'
+    v_zero = np.random.normal(0, 1, u.shape)
+    for i in range(25):
+        visibles, sampl_v = crbmnode.sample_v(sampl_h, x)
+        hiddens, sampl_h = crbmnode.sample_h(sampl_v, x)
+
     visibles, sampl_v = crbmnode.sample_v(sampl_h, x)
-    hiddens, sampl_h = crbmnode.sample_h(sampl_v, x)
+    error = np.mean((u.ravel() - visibles.ravel())**2)
+    print 'Final MSE:', error
 
-visibles, sampl_v = crbmnode.sample_v(sampl_h, x)
-error = np.mean((u.ravel() - visibles.ravel())**2)
-print 'Final MSE:', error
-
-pylab.clf()
-p = pylab.subplot(411)
-p = pylab.imshow(u[:500, :].T)
-p = pylab.subplot(412)
-p = pylab.imshow(visibles[:500, :].T)
-p = pylab.show()
+    pylab.clf()
+    p = pylab.subplot(411)
+    p = pylab.imshow(u[:500, :].T)
+    p = pylab.subplot(412)
+    p = pylab.imshow(visibles[:500, :].T)
+    p = pylab.show()
 

@@ -14,6 +14,12 @@ class CRBMNode(RBMNode):
     RBM models the joint probability of the hidden and visible
     variables conditioned on a certain context variable. See the
     documentation of the RBMNode for more information.
+
+    The context variables are expected to be concatendated to the
+    input data. Note that the sample functions do however expect
+    these types of variables as separated arguments. This has been
+    done to allow for easier construction of flows while being
+    able to specify context data on the fly as well.
     """
 
     def __init__(self, hidden_dim, visible_dim=None, context_dim=None, dtype=None):
@@ -24,9 +30,12 @@ class CRBMNode(RBMNode):
         visible_dim -- number of observed variables
         context_dim -- number of context variables
         """
-        super(RBMNode, self).__init__(hidden_dim, visible_dim, dtype)
+        super(RBMNode, self).__init__(hidden_dim, visible_dim + context_dim, dtype)
+        self._input_dim = visible_dim + context_dim
+        self._output_dim = hidden_dim
 
         self.context_dim = context_dim
+        self.visible_dim = visible_dim
         self._initialized = False
 
     def _init_weights(self):
@@ -36,18 +45,22 @@ class CRBMNode(RBMNode):
         self._initialized = True
         
         # undirected weights
-        self.w = self._refcast(randn(self.input_dim, self.output_dim)*0.01)
+        self.w = self._refcast(randn(self.visible_dim, self.output_dim)*0.01)
         # context to visible weights
-        self.a = self._refcast(randn(self.context_dim, self.input_dim)*0.01)
+        self.a = self._refcast(randn(self.context_dim, self.visible_dim)*0.01)
         # context to hidden weights
         self.b = self._refcast(randn(self.context_dim , self.output_dim)*0.01)
         # bias on the visible (input) units
-        self.bv = self._refcast(randn(self.input_dim)*0.01)
+        self.bv = self._refcast(randn(self.visible_dim)*0.01)
         # bias on the hidden (output) units
         self.bh = self._refcast(randn(self.output_dim)*0.01)
 
         # delta w, a, b, bv, bh used for momentum term
         self._delta = (0., 0., 0., 0., 0.)
+
+    def _split_data(self, x):
+        # split data into visibles and context respectively.
+        return x[:, :self.visible_dim], x[:, self.visible_dim:]
 
     def _sample_h(self, v, x):
         # returns P(h=1|v,W,b) and a sample from it
@@ -63,7 +76,7 @@ class CRBMNode(RBMNode):
         v = (probs > random(probs.shape)).astype(self.dtype)
         return probs, v
 
-    def train(self, v, x, n_updates=1, epsilon=0.1, decay=0., momentum=0.,
+    def train(self, x, n_updates=1, epsilon=0.1, decay=0., momentum=0.,
               verbose=False):
         """Update the parameters according to the input 'v' and context 'x'.
         The training is performed using Contrastive Divergence (CD).
@@ -85,9 +98,9 @@ class CRBMNode(RBMNode):
         #self._check_input(x)
 
         self._train_phase_started = True
-        self._train(v, x, n_updates, epsilon, decay, momentum, verbose)
+        self._train(x, n_updates, epsilon, decay, momentum, verbose)
 
-    def _train(self, v, x, n_updates=1, epsilon=0.1, decay=0., momentum=0.,
+    def _train(self, x, n_updates=1, epsilon=0.1, decay=0., momentum=0.,
                verbose=False):
         """Update the parameters according to the input 'v' and context 'x'.
         The training is performed using Contrastive Divergence (CD).
@@ -103,6 +116,8 @@ class CRBMNode(RBMNode):
         """        
         if not self._initialized:
             self._init_weights()
+ 
+        v, x = self._split_data(x)
 
         # useful quantities
         n = v.shape[0]
@@ -165,11 +180,11 @@ class CRBMNode(RBMNode):
         probability that variable 'i' is one given the observations
         v[n,:], and h[n,i] is a sample from the posterior probability."""
 
-        # TODO Check whether the pre execution checks should be changed.
-        # One thing that should change is the behavior when the node is
-        # executed before being trained. Should in the end v and x be
-        # concatenated or x be defined to be optional?
-        self._pre_execution_checks(v)
+        # The pre execution checks assume that v will give the input_dim but
+        # this is not correct anymore due to the concatenation for execute.
+        # Perhaps I should make two versions of the sample functions. One type
+        # for the merged and one type for the separated input variables.
+        #self._pre_execution_checks(v)
         return self._sample_h(v, x)
 
     def sample_v(self, h, x):
@@ -179,7 +194,7 @@ class CRBMNode(RBMNode):
         probability that variable 'i' is one given the hidden variables
         h[n,:], and v[n,i] is a sample from that conditional probability."""
 
-        self._pre_inversion_checks(h)
+        #self._pre_inversion_checks(h)
         return self._sample_v(h, x)
 
     def _energy(self, v, h, x):
@@ -197,12 +212,13 @@ class CRBMNode(RBMNode):
         hidden variables state 'h'."""
         return self._energy(v, h, x)
 
-    def _execute(self, v, x, return_probs=True):
+    def _execute(self, x, return_probs=True):
         """If 'return_probs' is True, returns the probability of the
         hidden variables h[n,i] being 1 given the observations v[n,:] and
         the context state x.
         If 'return_probs' is False, return a sample from that probability.
         """
+        v, x = self._split_data(x)
         probs, h = self._sample_h(v, x)
         if return_probs:
             return probs
