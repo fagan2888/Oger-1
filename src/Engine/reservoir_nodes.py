@@ -11,10 +11,9 @@ class ReservoirNode(mdp.Node):
     """
      Very experimental demo !
     
-    # PyUML: Do not remove this line! # XMI_ID:__6rGcK0EEd6_mKvLwRcUQA
     """
     
-    def __init__(self, input_dim=None, output_dim=None, spec_radius=0.9, 
+    def __init__(self, input_dim=1, output_dim=None, spec_radius=0.9, 
                  nonlin_func = 'tanh', bias = 0, input_scaling=1, dtype='float64'):
         """ Initializes and constructs a random reservoir.
                 
@@ -26,14 +25,9 @@ class ReservoirNode(mdp.Node):
         super(ReservoirNode, self).__init__(input_dim, output_dim, dtype)
         
         self.input_scaling = input_scaling
-        self.Win = self.input_scaling*(mdp.numx_rand.randint(0,2, [output_dim, input_dim])*2-1) #, output_dim))
         self.bias = bias
-        self.Biasin = numpy.ones(output_dim)*self.bias
-        self.W = mdp.numx_rand.randn(output_dim,output_dim)
-
-        # scale it to spectral radius
-        self.W *= spec_radius/get_specrad(self.W)
-        
+        self.spec_radius = spec_radius
+        self.initialize()
         # make a hook object (demo)
         self.nonlin_func=nonlin_func
         
@@ -42,6 +36,13 @@ class ReservoirNode(mdp.Node):
     
     def is_invertible(self):
         return False
+    
+    def initialize(self):
+        self.Win = self.input_scaling*(numpy.random.randint(0,2, [self.output_dim, self.input_dim])*2-1) #, output_dim))
+        self.Biasin = numpy.ones(self.output_dim)*self.bias
+        self.W = mdp.numx_rand.randn(self.output_dim,self.output_dim)
+        # scale it to spectral radius
+        self.W *= self.spec_radius/get_specrad(self.W)
     
     def _get_supported_dtypes(self):
         return ['float32', 'float64']
@@ -67,9 +68,8 @@ class ReservoirNode(mdp.Node):
             self.states[n] = self.state_nonlin
         
         return self.states
-
-
-class LeakyReservoirNode(ReservoirNode):
+ 
+ class LeakyReservoirNode(ReservoirNode):
 
     def __init__(self, input_dim=None, output_dim=None, spec_radius=0.9, 
                  nonlin_func = 'tanh', bias = 0.0, input_scaling=1.0, leak_rate=1.0, dtype='float64'):
@@ -110,4 +110,6 @@ class LeakyReservoirNode(ReservoirNode):
             self.states[n] = (1 - leak_rate) * self.states[n - 1] + leak_rate * self.state_nonlin
         
         return self.states
+
+
 
