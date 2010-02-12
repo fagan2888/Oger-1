@@ -15,7 +15,7 @@ if __name__ == "__main__":
     [inputs,outputs] = datasets.narma30()
 
     # construct individual nodes
-    reservoir = reservoir_nodes.ReservoirNode(n_inputs,100)
+    reservoir = reservoir_nodes.ReservoirNode(output_dim = 100)
     readout = RidgeRegressionNode(0)
 
     # build network with MDP framework
@@ -26,3 +26,4 @@ if __name__ == "__main__":
     errors = crossvalidation.cross_validate(inputs, outputs, RC, error_measures.nrmse, 10)
     
     print "Mean error: " + str(mdp.numx.mean(errors))
+    print errors
