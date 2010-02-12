@@ -11,6 +11,7 @@ import Engine.linear_nodes
 from Engine.rbm_nodes import CRBMNode
 from mdp import Node
 from mdp.nodes.misc_nodes import IdentityNode
+from Engine.misc_nodes import ShiftNode
 
 # Some recycled functions for data creation.
 
@@ -35,9 +36,6 @@ if __name__ == '__main__':
     t = np.zeros(u.shape)
     t[:-1, :] = u[1:, :]
 
-    # Size of the context.
-    N = 12
-
     epochs = 10
     crbm1_size = 100
     crbm2_size = 100
@@ -48,9 +46,9 @@ if __name__ == '__main__':
 
     # First reservoir layer
     reservoir1 = Engine.reservoir_nodes.ReservoirNode(input_dim=20, output_dim=300)
-    identity1 = mdp.nodes.IdentityNode(input_dim=20)
+    shift1 = ShiftNode(input_dim=20, n_shifts=1)
 
-    ReservoirLayer1 = mdp.hinet.SameInputLayer([identity1, reservoir1])
+    ReservoirLayer1 = mdp.hinet.SameInputLayer([shift1, reservoir1])
 
     # First CRBM.
     # Note that the output of the InputLayer will be 320 dimensional.
@@ -67,7 +65,7 @@ if __name__ == '__main__':
 
     # PCA layer
     pcanode = mdp.nodes.PCANode(input_dim=crbm1_size, output_dim=40)
-    identity2 = IdentityNode(input_dim=crbm1_size)
+    shift2 = ShiftNode(input_dim=crbm1_size, n_shifts=1)
 
     PCALayer = mdp.hinet.SameInputLayer([identity2, pcanode])
 
