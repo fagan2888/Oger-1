@@ -9,7 +9,6 @@ import Engine
 import Engine.reservoir_nodes
 import Engine.linear_nodes
 from Engine.rbm_nodes import CRBMNode
-from mdp import Node
 from mdp.nodes.misc_nodes import IdentityNode
 from Engine.misc_nodes import ShiftNode
 
@@ -115,9 +114,9 @@ if __name__ == '__main__':
     print 'Final MSE:', error
 
     pylab.clf()
-    p = pylab.subplot(411)
+    p = pylab.subplot(211)
     p = pylab.imshow(u[:500, :].T)
-    p = pylab.subplot(412)
+    p = pylab.subplot(212)
     p = pylab.imshow(y[:500, :].T)
     p = pylab.show()
 

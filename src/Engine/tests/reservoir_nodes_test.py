@@ -7,10 +7,8 @@ Created on Dec 7, 2009
 import sys
 import mdp
 import nose
+import Engine.reservoir_nodes
 
-def test():
-    print sys.path
-    print "Done."
-    assert False  
+def reservoir_test():
+    r = Engine.reservoir_nodes.ReservoirNode (output_dim = 10)
     #assert_almost_equals(E.utility_functions.get_specrad(r.W), sp.max(sp.abs(sp.linalg.eigvals(r.W)))) 
-    

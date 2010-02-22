@@ -69,7 +69,7 @@ class ReservoirNode(mdp.Node):
         
         return self.states
  
- class LeakyReservoirNode(ReservoirNode):
+class LeakyReservoirNode(ReservoirNode):
 
     def __init__(self, input_dim=None, output_dim=None, spec_radius=0.9, 
                  nonlin_func = 'tanh', bias = 0.0, input_scaling=1.0, leak_rate=1.0, dtype='float64'):

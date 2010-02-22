@@ -16,20 +16,32 @@ def grid_search (data,optimization_parameters, flowNode, error_function):
             where the key is the parameter name to be optimize and the corresponding item is a list of values for the parameter
         - flowNode : the MDP flowNode to do the grid-search on
     '''
-    errors=[];
+    errors=[]
+    parameter_ranges = []
     # Loop over all nodes that need their parameters set
     for node_key in optimization_parameters.iterkeys():
+        for parameter_range in optimization_parameters[node_key].values():
+            parameter_ranges.append(parameter_range)
+        print parameter_ranges
         # Construct all combinations
-        param_space = product(*optimization_parameters[node_key].values())
+        param_space = product(*parameter_ranges)
         # Loop over all points in the parameter space
-        for parameter_values in param_space:
+    for parameter_values in param_space:
+        for node_key in optimization_parameters.iterkeys():
             # Set all individual parameters
             for parameter_index, parameter in enumerate(optimization_parameters[node_key].keys()):
-                print parameter + ' = ' + str(parameter_values[parameter_index]), 
-                node_key.__setattr__(parameter, parameter_values[parameter_index])
-            print
+                print node_key + '.' + parameter + ' = ' + str(parameter_values[parameter_index]), 
+                #node_key.__setattr__(parameter, parameter_values[parameter_index])
+        print
             # Reinitialize the node
-            node_key.initialize()
+            # node_key.initialize()
             # After all node parameters have been set and initialized, do the cross-validation
-            errors.append(cross_validate(data,flowNode, error_function, 5))
-    return errors
+            # errors.append(cross_validate(data,flowNode, error_function, 5))'''
+    #for i,j,k in param_space:
+    #    print i,j,k
+
+
+if __name__ == '__main__':
+    d={'a':{'a1':[1,2]}, 'b':{'b1':[3,4], 'b2':[5,6]}}
+    ranges = grid_search([], d, [], [])
+
