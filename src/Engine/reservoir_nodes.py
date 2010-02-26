@@ -14,7 +14,7 @@ class ReservoirNode(mdp.Node):
     """
     
     def __init__(self, input_dim=1, output_dim=None, spec_radius=0.9, 
-                 nonlin_func = 'tanh', bias = 0, input_scaling=1, dtype='float64'):
+                 nonlin_func = 'tanh', bias = 0, input_scaling=1, dtype='float64', instance = 0):
         """ Initializes and constructs a random reservoir.
                 
         output_dim -- the number of outputs, which is also the number of
@@ -27,6 +27,7 @@ class ReservoirNode(mdp.Node):
         self.input_scaling = input_scaling
         self.bias = bias
         self.spec_radius = spec_radius
+        self.instance = instance
         self.initialize()
         # make a hook object (demo)
         self.nonlin_func=nonlin_func

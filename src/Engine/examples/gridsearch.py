@@ -9,12 +9,11 @@ from Engine import reservoir_nodes
 from Engine import linear_nodes
 from Engine import datasets
 from Engine import error_measures
-from Engine import optimization
+from Engine import optimizer
 
 if __name__ == '__main__':
     ''' Example of doing a grid-search
         Runs the NARMA 30 task for bias values = 0 to 2 with 0.5 stepsize and spectral radius = 0.1 to 1 with stepsize 0.5
-        The cross-validation error is stored in the variable errors
     '''
     input_size = 1
     [x,y] = datasets.narma30()
@@ -29,5 +28,9 @@ if __name__ == '__main__':
 
     # Nested dictionary
     gridsearch_parameters = {reservoir:{'bias': mdp.numx.arange(0, 2, 0.5), 'spec_radius':mdp.numx.arange(0.1, 1, 0.5)}}
+
+    # Instantiate an optimizer
+    opt = optimizer.Optimizer(gridsearch_parameters, error_measures.nrmse)
     
-    errors = optimization.grid_search(x,y, gridsearch_parameters, RC, error_measures.nrmse)
+    # Do the grid search
+    opt.grid_search(x,y, RC)
