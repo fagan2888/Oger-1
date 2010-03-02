@@ -9,7 +9,7 @@ from Engine.linear_nodes import RidgeRegressionNode
 
 import odeproblempython
 import numpy
-from utility_functions import get_specrad
+from utility_functions import get_spectral_radius
 
 class OdeLeakyIntegrator(odeproblempython.OdeProblemPython):
         # Initialize the class. This also calls all C++ - constructors.
@@ -19,7 +19,7 @@ class OdeLeakyIntegrator(odeproblempython.OdeProblemPython):
                 self.src = 1.0
                 self.spec_radius = 0.9
                 self.conn_mat = mdp.numx_rand.randn(output_dim,output_dim)
-                self.conn_mat *= self.spec_radius/get_specrad(self.conn_mat)
+                self.conn_mat *= self.spec_radius/get_spectral_radius(self.conn_mat)
                 self.conn_mat -= leak_rate*mdp.numx.eye(output_dim,output_dim)
                 self.Win = 1.0*(numpy.random.randint(0,2, [output_dim, input_dim])*2-1)
 

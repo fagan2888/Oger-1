@@ -3,7 +3,7 @@ Created on Aug 20, 2009
 
 @author: dvrstrae
 '''
-from utility_functions import get_specrad
+from utility_functions import get_spectral_radius
 import mdp
 import numpy
 
@@ -43,7 +43,7 @@ class ReservoirNode(mdp.Node):
         self.Biasin = numpy.ones(self.output_dim)*self.bias
         self.W = mdp.numx_rand.randn(self.output_dim,self.output_dim)
         # scale it to spectral radius
-        self.W *= self.spec_radius/get_specrad(self.W)
+        self.W *= self.spec_radius/get_spectral_radius(self.W)
     
     def _get_supported_dtypes(self):
         return ['float32', 'float64']

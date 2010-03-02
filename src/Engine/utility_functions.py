@@ -6,7 +6,7 @@ Created on Aug 20, 2009
 import numpy as np
 
 
-def get_specrad(W):
+def get_spectral_radius(W):
     return np.max(np.abs(np.linalg.eigvals(W))) 
 
 def logistic(x):

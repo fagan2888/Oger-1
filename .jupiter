@@ -132,7 +132,7 @@
       <Entry name="src/Engine/utility_nodes.py"/>
     </Files>
     <FieldItems>
-      <FieldItem id="Type" default="item.label.unset">
+      <FieldItem id="Type" default="item.type.label.codingStandards">
         <Entry name="item.label.unset"/>
         <Entry name="item.type.label.codingStandards"/>
         <Entry name="item.type.label.programLogic"/>
@@ -144,7 +144,7 @@
         <Entry name="item.type.label.suggestion"/>
         <Entry name="item.type.label.other"/>
       </FieldItem>
-      <FieldItem id="Severity" default="item.label.unset">
+      <FieldItem id="Severity" default="item.severity.label.normal">
         <Entry name="item.label.unset"/>
         <Entry name="item.severity.label.critical"/>
         <Entry name="item.severity.label.major"/>
@@ -152,7 +152,7 @@
         <Entry name="item.severity.label.minor"/>
         <Entry name="item.severity.label.trivial"/>
       </FieldItem>
-      <FieldItem id="Resolution" default="item.label.unset">
+      <FieldItem id="Resolution" default="item.resolution.label.validNeedsfixing">
         <Entry name="item.label.unset"/>
         <Entry name="item.resolution.label.validNeedsfixing"/>
         <Entry name="item.resolution.label.validFixlater"/>

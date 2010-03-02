@@ -428,7 +428,7 @@
   <ReviewIssue id="G69GT153">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:09:03:495 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:09:31:676 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-02 :: 13:57:35:668 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
@@ -440,7 +440,7 @@
     <Annotation></Annotation>
     <Revision></Revision>
     <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Status>item.status.label.closed</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GU4S6">
     <ReviewIssueMeta>
@@ -632,7 +632,7 @@
   <ReviewIssue id="G69HK44Z">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:30:07:091 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:30:22:043 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-02 :: 13:58:31:609 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
@@ -643,7 +643,7 @@
     <Description></Description>
     <Annotation></Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.closed</Status>
   </ReviewIssue>
 </Review>
