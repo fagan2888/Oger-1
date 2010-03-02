@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Review id="Engine review">
+  <ReviewIssue id="G69FKBZW">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:34:18:044 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:34:44:450 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="55">src/Engine/optimizer.py</File>
+    <Type>item.type.label.optimization</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>inefficient initialization</Summary>
+    <Description>Nodes are initialized multiple times if several parameters of the node need to be set. It would be better to maintain a Set of nodes which need updating and update them after attribute setting.</Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69FOCMF">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:37:25:479 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:37:36:454 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="3">src/Engine/error_measures.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.label.unset</Severity>
+    <Summary>Unneeded dependancy?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69FP0SN">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:37:56:807 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:38:04:664 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="23">src/Engine/error_measures.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>Coding standards</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69FSPUO">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:40:49:248 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:41:53:316 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="8">src/Engine/utility_nodes.py</File>
+    <Type>item.type.label.suggestion</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>Already present in readout nodes?</Summary>
+    <Description>We have a washout node, but washout is also available in the regression nodes. Maybe drop the washout in the regression nodes?</Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69FVTIG">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:43:13:960 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:43:33:338 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="6">src/Engine/utility_nodes.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>What is difference between misc_nodes and utility_nodes?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69FXTTV">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:44:47:683 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:45:27:316 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="24">src/Engine/datasets.py</File>
+    <Type>item.type.label.programLogic</Type>
+    <Severity>item.severity.label.major</Severity>
+    <Summary>Dataset class</Summary>
+    <Description>We should support a dataset class instead of separate X and Y values. Will make things like crossvalidation much cleaner.</Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69G0TMV">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:47:07:399 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:47:47:402 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="8">src/Engine/crossvalidation.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>Rename </Summary>
+    <Description>Use more consistent naming eg. random_order</Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69G1TM3">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:47:54:027 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:49:21:360 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="6">src/Engine/crossvalidation.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.major</Severity>
+    <Summary>Rename file</Summary>
+    <Description>Rename to more consistent and general validation or model_selection or sampling</Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69G4T98">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:50:13:532 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:50:29:767 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="42">src/Engine/crossvalidation.py</File>
+    <Type>item.type.label.clarity</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>use other naming</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69G5B1J">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:50:36:583 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:50:51:443 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="45">src/Engine/crossvalidation.py</File>
+    <Type>item.type.label.clarity</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>What does this line do? Add comments</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69G63IS">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:51:13:492 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:51:37:039 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="46">src/Engine/crossvalidation.py</File>
+    <Type>item.type.label.clarity</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>This is overly compact and hence hard to grasp at first </Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69G7RHB">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:52:31:199 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:53:46:177 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="48">src/Engine/crossvalidation.py</File>
+    <Type>item.type.label.clarity</Type>
+    <Severity>item.severity.label.major</Severity>
+    <Summary>Wrong returned error vector?</Summary>
+    <Description>The documentation states one error per fold. Here it looks like you just append all errors for all datapoint, ordered by fold. Is the documentation wrong, or the code (should you do mean?)?</Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69G9Q04">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:54:02:596 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:54:30:999 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="7">src/Engine/crossvalidation.py</File>
+    <Type>item.type.label.missing</Type>
+    <Severity>item.severity.label.minor</Severity>
+    <Summary>Add more selection schemes</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GB8ZT">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:55:13:865 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:55:31:981 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="1">src/Engine/error_measures.py</File>
+    <Type>item.label.unset</Type>
+    <Severity>item.label.unset</Severity>
+    <Summary>Unneeded dependancy?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GBX0K">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:55:44:996 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:56:07:135 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="4">src/Engine/error_measures.py</File>
+    <Type>item.type.label.missing</Type>
+    <Severity>item.severity.label.critical</Severity>
+    <Summary>Add tests for these error metrics!</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GCY7C">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:56:33:192 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:57:33:069 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="52">src/Engine/error_measures.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.critical</Severity>
+    <Summary>Do we want discard in the error measures?</Summary>
+    <Description>Do we want this in the error measures or do we do washout in the readout or using a washout node? If we want it in the error functions, they should all have the same interface!</Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GENSF">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:57:53:007 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:58:15:913 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="13">src/Engine/error_measures.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.critical</Severity>
+    <Summary>Do not use overly cryptic and short variables names</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GG8AN">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:59:06:239 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:59:52:552 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="216">src/Engine/error_measures.py</File>
+    <Type>item.type.label.clarity</Type>
+    <Severity>item.severity.label.major</Severity>
+    <Summary>This is not the WER</Summary>
+    <Description>This is not the WER, but the 01-loss. The word error rate is actually a dynamic programming based distance metric!</Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GIYJF">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:01:13:563 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:01:32:973 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="59">src/Engine/linear_nodes.py</File>
+    <Type>item.type.label.programLogic</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>Why is this a function, and why is it not optional?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GJKB4">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:01:41:776 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:01:50:767 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="62">src/Engine/linear_nodes.py</File>
+    <Type>item.type.label.programLogic</Type>
+    <Severity>item.severity.label.major</Severity>
+    <Summary>Do we want this here?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GKAJA">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:02:15:766 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:02:37:066 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="70">src/Engine/linear_nodes.py</File>
+    <Type>item.type.label.optimization</Type>
+    <Severity>item.severity.label.major</Severity>
+    <Summary>Can we easily range over the ridge parameter?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GLH8S">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:03:11:116 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:03:23:022 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="28">src/Engine/linear_nodes.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>Use less cryptic name</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GLX0S">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:03:31:564 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:03:52:554 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="31">src/Engine/linear_nodes.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>parameter name should be plural?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GMODE">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:04:07:010 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:04:18:923 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="38">src/Engine/linear_nodes.py</File>
+    <Type>item.type.label.irrelevant</Type>
+    <Severity>item.severity.label.minor</Severity>
+    <Summary>Is this node not invertible?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GQGKJ">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:07:03:523 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:07:20:007 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="10">src/Engine/nonlinear_nodes.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>Is there a clear way to do this?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GT153">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:09:03:495 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:09:31:676 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="9">src/Engine/utility_functions.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>Don't use too short or cryptic function names</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GU4S6">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:09:54:870 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:10:10:384 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="29">src/Engine/reservoir_nodes.py</File>
+    <Type>item.label.unset</Type>
+    <Severity>item.severity.label.minor</Severity>
+    <Summary>Don't use to short variable name</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GUN1E">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:10:18:530 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:10:26:609 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="30">src/Engine/reservoir_nodes.py</File>
+    <Type>item.type.label.clarity</Type>
+    <Severity>item.label.unset</Severity>
+    <Summary>Explain what this is</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GV3TW">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:10:40:292 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:10:48:402 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="32">src/Engine/reservoir_nodes.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.label.unset</Severity>
+    <Summary>Unclear comment</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GVRY4">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:11:11:548 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:11:32:671 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="41">src/Engine/reservoir_nodes.py</File>
+    <Type>item.type.label.programLogic</Type>
+    <Severity>item.severity.label.critical</Severity>
+    <Summary>How do we allow different ways of initializing the reservoir topology?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GWQAP">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:11:56:065 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:12:20:365 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="64">src/Engine/reservoir_nodes.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.major</Severity>
+    <Summary>Cryptic variable name, starts with a capital</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GXF0R">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:12:28:107 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:12:37:828 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="65">src/Engine/reservoir_nodes.py</File>
+    <Type>item.type.label.codingStandards</Type>
+    <Severity>item.severity.label.minor</Severity>
+    <Summary>non_linearity ?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69GXUFA">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:12:48:070 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:13:02:858 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="66">src/Engine/reservoir_nodes.py</File>
+    <Type>item.type.label.programLogic</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>What do we do with this hook?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69H00J4">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:14:29:296 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:14:44:207 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="61">src/Engine/optimizer.py</File>
+    <Type>item.type.label.programLogic</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>is mean always the desired behavior here?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69HG58A">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:27:01:882 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:27:30:181 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="2">src/Engine/examples/grammars.py</File>
+    <Type>item.type.label.suggestion</Type>
+    <Severity>item.label.unset</Severity>
+    <Summary>Should we move this to the datasets directory?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69HH6PX">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:27:50:469 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:28:10:672 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="16">src/Engine/examples/grammar_task.py</File>
+    <Type>item.type.label.suggestion</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>move to error_measures ?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69HILMZ">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:28:56:459 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:29:09:173 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="14">src/Engine/examples/narma30_demo.py</File>
+    <Type>item.type.label.missing</Type>
+    <Severity>item.severity.label.minor</Severity>
+    <Summary>unused</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+  <ReviewIssue id="G69HK44Z">
+    <ReviewIssueMeta>
+      <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:30:07:091 CET</CreationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:30:22:043 CET</LastModificationDate>
+    </ReviewIssueMeta>
+    <ReviewerId>Benjamin</ReviewerId>
+    <AssignedTo>Benjamin</AssignedTo>
+    <File line="8">src/Engine/examples/perceptron_demo.py</File>
+    <Type>item.type.label.suggestion</Type>
+    <Severity>item.severity.label.normal</Severity>
+    <Summary>add to utility_functions ?</Summary>
+    <Description></Description>
+    <Annotation></Annotation>
+    <Revision></Revision>
+    <Resolution>item.label.unset</Resolution>
+    <Status>item.status.label.open</Status>
+  </ReviewIssue>
+</Review>
