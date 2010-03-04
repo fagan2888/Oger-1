@@ -15,3 +15,6 @@ def logistic(x):
 def logistic_d(x):
     y = logistic(x)
     return y * (1 - y)
+
+def softmax(x):
+    return np.exp(x) / sum(np.exp(x))

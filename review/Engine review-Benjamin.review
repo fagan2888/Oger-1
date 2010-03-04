@@ -428,10 +428,10 @@
   <ReviewIssue id="G69GT153">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:09:03:495 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-02 :: 13:57:35:668 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-02 :: 13:37:20:741 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="9">src/Engine/utility_functions.py</File>
     <Type>item.type.label.codingStandards</Type>
     <Severity>item.severity.label.normal</Severity>
@@ -439,7 +439,7 @@
     <Description></Description>
     <Annotation></Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
     <Status>item.status.label.closed</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GU4S6">
@@ -449,7 +449,7 @@
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
-    <File line="29">src/Engine/reservoir_nodes.py</File>
+    <File line="30">src/Engine/reservoir_nodes.py</File>
     <Type>item.label.unset</Type>
     <Severity>item.severity.label.minor</Severity>
     <Summary>Don't use to short variable name</Summary>
@@ -466,7 +466,7 @@
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
-    <File line="30">src/Engine/reservoir_nodes.py</File>
+    <File line="31">src/Engine/reservoir_nodes.py</File>
     <Type>item.type.label.clarity</Type>
     <Severity>item.label.unset</Severity>
     <Summary>Explain what this is</Summary>
@@ -500,7 +500,7 @@
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
-    <File line="41">src/Engine/reservoir_nodes.py</File>
+    <File line="42">src/Engine/reservoir_nodes.py</File>
     <Type>item.type.label.programLogic</Type>
     <Severity>item.severity.label.critical</Severity>
     <Summary>How do we allow different ways of initializing the reservoir topology?</Summary>
@@ -513,53 +513,53 @@
   <ReviewIssue id="G69GWQAP">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:11:56:065 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:12:20:365 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-04 :: 10:45:05:616 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="64">src/Engine/reservoir_nodes.py</File>
     <Type>item.type.label.codingStandards</Type>
     <Severity>item.severity.label.major</Severity>
     <Summary>Cryptic variable name, starts with a capital</Summary>
     <Description></Description>
-    <Annotation></Annotation>
+    <Annotation>Renamed to w_bias</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GXF0R">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:12:28:107 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:12:37:828 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-04 :: 10:12:25:183 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="65">src/Engine/reservoir_nodes.py</File>
     <Type>item.type.label.codingStandards</Type>
     <Severity>item.severity.label.minor</Severity>
     <Summary>non_linearity ?</Summary>
     <Description></Description>
-    <Annotation></Annotation>
+    <Annotation>Refactored to non_linearity</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GXUFA">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:12:48:070 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:13:02:858 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-04 :: 10:11:30:731 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
-    <File line="66">src/Engine/reservoir_nodes.py</File>
+    <AssignedTo>David</AssignedTo>
+    <File line="65">src/Engine/reservoir_nodes.py</File>
     <Type>item.type.label.programLogic</Type>
     <Severity>item.severity.label.normal</Severity>
     <Summary>What do we do with this hook?</Summary>
     <Description></Description>
-    <Annotation></Annotation>
+    <Annotation>Removed, no current use for this. May be re-added later.</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69H00J4">
     <ReviewIssueMeta>
@@ -581,10 +581,10 @@
   <ReviewIssue id="G69HG58A">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:27:01:882 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:27:30:181 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-04 :: 10:00:46:212 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="2">src/Engine/examples/grammars.py</File>
     <Type>item.type.label.suggestion</Type>
     <Severity>item.label.unset</Severity>
@@ -592,16 +592,16 @@
     <Description></Description>
     <Annotation></Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69HH6PX">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:27:50:469 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:28:10:672 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-04 :: 09:41:46:184 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="16">src/Engine/examples/grammar_task.py</File>
     <Type>item.type.label.suggestion</Type>
     <Severity>item.severity.label.normal</Severity>
@@ -609,34 +609,34 @@
     <Description></Description>
     <Annotation></Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69HILMZ">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:28:56:459 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:29:09:173 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-04 :: 09:36:35:694 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
-    <File line="14">src/Engine/examples/narma30_demo.py</File>
+    <AssignedTo>David</AssignedTo>
+    <File line="13">src/Engine/examples/narma30_demo.py</File>
     <Type>item.type.label.missing</Type>
     <Severity>item.severity.label.minor</Severity>
     <Summary>unused</Summary>
     <Description></Description>
     <Annotation></Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69HK44Z">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:30:07:091 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-02 :: 13:58:31:609 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-04 :: 09:34:57:656 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
-    <File line="8">src/Engine/examples/perceptron_demo.py</File>
+    <AssignedTo>David</AssignedTo>
+    <File line="5">src/Engine/examples/perceptron_demo.py</File>
     <Type>item.type.label.suggestion</Type>
     <Severity>item.severity.label.normal</Severity>
     <Summary>add to utility_functions ?</Summary>
@@ -644,6 +644,6 @@
     <Annotation></Annotation>
     <Revision></Revision>
     <Resolution>item.resolution.label.validNeedsfixing</Resolution>
-    <Status>item.status.label.closed</Status>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
 </Review>

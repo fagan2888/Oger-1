@@ -49,7 +49,7 @@ class PerceptronNode(mdp.Node):
                  transfer_derv=None, dtype='float64'):
         
         super(PerceptronNode, self).__init__(input_dim, output_dim, dtype)
-        self.W = self._refcast(randn(self.input_dim, self.output_dim)*0.01)
+        self.w = self._refcast(randn(self.input_dim, self.output_dim)*0.01)
         self.b = self._refcast(randn(self.output_dim)*0.01)
 
         if transfer_func == None:
@@ -120,9 +120,9 @@ class PerceptronNode(mdp.Node):
 
                 dW, db = self.get_gradient(x[start:stop], t[start:stop])
                 
-                uW = momentum * uW + epsilon * dW - decay * self.W
+                uW = momentum * uW + epsilon * dW - decay * self.w
                 ub = momentum * ub + epsilon * db
-                self.W += uW
+                self.w += uW
                 self.b += ub
 
     def get_gradient(self, x, t):
@@ -138,7 +138,7 @@ class PerceptronNode(mdp.Node):
 
     def _up_pass(self, x, epsilon=.01, decay=0.0, momentum=0.0):
         """Same as execute but doesn't require training to be complete."""
-        y = self.transfer_func(mult(x, self.W) + self.b)
+        y = self.transfer_func(mult(x, self.w) + self.b)
         self._orig_x = x  # Store input
         return y
 
@@ -152,11 +152,11 @@ class PerceptronNode(mdp.Node):
 
         dW = -mult(self._orig_x.T, d)
         db = x
-        e = mult(self.W.T, e)
+        e = mult(self.w.T, e)
                 
-        uW = momentum * uW + epsilon * dW - decay * self.W
+        uW = momentum * uW + epsilon * dW - decay * self.w
         ub = momentum * ub + epsilon * db
-        self.W += uW
+        self.w += uW
         self.b += ub
         return e
 
@@ -171,7 +171,7 @@ class PerceptronNode(mdp.Node):
 
     def _execute(self, x):
 
-        y = self.transfer_func(mult(x, self.W) + self.b)
+        y = self.transfer_func(mult(x, self.w) + self.b)
         return y
 
 

@@ -14,7 +14,7 @@ class ReservoirNode(mdp.Node):
     """
     
     def __init__(self, input_dim=1, output_dim=None, spec_radius=0.9, 
-                 nonlin_func = 'tanh', bias = 0, input_scaling=1, dtype='float64', instance = 0):
+                 nonlin_func = 'tanh', bias_scaling = 0, input_scaling=1, dtype='float64', instance = 0):
         """ Initializes and constructs a random reservoir.
                 
         output_dim -- the number of outputs, which is also the number of
@@ -24,13 +24,14 @@ class ReservoirNode(mdp.Node):
         """
         super(ReservoirNode, self).__init__(input_dim, output_dim, dtype)
         
+        #Stoe 
         self.input_scaling = input_scaling
-        self.bias = bias
+        self.bias_scaling = bias_scaling
         self.spec_radius = spec_radius
         self.instance = instance
-        self.initialize()
-        # make a hook object (demo)
         self.nonlin_func=nonlin_func
+
+        self.initialize()
         
     def is_trainable(self):
         return False
@@ -39,11 +40,11 @@ class ReservoirNode(mdp.Node):
         return False
     
     def initialize(self):
-        self.Win = self.input_scaling*(numpy.random.randint(0,2, [self.output_dim, self.input_dim])*2-1) #, output_dim))
-        self.Biasin = numpy.ones(self.output_dim)*self.bias
-        self.W = mdp.numx_rand.randn(self.output_dim,self.output_dim)
+        self.w_in = self.input_scaling*(numpy.random.randint(0,2, [self.output_dim, self.input_dim])*2-1) #, output_dim))
+        self.w_bias = numpy.ones(self.output_dim)*self.bias_scaling
+        self.w = mdp.numx_rand.randn(self.output_dim,self.output_dim)
         # scale it to spectral radius
-        self.W *= self.spec_radius/get_spectral_radius(self.W)
+        self.w *= self.spec_radius/get_spectral_radius(self.w)
     
     def _get_supported_dtypes(self):
         return ['float32', 'float64']
@@ -52,20 +53,17 @@ class ReservoirNode(mdp.Node):
         """ Executes simulation with input vector x.
         """
         
-        nonlinearity = getattr(mdp.numx, self.nonlin_func)
+        non_linearity = getattr(mdp.numx, self.nonlin_func)
         steps = x.shape[0]
         self.states = numpy.zeros((steps, self._output_dim), dtype=self._dtype)
         self.state = numpy.zeros(self._output_dim)
         self.state_nonlin = numpy.zeros(self._output_dim)
 
         for n in range(steps):
-            self.state = numpy.dot(self.W, self.state)
-            self.state += numpy.dot(self.Win, x[n])
-            self.state += self.Biasin
-            self.state_nonlin = nonlinearity(self.state)
-            # call the hook
-            #self.hook.execute()
-            
+            self.state = numpy.dot(self.w, self.state)
+            self.state += numpy.dot(self.w_in, x[n])
+            self.state += self.w_bias
+            self.state_nonlin = non_linearity(self.state)
             self.states[n] = self.state_nonlin
         
         return self.states
@@ -74,45 +72,42 @@ class ReservoirNode(mdp.Node):
 
 class LeakyReservoirNode(ReservoirNode):
 
-   def __init__(self, input_dim=None, output_dim=None, spec_radius=0.9, 
-                nonlin_func = 'tanh', bias = 0.0, input_scaling=1.0, leak_rate=1.0, dtype='float64'):
-       """ Initializes and constructs a random reservoir with leaky-integrator neurons.
+    def __init__(self, input_dim=None, output_dim=None, spec_radius=0.9, 
+                nonlin_func = 'tanh', bias_scaling = 0.0, input_scaling=1.0, leak_rate=1.0, dtype='float64'):
+        """ Initializes and constructs a random reservoir with leaky-integrator neurons.
                
-       output_dim -- the number of outputs, which is also the number of
-                         neurons in the reservoir
-       prototype -- a prototype reservoir which will be cloned with all
-                    its parameters
-       """
-       super(LeakyReservoirNode, self).__init__(input_dim, output_dim, spec_radius,
-                                           nonlin_func, bias, input_scaling, dtype)
+           output_dim -- the number of outputs, which is also the number of
+                             neurons in the reservoir
+           prototype -- a prototype reservoir which will be cloned with all
+                        its parameters
+        """
+        super(LeakyReservoirNode, self).__init__(input_dim, output_dim, spec_radius,
+                                           nonlin_func, bias_scaling, input_scaling, dtype)
        
-       self.leak_rate = leak_rate
+        self.leak_rate = leak_rate
 
-   def _execute(self, x):
-       """ Executes simulation with input vector x.
-       """
-       
-       nonlinearity = getattr(mdp.numx, self.nonlin_func)
-       steps = x.shape[0]
-       self.states = numpy.zeros((steps, self._output_dim), dtype=self._dtype)
-       self.state = numpy.zeros(self._output_dim)
-       self.state_nonlin = numpy.zeros(self._output_dim)
-       leak_rate = self.leak_rate
-
-       self.state += numpy.dot(self.Win, x[0])
-       self.state += self.Biasin
-       self.state_nonlin = nonlinearity(self.state)
-       self.states[0] = leak_rate * self.state_nonlin
-
-       for n in range(1, steps):
-           self.state = numpy.dot(self.W, self.state)
-           self.state += numpy.dot(self.Win, x[n])
-           self.state += self.Biasin
-           self.state_nonlin = nonlinearity(self.state)
-           
-           self.states[n] = (1 - leak_rate) * self.states[n - 1] + leak_rate * self.state_nonlin
-       
-       return self.states
-
-
-
+    def _execute(self, x):
+        ''' Executes simulation with input vector x
+        '''
+    
+        nonlinearity = getattr(mdp.numx, self.nonlin_func)
+        steps = x.shape[0]
+        self.states = numpy.zeros((steps, self._output_dim), dtype=self._dtype)
+        self.state = numpy.zeros(self._output_dim)
+        self.state_nonlin = numpy.zeros(self._output_dim)
+        leak_rate = self.leak_rate
+        
+        self.state += numpy.dot(self.w_in, x[0])
+        self.state += self.w_bias
+        self.state_nonlin = nonlinearity(self.state)
+        self.states[0] = leak_rate * self.state_nonlin
+        
+        for n in range(1, steps):
+            self.state = numpy.dot(self.w, self.state)
+            self.state += numpy.dot(self.w_in, x[n])
+            self.state += self.w_bias
+            self.state_nonlin = nonlinearity(self.state)
+            
+            self.states[n] = (1 - leak_rate) * self.states[n - 1] + leak_rate * self.state_nonlin
+        
+        return self.states

@@ -21,7 +21,7 @@ class OdeLeakyIntegrator(odeproblempython.OdeProblemPython):
                 self.conn_mat = mdp.numx_rand.randn(output_dim,output_dim)
                 self.conn_mat *= self.spec_radius/get_spectral_radius(self.conn_mat)
                 self.conn_mat -= leak_rate*mdp.numx.eye(output_dim,output_dim)
-                self.Win = 1.0*(numpy.random.randint(0,2, [output_dim, input_dim])*2-1)
+                self.w_in = 1.0*(numpy.random.randint(0,2, [output_dim, input_dim])*2-1)
 
         # function calc_dydt_python. This defines your dydt.
         #  Input: time, y, self.src (self.src is created in ode_nodes.py)
@@ -30,7 +30,7 @@ class OdeLeakyIntegrator(odeproblempython.OdeProblemPython):
         #  Important note: use dydt[:] i.o. dydt.
         #  Might generate swig::directormethodexception if some error occurs here.
         def calc_dydt_python( self, t, y, dydt, nvar ):
-                dydt[:]=numpy.dot(self.conn_mat,y[:])+numpy.dot(self.Win,self.src[:])
+                dydt[:]=numpy.dot(self.conn_mat,y[:])+numpy.dot(self.w_in,self.src[:])
 
         # No need for an update-function. Can be used to change different internal values, delays, ... 
         # More elaborate example following soon, or check RingNetwork.cpp for an example (ask Martin)

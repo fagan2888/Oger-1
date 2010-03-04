@@ -1,9 +1,8 @@
-from Engine import datasets 
-from Engine import error_measures
-from Engine import reservoir_nodes
-
-import mdp
+import datasets 
+import error_measures
+import reservoir_nodes
 import pylab
+import mdp
 
 from Engine.linear_nodes import RidgeRegressionNode
 
@@ -11,7 +10,6 @@ if __name__ == "__main__":
 
     inputs = 1
     timesteps = 10000
-    system_order = 30;
     washout=30;
 
     nx=4

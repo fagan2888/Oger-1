@@ -235,3 +235,11 @@ def wer(input, target, discard=0):
         raise RuntimeError("Input and target should have the same shape")
     #print input, target
     return sum(input[:] !=target[:])    
+
+def cosine(x, y):
+    ''' Compute cosine of angle between two vector
+    
+    This error measure measures the extent to which two vectors point in the same direction. 
+    A value of 1 means complete alignment, a value of 0 means the vectors are orthogonal.
+    '''
+    return mdp.numx.dot(x, y) / (mdp.numx.linalg.norm(x) * mdp.numx.linalg.norm(y))
