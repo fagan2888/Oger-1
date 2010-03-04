@@ -6,7 +6,8 @@ from mdp.utils import mult
 from Engine.nonlinear_nodes import PerceptronNode
 
 def softmax(x):
-    return np.exp(x) / sum(np.exp(x))
+    y = x - max(x.ravel())  # Overflow protection.
+    return np.exp(x) / sum(np.exp(x).ravel())
 
 # Learn OR
 data_in = np.zeros((4, 2))
@@ -23,7 +24,7 @@ data_out[3, :] = [1.0, 0.0]
 
 percnode = PerceptronNode(2, 2, transfer_func=softmax)
 
-percnode.train(data_in, data_out, n_epochs=30000, epsilon=1, momentum=.0)
+percnode.train(data_in, data_out, n_epochs=30000, epsilon=.1, momentum=.0)
 out = percnode(data_in)
 out = ((out.T == np.max(out, 1)) * 1).T
 
