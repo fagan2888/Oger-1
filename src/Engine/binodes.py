@@ -68,7 +68,7 @@ class PerceptronBiNode(binet.BiNode, PerceptronNode):
         else:
             self._orig_x = x  # Store input
 
-        y = self.transfer_func(mult(x, self.W) + self.b)
+        y = self.transfer_func(mult(x, self.w) + self.b)
         self._last_y = y
 
         if self.error_func != None:  # This is the top node.
@@ -97,10 +97,10 @@ class PerceptronBiNode(binet.BiNode, PerceptronNode):
         dW = mult(self._orig_x.T, e)
         db = e
                 
-        uW = momentum * uW - epsilon * dW - decay * self.W
+        uW = momentum * uW - epsilon * dW - decay * self.w
 
         ub = momentum * ub - epsilon * db.sum(axis=0) / n
-        self.W += uW
+        self.w += uW
         self.b += ub
 
 
@@ -113,7 +113,7 @@ class PerceptronBiNode(binet.BiNode, PerceptronNode):
             # Go down further
             msg["method"] = "down_pass"
             target = -1
-            y = mult(db, self.W.T)
+            y = mult(db, self.w.T)
 
         return y, msg, target
 

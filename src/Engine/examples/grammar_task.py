@@ -3,22 +3,20 @@
 # outputs and the true probabilities distributions over the words according to
 # the grammar itself.
 
-import grammars as g
+import grammars
+import os
 import gzip
 from Engine import reservoir_nodes
+from Engine.error_measures import cosine
 
 import mdp
-import pylab as p
-from numpy import *
+import pylab
 
 from Engine.linear_nodes import RidgeRegressionNode
 
-def cosine(x, y):
-    return dot(x, y) / (linalg.norm(x) * linalg.norm(y))
-
 if __name__ == "__main__":
 
-    l = g.simple_pcfg()
+    l = grammars.simple_pcfg()
 
     testdata = []
 
@@ -64,23 +62,24 @@ if __name__ == "__main__":
     # Contstruct a suitable train data matrix 'x'.
     indices = [translate[i] for i in trainwords]
     
-    x = zeros((Nx, inputs))
-    x[arange(Nx), array(indices)] = 1
+    x = mdp.numx.zeros((Nx, inputs))
+    x[mdp.numx.arange(Nx), mdp.numx.array(indices)] = 1
 
     # y contains a timeshifted version of the data in x.
-    y = mat(zeros((Nx, inputs)))
+    y = mdp.numx.mat(mdp.numx.zeros((Nx, inputs)))
     y[:-1, :] = x[1:, :]
     y[-1, :] = x[0, :]
 
     # Open file with true probabilities.
-    fin = gzip.open('trueprobs_simple_pcfg.txt.gz')
+    trueprobs_file = os.getcwd() + '/../datasets/trueprobs_simple_pcfg.txt.gz'
+    fin = gzip.open(trueprobs_file)
     dat = fin.readlines()
     fin.close()
 
     testprobs = []
     for i in dat:
         line = i.strip().split()
-        datapoint = array([float(j) for j in line])
+        datapoint = mdp.numx.array([float(j) for j in line])
         testprobs.append(datapoint)
 
     print "Training..."
@@ -93,20 +92,20 @@ if __name__ == "__main__":
     indices = [translate[i] for i in testwords]
     
     Nx = len(testwords)
-    x = zeros((Nx, inputs))
-    x[arange(Nx), array(indices)] = 1
+    x = mdp.numx.zeros((Nx, inputs))
+    x[mdp.numx.arange(Nx), mdp.numx.array(indices)] = 1
 
     # Save test results in ytest.
     ytest = flownode(x)
 
     results = [cosine(ytest[i], testprobs[i + 1]) for i in range(Nx - 1)]
-    print 'Average cosine between outputs and ground distributions:', mean(results)
-    results = array(results)[:-7]
+    print 'Average cosine between outputs and ground distributions:', mdp.numx.mean(results)
+    results = mdp.numx.array(results)[:-7]
     results = results.reshape(((Nx - 8) / 8, 8))
-    means = mean(results, 0)
+    means = mdp.numx.mean(results, 0)
     example = ['boys', 'see', 'the', 'clowns', 'that', 'pigs', 'follow', '<end>']
-    p.xticks(arange(8), example)
-    p.bar(arange(8), means)
-    p.show()
+    pylab.xticks(mdp.numx.arange(8), example)
+    pylab.bar(mdp.numx.arange(8), means)
+    pylab.show()
     print 'Finished'
 

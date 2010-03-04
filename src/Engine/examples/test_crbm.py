@@ -80,9 +80,9 @@ if __name__ == '__main__':
     print 'Final MSE:', error
 
     pylab.clf()
-    p = pylab.subplot(411)
+    p = pylab.subplot(211)
     p = pylab.imshow(u[:500, :].T)
-    p = pylab.subplot(412)
+    p = pylab.subplot(212)
     p = pylab.imshow(visibles[:500, :].T)
     p = pylab.show()
 

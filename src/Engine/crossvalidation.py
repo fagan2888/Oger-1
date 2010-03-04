@@ -40,12 +40,13 @@ def cross_validate(inputs, outputs, flownode, error_measure, n_folds, cross_vali
     '''
     error = []
     train_indices, test_indices = cross_validate_function(inputs, n_folds)
-    print "Performing cross-validation using " + cross_validate_function
+    print "Performing cross-validation..."
     for fold in mdp.utils.progressinfo(range(n_folds), style='timer'):
         fnode = flownode.copy()
         [fnode.train(inputs[i], outputs[i]) for i in train_indices[fold]]
         fnode.stop_training()
-        error.extend(error_measure([(fnode(inputs[i]), outputs[i]) for i in test_indices[fold]]))
+        for i in test_indices[fold]:
+            error.append(error_measure(fnode(inputs[i]), outputs[i]))
     return error
 
 

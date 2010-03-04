@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Property>
+  <Review id="DEFAULT">
+    <Description>property.default.description</Description>
+    <Author></Author>
+    <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">1970-01-01 :: 00:00:00:000 GMT-10:00</CreationDate>
+    <Directory>review</Directory>
+    <Reviewers>
+      <Entry id="Benjamin" name="Benjamin"/>
+      <Entry id="David" name="David"/>
+      <Entry id="Fionntan" name="Fionntan"/>
+      <Entry id="Martin" name="Martin"/>
+      <Entry id="Philemon" name="Philemon"/>
+    </Reviewers>
+    <Files/>
+    <FieldItems>
+      <FieldItem id="Type" default="item.label.unset">
+        <Entry name="item.label.unset"/>
+        <Entry name="item.type.label.codingStandards"/>
+        <Entry name="item.type.label.programLogic"/>
+        <Entry name="item.type.label.optimization"/>
+        <Entry name="item.type.label.usability"/>
+        <Entry name="item.type.label.clarity"/>
+        <Entry name="item.type.label.missing"/>
+        <Entry name="item.type.label.irrelevant"/>
+        <Entry name="item.type.label.suggestion"/>
+        <Entry name="item.type.label.other"/>
+      </FieldItem>
+      <FieldItem id="Severity" default="item.label.unset">
+        <Entry name="item.label.unset"/>
+        <Entry name="item.severity.label.critical"/>
+        <Entry name="item.severity.label.major"/>
+        <Entry name="item.severity.label.normal"/>
+        <Entry name="item.severity.label.minor"/>
+        <Entry name="item.severity.label.trivial"/>
+      </FieldItem>
+      <FieldItem id="Resolution" default="item.label.unset">
+        <Entry name="item.label.unset"/>
+        <Entry name="item.resolution.label.validNeedsfixing"/>
+        <Entry name="item.resolution.label.validFixlater"/>
+        <Entry name="item.resolution.label.validDuplicate"/>
+        <Entry name="item.resolution.label.validWontfix"/>
+        <Entry name="item.resolution.label.invalidWontfix"/>
+        <Entry name="item.resolution.label.unsureValidity"/>
+      </FieldItem>
+      <FieldItem id="Status" default="item.status.label.open">
+        <Entry name="item.status.label.open"/>
+        <Entry name="item.status.label.resolved"/>
+        <Entry name="item.status.label.closed"/>
+        <Entry name="item.status.label.reopened"/>
+      </FieldItem>
+    </FieldItems>
+    <Filters>
+      <Phase name="phase.individual" enabled="true">
+        <Filter name="Interval" value="7" enabled="false"/>
+        <Filter name="Reviewer" value="item.reviewer.label.automatic" enabled="true"/>
+        <Filter name="Type" value="item.label.unset" enabled="false"/>
+        <Filter name="Severity" value="item.label.unset" enabled="false"/>
+        <Filter name="AssignedTo" value="" enabled="false"/>
+        <Filter name="Resolution" value="item.label.unset" enabled="false"/>
+        <Filter name="Status" value="item.status.label.open" enabled="false"/>
+        <Filter name="File" value="" enabled="false"/>
+      </Phase>
+      <Phase name="phase.team" enabled="true">
+        <Filter name="Interval" value="7" enabled="false"/>
+        <Filter name="Reviewer" value="" enabled="false"/>
+        <Filter name="Type" value="item.label.unset" enabled="false"/>
+        <Filter name="Severity" value="item.label.unset" enabled="false"/>
+        <Filter name="AssignedTo" value="" enabled="false"/>
+        <Filter name="Resolution" value="item.label.unset" enabled="true"/>
+        <Filter name="Status" value="item.status.label.open" enabled="false"/>
+        <Filter name="File" value="" enabled="false"/>
+      </Phase>
+      <Phase name="phase.rework" enabled="true">
+        <Filter name="Interval" value="7" enabled="false"/>
+        <Filter name="Reviewer" value="" enabled="false"/>
+        <Filter name="Type" value="item.label.unset" enabled="false"/>
+        <Filter name="Severity" value="item.label.unset" enabled="false"/>
+        <Filter name="AssignedTo" value="item.reviewer.label.automatic" enabled="true"/>
+        <Filter name="Resolution" value="item.label.unset" enabled="false"/>
+        <Filter name="Status" value="item.status.label.open" enabled="true"/>
+        <Filter name="File" value="" enabled="false"/>
+      </Phase>
+    </Filters>
+  </Review>
+  <Review id="Engine review">
+    <Description>engine review</Description>
+    <Author>Benjamin</Author>
+    <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:28:11:360 CET</CreationDate>
+    <Directory>review</Directory>
+    <Reviewers>
+      <Entry id="Benjamin" name="Benjamin"/>
+      <Entry id="David" name="David"/>
+      <Entry id="Fionntan" name="Fionntan"/>
+      <Entry id="Martin" name="Martin"/>
+      <Entry id="Philemon" name="Philemon"/>
+    </Reviewers>
+    <Files>
+      <Entry name="src/Engine/__init__.py"/>
+      <Entry name="src/Engine/binodes.py"/>
+      <Entry name="src/Engine/crossvalidation.py"/>
+      <Entry name="src/Engine/datasets/Lyon128"/>
+      <Entry name="src/Engine/datasets.py"/>
+      <Entry name="src/Engine/error_measures.py"/>
+      <Entry name="src/Engine/examples/analog_speech.py"/>
+      <Entry name="src/Engine/examples/analog_speech_cross_validation.py"/>
+      <Entry name="src/Engine/examples/cross_validation_demo.py"/>
+      <Entry name="src/Engine/examples/grammar_task.py"/>
+      <Entry name="src/Engine/examples/grammars.py"/>
+      <Entry name="src/Engine/examples/gridsearch.py"/>
+      <Entry name="src/Engine/examples/narma30_demo.py"/>
+      <Entry name="src/Engine/examples/narma30_demo_continuous.py"/>
+      <Entry name="src/Engine/examples/perceptron_demo.py"/>
+      <Entry name="src/Engine/examples/plotting_example.py"/>
+      <Entry name="src/Engine/examples/test_binodeBP.py"/>
+      <Entry name="src/Engine/examples/test_crbm.py"/>
+      <Entry name="src/Engine/examples/test_stacked_crbm.py"/>
+      <Entry name="src/Engine/examples/trueprobs_simple_pcfg.txt.gz"/>
+      <Entry name="src/Engine/linear_nodes.py"/>
+      <Entry name="src/Engine/misc_nodes.py"/>
+      <Entry name="src/Engine/nonlinear_nodes.py"/>
+      <Entry name="src/Engine/ode_nodes.py"/>
+      <Entry name="src/Engine/odesolver/_odeproblempython.so"/>
+      <Entry name="src/Engine/odesolver/libodeproblem.so"/>
+      <Entry name="src/Engine/odesolver/odeproblempython.py"/>
+      <Entry name="src/Engine/optimizer.py"/>
+      <Entry name="src/Engine/rbm_nodes.py"/>
+      <Entry name="src/Engine/reservoir_nodes.py"/>
+      <Entry name="src/Engine/test.mat"/>
+      <Entry name="src/Engine/tests/reservoir_nodes_test.py"/>
+      <Entry name="src/Engine/utility_functions.py"/>
+      <Entry name="src/Engine/utility_nodes.py"/>
+    </Files>
+    <FieldItems>
+      <FieldItem id="Type" default="item.type.label.codingStandards">
+        <Entry name="item.label.unset"/>
+        <Entry name="item.type.label.codingStandards"/>
+        <Entry name="item.type.label.programLogic"/>
+        <Entry name="item.type.label.optimization"/>
+        <Entry name="item.type.label.usability"/>
+        <Entry name="item.type.label.clarity"/>
+        <Entry name="item.type.label.missing"/>
+        <Entry name="item.type.label.irrelevant"/>
+        <Entry name="item.type.label.suggestion"/>
+        <Entry name="item.type.label.other"/>
+      </FieldItem>
+      <FieldItem id="Severity" default="item.severity.label.normal">
+        <Entry name="item.label.unset"/>
+        <Entry name="item.severity.label.critical"/>
+        <Entry name="item.severity.label.major"/>
+        <Entry name="item.severity.label.normal"/>
+        <Entry name="item.severity.label.minor"/>
+        <Entry name="item.severity.label.trivial"/>
+      </FieldItem>
+      <FieldItem id="Resolution" default="item.resolution.label.validNeedsfixing">
+        <Entry name="item.label.unset"/>
+        <Entry name="item.resolution.label.validNeedsfixing"/>
+        <Entry name="item.resolution.label.validFixlater"/>
+        <Entry name="item.resolution.label.validDuplicate"/>
+        <Entry name="item.resolution.label.validWontfix"/>
+        <Entry name="item.resolution.label.invalidWontfix"/>
+        <Entry name="item.resolution.label.unsureValidity"/>
+      </FieldItem>
+      <FieldItem id="Status" default="item.status.label.open">
+        <Entry name="item.status.label.open"/>
+        <Entry name="item.status.label.resolved"/>
+        <Entry name="item.status.label.closed"/>
+        <Entry name="item.status.label.reopened"/>
+      </FieldItem>
+    </FieldItems>
+    <Filters>
+      <Phase name="phase.individual" enabled="true">
+        <Filter name="Interval" value="7" enabled="false"/>
+        <Filter name="Reviewer" value="item.reviewer.label.automatic" enabled="true"/>
+        <Filter name="Type" value="item.label.unset" enabled="false"/>
+        <Filter name="Severity" value="item.label.unset" enabled="false"/>
+        <Filter name="AssignedTo" value="" enabled="false"/>
+        <Filter name="Resolution" value="item.label.unset" enabled="false"/>
+        <Filter name="Status" value="item.status.label.open" enabled="false"/>
+        <Filter name="File" value="" enabled="false"/>
+      </Phase>
+      <Phase name="phase.team" enabled="true">
+        <Filter name="Interval" value="7" enabled="false"/>
+        <Filter name="Reviewer" value="" enabled="false"/>
+        <Filter name="Type" value="item.label.unset" enabled="false"/>
+        <Filter name="Severity" value="item.label.unset" enabled="false"/>
+        <Filter name="AssignedTo" value="" enabled="false"/>
+        <Filter name="Resolution" value="item.label.unset" enabled="true"/>
+        <Filter name="Status" value="item.status.label.open" enabled="false"/>
+        <Filter name="File" value="" enabled="false"/>
+      </Phase>
+      <Phase name="phase.rework" enabled="true">
+        <Filter name="Interval" value="7" enabled="false"/>
+        <Filter name="Reviewer" value="" enabled="false"/>
+        <Filter name="Type" value="item.label.unset" enabled="false"/>
+        <Filter name="Severity" value="item.label.unset" enabled="false"/>
+        <Filter name="AssignedTo" value="item.reviewer.label.automatic" enabled="true"/>
+        <Filter name="Resolution" value="item.label.unset" enabled="false"/>
+        <Filter name="Status" value="item.status.label.open" enabled="true"/>
+        <Filter name="File" value="" enabled="false"/>
+      </Phase>
+    </Filters>
+  </Review>
+</Property>

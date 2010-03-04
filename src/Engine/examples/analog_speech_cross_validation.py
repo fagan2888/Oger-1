@@ -22,7 +22,7 @@ if __name__ == "__main__":
     washout=0
     train_frac = .9;
 
-    [x,y] = datasets.analog_speech(indir="/Users/dvrstrae/restored/Lyon128")
+    [x,y] = datasets.analog_speech(indir="/Users/dvrstrae/Lyon128")
     
     n_samples = len(x);
 
