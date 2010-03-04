@@ -4,11 +4,11 @@ Created on Feb 10, 2010
 @author: dvrstrae
 '''
 import mdp
-from Engine import reservoir_nodes
-from Engine import linear_nodes
-from Engine import datasets
-from Engine import error_measures
-from Engine import optimizer
+import reservoir_nodes
+import linear_nodes
+import datasets
+import error_measures
+import optimizer
 
 if __name__ == '__main__':
     ''' Example of plotting results of a parameter sweep

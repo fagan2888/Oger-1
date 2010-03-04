@@ -6,7 +6,7 @@ Created on Aug 20, 2009
 import numpy as np
 
 
-def get_specrad(W):
+def get_spectral_radius(W):
     return np.max(np.abs(np.linalg.eigvals(W))) 
 
 def logistic(x):
@@ -15,3 +15,6 @@ def logistic(x):
 def logistic_d(x):
     y = logistic(x)
     return y * (1 - y)
+
+def softmax(x):
+    return np.exp(x) / sum(np.exp(x))
