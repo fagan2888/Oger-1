@@ -17,9 +17,9 @@ class OdeLeakyIntegrator(odeproblempython.OdeProblemPython):
                 super(OdeLeakyIntegrator, self).__init__(**kwargs)
                 self.leak_rate = leak_rate
                 self.src = 1.0
-                self.spec_radius = 0.9
+                self.spectral_radius = 0.9
                 self.conn_mat = mdp.numx_rand.randn(output_dim,output_dim)
-                self.conn_mat *= self.spec_radius/get_spectral_radius(self.conn_mat)
+                self.conn_mat *= self.spectral_radius/get_spectral_radius(self.conn_mat)
                 self.conn_mat -= leak_rate*mdp.numx.eye(output_dim,output_dim)
                 self.w_in = 1.0*(numpy.random.randint(0,2, [output_dim, input_dim])*2-1)
 

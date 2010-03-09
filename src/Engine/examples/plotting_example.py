@@ -27,10 +27,10 @@ if __name__ == '__main__':
     RC = mdp.hinet.FlowNode(flow)
 
     # 1D plotting example
-    print "First a scan of the spectral radius : gridsearch_parameters = {reservoir:{'spec_radius':mdp.numx.arange(0.1, 1.2, 0.1)}}"
+    print "First a scan of the spectral radius : gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.1, 1.2, 0.1)}}"
     # Nested dictionary
     #gridsearch_parameters = {reservoir:{'spec_radius':mdp.numx.arange(0.1, 1.2, 0.1), 'instance': range(10)}}
-    gridsearch_parameters = {reservoir:{'spec_radius':mdp.numx.arange(0.6, 1.2, 0.1)}}
+    gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.2, 0.1)}}
     opt1D = optimizer.Optimizer(gridsearch_parameters, error_measures.nrmse)
 
     
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     # 1D plotting example
     print "Then we range over both spectral radius and input scaling"
-    gridsearch_parameters = {reservoir:{'spec_radius':mdp.numx.arange(0.6, 1.2, 0.2), 'input_scaling': mdp.numx.arange(0.5, .7, 0.1)}}
+    gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.2, 0.2), 'input_scaling': mdp.numx.arange(0.5, .7, 0.1)}}
     opt2D = optimizer.Optimizer(gridsearch_parameters, error_measures.nrmse)
 
     # Run the gridsearch

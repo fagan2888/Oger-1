@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     inputs = 1
     timesteps = 10000
-    washout=30;
+    washout=30
 
     nx=4
     ny=1

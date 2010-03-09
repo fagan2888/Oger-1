@@ -1,6 +1,5 @@
 from __future__ import division
 import numpy as np
-from twisted.protocols.wire import Discard
 import mdp
 
 __all__ = [
