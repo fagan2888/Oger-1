@@ -27,7 +27,7 @@ if __name__ == '__main__':
     RC = mdp.hinet.FlowNode(flow)
 
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'bias': mdp.numx.arange(0, 2, 0.5), 'spec_radius':mdp.numx.arange(0.1, 1, 0.5)}}
+    gridsearch_parameters = {reservoir:{'bias': mdp.numx.arange(0, 2, 0.5), 'spectral_radius':mdp.numx.arange(0.1, 1, 0.5)}}
 
     # Instantiate an optimizer
     opt = optimizer.Optimizer(gridsearch_parameters, error_measures.nrmse)

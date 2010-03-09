@@ -25,10 +25,10 @@ class RidgeRegressionNode(mdp.Node):
         self._xTy = None
 
         # keep track of how many data points have been sent
-        self._tlen = 0
+        self.n_timesteps_accumulated = 0
 
         # final regression coefficients
-        self.weight = None
+        self.weights = None
         self.ridge_param = ridge_param
         self.washout = washout
 
@@ -65,7 +65,7 @@ class RidgeRegressionNode(mdp.Node):
         # update internal variables
         self._xTx += mdp.utils.mult(x.T, x)
         self._xTy += mdp.utils.mult(x.T, y)
-        self._tlen += x.shape[0]
+        self.n_timesteps_accumulated += x.shape[0]
 
     def _stop_training(self):
         try:
@@ -75,11 +75,11 @@ class RidgeRegressionNode(mdp.Node):
                       "\n Input data may be redundant (i.e., some of the " +
                       "variables may be linearly dependent).")
             raise mdp.NodeException(errstr)
-        self.weight = mdp.utils.mult(inv_xTx, self._xTy)
+        self.weights = mdp.utils.mult(inv_xTx, self._xTy)
 
     def _execute(self, x):
         x = self._add_constant(x)
-        return mdp.utils.mult(x, self.weight)
+        return mdp.utils.mult(x, self.weights)
 
     def _add_constant(self, x):
         """Add a constant term to the vector 'x'.

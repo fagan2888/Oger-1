@@ -7,7 +7,6 @@ import numpy as np
 import mdp
 from mdp.utils import mult
 
-randn = mdp.numx_rand.randn
 
 class SignNode(mdp.Node):
     """
@@ -49,8 +48,8 @@ class PerceptronNode(mdp.Node):
                  transfer_derv=None, dtype='float64'):
         
         super(PerceptronNode, self).__init__(input_dim, output_dim, dtype)
-        self.w = self._refcast(randn(self.input_dim, self.output_dim)*0.01)
-        self.b = self._refcast(randn(self.output_dim)*0.01)
+        self.w = self._refcast(mdp.numx.random.randn(self.input_dim, self.output_dim)*0.01)
+        self.b = self._refcast(mdp.numx.random.randn(self.output_dim)*0.01)
 
         if transfer_func == None:
             self.transfer_func = lambda x: x

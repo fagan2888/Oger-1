@@ -6,7 +6,7 @@ Created on Feb 9, 2010
 import mdp
 import pylab
 import itertools
-from Engine import crossvalidation 
+import crossvalidation 
 
 class Optimizer(object):
     def __init__(self, optimization_dict, loss_function, **kwargs):
@@ -46,16 +46,19 @@ class Optimizer(object):
             - data: a list of iterators which would be passed to MDP flows
             - flowNode : the MDP flowNode to do the grid-search on
         '''
+        node_set = set()
         # Loop over all points in the parameter space
         for paramspace_index_flat, parameter_values in enumerate(self.param_space):
             # Set all parameters of all nodes to the correct values
             for parameter_index, node_parameter in enumerate(self.parameters): 
-                print str(node_parameter['node']) + '.' + str(node_parameter['parameter']) + ' = ' + str(parameter_values[parameter_index]), 
+                node_set.add(node_parameter['node'])
                 node_parameter['node'].__setattr__(node_parameter['parameter'], parameter_values[parameter_index])
-                # Reinitialize the node
-                if hasattr(node_parameter['node'], 'initialize'):
-                    node_parameter['node'].initialize()
-            print
+            
+            # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
+            for node in node_set:
+                if hasattr(node, 'initialize'):
+                    node.initialize()
+           
             # After all node parameters have been set and initialized, do the cross-validation
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions) 
             self.errors[paramspace_index_full] = mdp.numx.mean(crossvalidation.cross_validate(x,y,flowNode, self.loss_function, n_folds=n_folds, cross_validate_function = crossvalidation_function ))
@@ -80,6 +83,7 @@ class Optimizer(object):
         elif len(self.parameters)==2:
             pylab.ion()
             pylab.imshow(self.errors)
+            pylab.colorbar()
             pylab.show()
         else:
             print ("Plotting only works for 1D or 2D parameter sweeps!")
