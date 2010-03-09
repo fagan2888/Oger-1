@@ -39,7 +39,7 @@ class Optimizer(object):
         self.param_space = list(itertools.product(*self.parameter_ranges))
         self.errors = mdp.numx.zeros(self.paramspace_dimensions)
 
-    def grid_search (self,x,y, flowNode, n_folds=5, crossvalidation_function = crossvalidation.cross_val_random):
+    def grid_search (self,x,y, flowNode, n_folds=5, crossvalidation_function = crossvalidation.n_fold_random):
         ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
             for each value in the parameter space.
             Input arguments are:

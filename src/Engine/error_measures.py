@@ -9,16 +9,6 @@ __all__ = [
     'mse'
     ]
 
-def mean_error(inputs, targets, errf, **kwargs):
-    if len(inputs)!=len(targets):
-        raise RuntimeError("Number of samples in inputs and targets is not equal.\n" + 
-                           "nr. of inputs : " + str(len(inputs)) +
-                           "\n nr. of targets : " + str(len(targets)))
-    err = 0
-    for i,t in zip(inputs, targets):
-        err+=errf(i,t,kwargs)
-    return err/len(inputs)
-
 def nrmse( input, target, discard=0, var=-1 ):
     """ NRMSE calculation.
     
@@ -212,7 +202,7 @@ def zero_one_loss(input, target, discard=0):
     
     return zero_one_loss
 
-def wer(input, target, discard=0):
+def loss_01(input, target, discard=0):
     """ Compute word error rate
     
     This error measure is the word error rate:

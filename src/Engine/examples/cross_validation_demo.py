@@ -22,8 +22,18 @@ if __name__ == "__main__":
     flow = mdp.Flow([reservoir, readout], verbose=1)
     RC = mdp.hinet.FlowNode(flow)
    
+    print "Simple training and testing (one fold, i.e. no cross-validation), training_fraction = 0.5."
+    print "cross_validate_function = crossvalidation.train_test_only"
+    errors = crossvalidation.cross_validate(inputs, outputs, RC, error_measures.nrmse, cross_validate_function = crossvalidation.train_test_only, training_fraction = 0.5)
+    print errors
+    print
    
-    errors = crossvalidation.cross_validate(inputs, outputs, RC, error_measures.nrmse, 10)
-    
-    print "Mean error: " + str(mdp.numx.mean(errors))
+    print "5-fold cross-validation"
+    print "cross_validate_function = crossvalidation.cross_validate"
+    errors = crossvalidation.cross_validate(inputs, outputs, RC, error_measures.nrmse, n_folds=5)
+    print errors
+    print
+
+    print "Leave-one-out cross-validation"
+    errors = crossvalidation.cross_validate(inputs, outputs, RC, error_measures.nrmse, cross_validate_function = crossvalidation.leave_one_out)
     print errors

@@ -41,7 +41,7 @@
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
-    <File line="22">src/Engine/error_measures.py</File>
+    <File line="12">src/Engine/error_measures.py</File>
     <Type>item.type.label.codingStandards</Type>
     <Severity>item.severity.label.normal</Severity>
     <Summary>Coding standards</Summary>
@@ -105,19 +105,19 @@
   <ReviewIssue id="G69G0TMV">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:47:07:399 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:47:47:402 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-09 :: 22:22:37:538 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
-    <File line="8">src/Engine/crossvalidation.py</File>
+    <AssignedTo>David</AssignedTo>
+    <File line="47">src/Engine/crossvalidation.py</File>
     <Type>item.type.label.codingStandards</Type>
     <Severity>item.severity.label.normal</Severity>
     <Summary>Rename </Summary>
     <Description>Use more consistent naming eg. random_order</Description>
     <Annotation></Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69G1TM3">
     <ReviewIssueMeta>
@@ -139,70 +139,70 @@
   <ReviewIssue id="G69G4T98">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:50:13:532 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:50:29:767 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-09 :: 22:22:06:941 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
-    <File line="42">src/Engine/crossvalidation.py</File>
+    <File line="85">src/Engine/crossvalidation.py</File>
     <Type>item.type.label.clarity</Type>
     <Severity>item.severity.label.normal</Severity>
     <Summary>use other naming</Summary>
     <Description></Description>
     <Annotation></Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69G5B1J">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:50:36:583 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:50:51:443 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-09 :: 22:20:59:940 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
-    <File line="45">src/Engine/crossvalidation.py</File>
+    <AssignedTo>David</AssignedTo>
+    <File line="91">src/Engine/crossvalidation.py</File>
     <Type>item.type.label.clarity</Type>
     <Severity>item.severity.label.normal</Severity>
     <Summary>What does this line do? Add comments</Summary>
     <Description></Description>
     <Annotation></Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69G63IS">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:51:13:492 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:51:37:039 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-09 :: 22:24:40:201 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
-    <File line="46">src/Engine/crossvalidation.py</File>
+    <AssignedTo>David</AssignedTo>
+    <File line="94">src/Engine/crossvalidation.py</File>
     <Type>item.type.label.clarity</Type>
     <Severity>item.severity.label.normal</Severity>
     <Summary>This is overly compact and hence hard to grasp at first </Summary>
     <Description></Description>
-    <Annotation></Annotation>
+    <Annotation>Changed list comprehension to standard loop</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69G7RHB">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:52:31:199 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:53:46:177 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-09 :: 22:23:41:205 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
-    <File line="48">src/Engine/crossvalidation.py</File>
+    <File line="97">src/Engine/crossvalidation.py</File>
     <Type>item.type.label.clarity</Type>
     <Severity>item.severity.label.major</Severity>
     <Summary>Wrong returned error vector?</Summary>
     <Description>The documentation states one error per fold. Here it looks like you just append all errors for all datapoint, ordered by fold. Is the documentation wrong, or the code (should you do mean?)?</Description>
-    <Annotation></Annotation>
+    <Annotation>Was indeed bug</Annotation>
     <Revision></Revision>
     <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69G9Q04">
     <ReviewIssueMeta>
@@ -211,7 +211,7 @@
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
-    <File line="7">src/Engine/crossvalidation.py</File>
+    <File line="46">src/Engine/crossvalidation.py</File>
     <Type>item.type.label.missing</Type>
     <Severity>item.severity.label.minor</Severity>
     <Summary>Add more selection schemes</Summary>
@@ -224,18 +224,18 @@
   <ReviewIssue id="G69GB8ZT">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:55:13:865 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:55:31:981 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-09 :: 17:08:25:025 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="1">src/Engine/error_measures.py</File>
     <Type>item.label.unset</Type>
     <Severity>item.label.unset</Severity>
     <Summary>Unneeded dependancy?</Summary>
     <Description></Description>
-    <Annotation></Annotation>
+    <Annotation>Needed for non-integer division used in cosine (will become standard in python 3.0)</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
+    <Resolution>item.resolution.label.invalidWontfix</Resolution>
     <Status>item.status.label.open</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GBX0K">
@@ -262,7 +262,7 @@
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
-    <File line="51">src/Engine/error_measures.py</File>
+    <File line="41">src/Engine/error_measures.py</File>
     <Type>item.type.label.codingStandards</Type>
     <Severity>item.severity.label.critical</Severity>
     <Summary>Do we want discard in the error measures?</Summary>
@@ -275,36 +275,36 @@
   <ReviewIssue id="G69GENSF">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:57:53:007 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:58:15:913 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-09 :: 17:07:16:302 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
-    <File line="12">src/Engine/error_measures.py</File>
+    <AssignedTo>David</AssignedTo>
+    <File line="11">src/Engine/error_measures.py</File>
     <Type>item.type.label.codingStandards</Type>
     <Severity>item.severity.label.critical</Severity>
     <Summary>Do not use overly cryptic and short variables names</Summary>
     <Description></Description>
     <Annotation></Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
     <Status>item.status.label.open</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GG8AN">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:59:06:239 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:59:52:552 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-09 :: 16:56:44:372 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="215">src/Engine/error_measures.py</File>
     <Type>item.type.label.clarity</Type>
     <Severity>item.severity.label.major</Severity>
     <Summary>This is not the WER</Summary>
     <Description>This is not the WER, but the 01-loss. The word error rate is actually a dynamic programming based distance metric!</Description>
-    <Annotation></Annotation>
+    <Annotation>Renamed to loss_01</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GIYJF">
     <ReviewIssueMeta>
@@ -360,10 +360,10 @@
   <ReviewIssue id="G69GLH8S">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:03:11:116 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:03:23:022 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-09 :: 16:55:36:597 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="28">src/Engine/linear_nodes.py</File>
     <Type>item.type.label.codingStandards</Type>
     <Severity>item.severity.label.normal</Severity>
@@ -371,8 +371,8 @@
     <Description></Description>
     <Annotation></Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GLX0S">
     <ReviewIssueMeta>
