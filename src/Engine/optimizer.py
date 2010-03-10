@@ -6,7 +6,7 @@ Created on Feb 9, 2010
 import mdp
 import pylab
 import itertools
-import crossvalidation 
+import model_validation 
 
 class Optimizer(object):
     def __init__(self, optimization_dict, loss_function, **kwargs):
@@ -39,7 +39,7 @@ class Optimizer(object):
         self.param_space = list(itertools.product(*self.parameter_ranges))
         self.errors = mdp.numx.zeros(self.paramspace_dimensions)
 
-    def grid_search (self,x,y, flowNode, n_folds=5, crossvalidation_function = crossvalidation.n_fold_random):
+    def grid_search (self,x,y, flowNode, cross_validate_function = model_validation.n_fold_random, *args, **kwargs):
         ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
             for each value in the parameter space.
             Input arguments are:
@@ -50,7 +50,8 @@ class Optimizer(object):
         # Loop over all points in the parameter space
         for paramspace_index_flat, parameter_values in enumerate(self.param_space):
             # Set all parameters of all nodes to the correct values
-            for parameter_index, node_parameter in enumerate(self.parameters): 
+            for parameter_index, node_parameter in enumerate(self.parameters):
+                # Add the current node to the set of nodes whose parameters are changed, and which should be re-initialized 
                 node_set.add(node_parameter['node'])
                 node_parameter['node'].__setattr__(node_parameter['parameter'], parameter_values[parameter_index])
             
@@ -61,7 +62,7 @@ class Optimizer(object):
            
             # After all node parameters have been set and initialized, do the cross-validation
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions) 
-            self.errors[paramspace_index_full] = mdp.numx.mean(crossvalidation.cross_validate(x,y,flowNode, self.loss_function, n_folds=n_folds, cross_validate_function = crossvalidation_function ))
+            self.errors[paramspace_index_full] = mdp.numx.mean(model_validation.validate(x,y,flowNode, self.loss_function, cross_validate_function, *args, **kwargs))
 
     def plot_results(self):
         ''' Plot the results of the optimization. Works for 1D and 2D scans, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.

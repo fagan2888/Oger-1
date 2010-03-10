@@ -33,19 +33,14 @@ def nrmse( input, target, discard=0, var=-1 ):
     insignal.shape = -1,
     targetsignal.shape = -1,
     
-    if( targetsignal.size > insignal.size ):
-        maxsize = insignal.size
-    else:
-        maxsize = targetsignal.size
-    
-    origsig = targetsignal[discard:maxsize]
-    testsig = insignal[discard:maxsize]
+    if( targetsignal.size != insignal.size ):
+        raise RuntimeError('Length of target signal is not equal to length of generated signal.')
     
     # check if a variance is given
     if var<=0:
-        var = origsig.std()**2
+        var = targetsignal.std()**2
     
-    error = (origsig - testsig)**2
+    error = (targetsignal - insignal)**2
     nrmse = np.sqrt( error.mean() / var )
     
     return nrmse

@@ -58,10 +58,6 @@ class RidgeRegressionNode(mdp.Node):
 
         x = self._add_constant(x)
         
-        # Do washout of initial states
-        x = x[self.washout:,:]
-        y = y[self.washout:,:]
-
         # update internal variables
         self._xTx += mdp.utils.mult(x.T, x)
         self._xTy += mdp.utils.mult(x.T, y)

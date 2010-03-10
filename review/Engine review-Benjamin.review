@@ -54,19 +54,19 @@
   <ReviewIssue id="G69FSPUO">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:40:49:248 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:41:53:316 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-10 :: 09:48:48:361 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="8">src/Engine/utility_nodes.py</File>
     <Type>item.type.label.suggestion</Type>
     <Severity>item.severity.label.normal</Severity>
     <Summary>Already present in readout nodes?</Summary>
     <Description>We have a washout node, but washout is also available in the regression nodes. Maybe drop the washout in the regression nodes?</Description>
-    <Annotation></Annotation>
+    <Annotation>Washout is now provided solely by WashoutNode</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69FVTIG">
     <ReviewIssueMeta>
@@ -122,19 +122,19 @@
   <ReviewIssue id="G69G1TM3">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:47:54:027 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:49:21:360 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-10 :: 09:48:11:394 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="6">src/Engine/crossvalidation.py</File>
     <Type>item.type.label.codingStandards</Type>
     <Severity>item.severity.label.major</Severity>
     <Summary>Rename file</Summary>
     <Description>Rename to more consistent and general validation or model_selection or sampling</Description>
-    <Annotation></Annotation>
+    <Annotation>As suggested: renamed to model_validation</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69G4T98">
     <ReviewIssueMeta>
@@ -207,19 +207,19 @@
   <ReviewIssue id="G69G9Q04">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:54:02:596 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:54:30:999 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-10 :: 09:35:56:105 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="46">src/Engine/crossvalidation.py</File>
     <Type>item.type.label.missing</Type>
     <Severity>item.severity.label.minor</Severity>
     <Summary>Add more selection schemes</Summary>
     <Description></Description>
-    <Annotation></Annotation>
+    <Annotation>Added leave_one_out and train_test_only</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GB8ZT">
     <ReviewIssueMeta>
@@ -258,19 +258,19 @@
   <ReviewIssue id="G69GCY7C">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:56:33:192 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 16:57:33:069 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-10 :: 09:35:31:497 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
-    <File line="41">src/Engine/error_measures.py</File>
+    <AssignedTo>David</AssignedTo>
+    <File line="39">src/Engine/error_measures.py</File>
     <Type>item.type.label.codingStandards</Type>
     <Severity>item.severity.label.critical</Severity>
     <Summary>Do we want discard in the error measures?</Summary>
     <Description>Do we want this in the error measures or do we do washout in the readout or using a washout node? If we want it in the error functions, they should all have the same interface!</Description>
-    <Annotation></Annotation>
+    <Annotation>Removed, provided by utility_nodes.WashoutNode</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GENSF">
     <ReviewIssueMeta>
@@ -326,19 +326,19 @@
   <ReviewIssue id="G69GJKB4">
     <ReviewIssueMeta>
       <CreationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:01:41:776 CET</CreationDate>
-      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-01 :: 17:01:50:767 CET</LastModificationDate>
+      <LastModificationDate format="yyyy-MM-dd :: HH:mm:ss:SSS z">2010-03-10 :: 09:27:30:346 CET</LastModificationDate>
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
-    <AssignedTo>Benjamin</AssignedTo>
+    <AssignedTo>David</AssignedTo>
     <File line="62">src/Engine/linear_nodes.py</File>
     <Type>item.type.label.programLogic</Type>
     <Severity>item.severity.label.major</Severity>
     <Summary>Do we want this here?</Summary>
     <Description></Description>
-    <Annotation></Annotation>
+    <Annotation>Removed, provided by  utility_nodes.WashoutNode</Annotation>
     <Revision></Revision>
-    <Resolution>item.label.unset</Resolution>
-    <Status>item.status.label.open</Status>
+    <Resolution>item.resolution.label.validNeedsfixing</Resolution>
+    <Status>item.status.label.resolved</Status>
   </ReviewIssue>
   <ReviewIssue id="G69GKAJA">
     <ReviewIssueMeta>
@@ -347,7 +347,7 @@
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
-    <File line="70">src/Engine/linear_nodes.py</File>
+    <File line="66">src/Engine/linear_nodes.py</File>
     <Type>item.type.label.optimization</Type>
     <Severity>item.severity.label.major</Severity>
     <Summary>Can we easily range over the ridge parameter?</Summary>
@@ -568,7 +568,7 @@
     </ReviewIssueMeta>
     <ReviewerId>Benjamin</ReviewerId>
     <AssignedTo>Benjamin</AssignedTo>
-    <File line="64">src/Engine/optimizer.py</File>
+    <File line="65">src/Engine/optimizer.py</File>
     <Type>item.type.label.programLogic</Type>
     <Severity>item.severity.label.normal</Severity>
     <Summary>is mean always the desired behavior here?</Summary>

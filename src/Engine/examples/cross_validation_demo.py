@@ -1,7 +1,7 @@
-from Engine import datasets 
-from Engine import error_measures
-from Engine import reservoir_nodes
-from Engine import crossvalidation
+import datasets
+import error_measures
+import reservoir_nodes
+import model_validation
 
 import mdp
 
@@ -24,16 +24,16 @@ if __name__ == "__main__":
    
     print "Simple training and testing (one fold, i.e. no cross-validation), training_fraction = 0.5."
     print "cross_validate_function = crossvalidation.train_test_only"
-    errors = crossvalidation.cross_validate(inputs, outputs, RC, error_measures.nrmse, cross_validate_function = crossvalidation.train_test_only, training_fraction = 0.5)
+    errors = model_validation.validate(inputs, outputs, RC, error_measures.nrmse, cross_validate_function = model_validation.train_test_only, training_fraction = 0.5)
     print errors
     print
    
     print "5-fold cross-validation"
     print "cross_validate_function = crossvalidation.cross_validate"
-    errors = crossvalidation.cross_validate(inputs, outputs, RC, error_measures.nrmse, n_folds=5)
+    errors = model_validation.validate(inputs, outputs, RC, error_measures.nrmse, n_folds=5)
     print errors
     print
 
     print "Leave-one-out cross-validation"
-    errors = crossvalidation.cross_validate(inputs, outputs, RC, error_measures.nrmse, cross_validate_function = crossvalidation.leave_one_out)
+    errors = model_validation.validate(inputs, outputs, RC, error_measures.nrmse, cross_validate_function = model_validation.leave_one_out)
     print errors
