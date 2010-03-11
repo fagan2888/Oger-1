@@ -2,6 +2,7 @@ import datasets
 import error_measures
 import reservoir_nodes
 import model_validation
+import extension_memoize_execute
 
 import mdp
 
@@ -12,10 +13,10 @@ if __name__ == "__main__":
     system_order = 30;
     washout=30;
 
-    [inputs,outputs] = datasets.narma30()
+    [inputs,outputs] = datasets.narma30(sample_len = 10000)
 
     # construct individual nodes
-    reservoir = reservoir_nodes.ReservoirNode(output_dim = 100)
+    reservoir = reservoir_nodes.ReservoirNode(output_dim = 100, node_id='reservoir')
     readout = RidgeRegressionNode(0)
 
     # build network with MDP framework
@@ -24,11 +25,17 @@ if __name__ == "__main__":
    
     print "Simple training and testing (one fold, i.e. no cross-validation), training_fraction = 0.5."
     print "cross_validate_function = crossvalidation.train_test_only"
-    errors = model_validation.validate(inputs, outputs, RC, error_measures.nrmse, cross_validate_function = model_validation.train_test_only, training_fraction = 0.5)
+    mdp.activate_extension('memoize_execute')
+    errors = model_validation.validate(inputs, outputs, RC, error_measures.nrmse, cross_validate_function = model_validation.leave_one_out)
     print errors
+    mdp.deactivate_extension('memoize_execute')
+
+    errors = model_validation.validate(inputs, outputs, RC, error_measures.nrmse, cross_validate_function = model_validation.leave_one_out)
+    print errors
+    
     print
    
-    print "5-fold cross-validation"
+    '''print "5-fold cross-validation"
     print "cross_validate_function = crossvalidation.cross_validate"
     errors = model_validation.validate(inputs, outputs, RC, error_measures.nrmse, n_folds=5)
     print errors
@@ -36,4 +43,4 @@ if __name__ == "__main__":
 
     print "Leave-one-out cross-validation"
     errors = model_validation.validate(inputs, outputs, RC, error_measures.nrmse, cross_validate_function = model_validation.leave_one_out)
-    print errors
+    print errors '''

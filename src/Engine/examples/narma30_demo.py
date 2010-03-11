@@ -3,6 +3,7 @@ import error_measures
 import reservoir_nodes
 import pylab
 import mdp
+import bimdp
 
 from Engine.linear_nodes import RidgeRegressionNode
 
@@ -18,23 +19,22 @@ if __name__ == "__main__":
     [x,y] = datasets.narma30(sample_len=9000)
 
     # construct individual nodes
-    reservoir = reservoir_nodes.ReservoirNode(inputs,100)
+    reservoir = reservoir_nodes.ReservoirNode(inputs,100, node_id='reservoir')
     readout = RidgeRegressionNode(0)
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout], verbose=1)
-    RC = mdp.hinet.FlowNode(flow)
     
     #plot the input
     pylab.subplot(nx,ny,1)
     pylab.plot(x[0])
     
     # train the flow 
-    RC.train(x[0], y[0])
+    flow.train([ [x[0]], [[x[0],y[0]]] ])
     
     #apply the trained flow to the training data and test data
-    trainout = RC(x[0])
-    testout = RC(x[1])
+    trainout = flow(x[0])
+    testout = flow(x[1])
     
     #plot everything
     pylab.subplot(nx,ny,2)

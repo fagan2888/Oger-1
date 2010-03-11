@@ -35,7 +35,7 @@ if __name__ == "__main__":
     pylab.plot(x[0])
     
     # train the flow 
-    flow.train([ [x[0]], [x[0],y[0]] ])
+    flow.train([ [[x[0]]], [[x[0],y[0]]] ])
     #RC.train(x[0], y[0])
     
     #flow.stop_training()

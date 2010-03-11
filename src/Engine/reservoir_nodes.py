@@ -6,8 +6,9 @@ Created on Aug 20, 2009
 from utility_functions import get_spectral_radius
 import mdp
 import numpy
+import bimdp
 
-class ReservoirNode(mdp.Node):
+class ReservoirNode(bimdp.BiNode):
     """
     A standard (ESN) reservoir node. Parameters are:
     - input_dim: input dimensionality
@@ -20,7 +21,7 @@ class ReservoirNode(mdp.Node):
     """
     
     def __init__(self, input_dim=1, output_dim=None, spectral_radius=0.9, 
-                 nonlin_func = 'tanh', bias_scaling = 0, input_scaling=1, dtype='float64', _instance = 0):
+                 nonlin_func = 'tanh', bias_scaling = 0, input_scaling=1, dtype='float64', _instance = 0, node_id=None):
         """ Initializes and constructs a random reservoir.
                 
         output_dim -- the number of outputs, which is also the number of
@@ -28,7 +29,7 @@ class ReservoirNode(mdp.Node):
         prototype -- a prototype reservoir which will be cloned with all
                      its parameters
         """
-        super(ReservoirNode, self).__init__(input_dim, output_dim, dtype)
+        super(ReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
         
         # Set all object attributes
         # Scaling for input weight matrix

@@ -4,9 +4,9 @@ Created on Aug 20, 2009
 @author: dvrstrae
 '''
 
-import mdp
+import bimdp
 
-class RidgeRegressionNode(mdp.Node):
+class RidgeRegressionNode(bimdp.BiNode):
     """
     Least-square ridge regression node.
     
@@ -16,7 +16,7 @@ class RidgeRegressionNode(mdp.Node):
     def __init__(self, ridge_param=0, washout = 0, use_bias = 1, input_dim=None, output_dim=None, dtype=None):
         """
         """
-        super(RidgeRegressionNode, self).__init__(input_dim, output_dim, dtype)
+        super(RidgeRegressionNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
         
         # for the linear regression estimator we need two terms
         # the first one is X^T X
