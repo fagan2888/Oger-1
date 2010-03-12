@@ -61,3 +61,17 @@ def mackey_glass(sample_len=1000, tau=17):
     inp = mdp.numx.tanh(inp - 1)
     inp.shape=(-1,1)
     return inp
+
+def timit_tiny (indir='/data/aurora/Variables/TIMIT/timittiny', indices=range(501)):
+    files= glob.glob(os.path.join(indir, '*.mat'))
+    x,y=[],[]
+    if len(files)>0:
+        print "Found %d files in directory %s. Loading..." % (len(files), indir)
+        for g in mdp.utils.progressinfo(files):
+            contents = mdp.numx.io.loadmat(g)
+            x.append(contents['spec'].T)
+	    y.append(contents['target'])
+    else:
+        print "No files found in %s" % (indir)
+        return
+    return x,y
