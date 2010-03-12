@@ -9,6 +9,7 @@ from Engine import reservoir_nodes
 from Engine import utility_nodes
 
 import mdp
+from mdp.numx import io
 import pylab
 import scipy as sp
 

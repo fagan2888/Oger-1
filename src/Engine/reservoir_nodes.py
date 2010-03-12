@@ -6,9 +6,8 @@ Created on Aug 20, 2009
 from utility_functions import get_spectral_radius
 import mdp
 import numpy
-import bimdp
 
-class ReservoirNode(bimdp.BiNode):
+class ReservoirNode(mdp.Node):
     """
     A standard (ESN) reservoir node. Parameters are:
     - input_dim: input dimensionality
@@ -21,7 +20,7 @@ class ReservoirNode(bimdp.BiNode):
     """
     
     def __init__(self, input_dim=1, output_dim=None, spectral_radius=0.9, 
-                 nonlin_func = 'tanh', bias_scaling = 0, input_scaling=1, dtype='float64', _instance = 0, node_id=None):
+                 nonlin_func = 'tanh', bias_scaling = 0, input_scaling=1, dtype='float64', _instance = 0):
         """ Initializes and constructs a random reservoir.
                 
         output_dim -- the number of outputs, which is also the number of
@@ -43,6 +42,8 @@ class ReservoirNode(bimdp.BiNode):
         self._instance = _instance
         # Non-linear function
         self.nonlin_func=nonlin_func
+        self.reset_states = True
+        self.collected_states = []
 
         # Call the initialize function to create the weight matrices
         self.initialize()
@@ -70,18 +71,26 @@ class ReservoirNode(bimdp.BiNode):
         """
         
         non_linearity = getattr(mdp.numx, self.nonlin_func)
-        steps = x.shape[0]
-        self.states = numpy.zeros((steps, self._output_dim), dtype=self._dtype)
-        self.state = numpy.zeros(self._output_dim)
-        self.state_nonlin = numpy.zeros(self._output_dim)
 
+        steps = x.shape[0]
+        if self.reset_states:
+            self.states = numpy.zeros((steps, self._output_dim), dtype=self.dtype)
+            self.state = numpy.zeros(self.output_dim)
+            self.state_nonlin = numpy.zeros(self.output_dim)
+        #else:
+        #    print 'steps : ' + str(steps)
+        #    self.states = mdp.numx.atleast_2d(self.states[-1,:])
+        #    self.collected_states.append(self.state_nonlin)
+            
+        #    print self.state_nonlin
+        
         for n in range(steps):
-            self.state = numpy.dot(self.w, self.state)
-            self.state += numpy.dot(self.w_in, x[n])
+            self.state = numpy.dot(self.w, self.state_nonlin)
+            self.state += numpy.dot(self.w_in, x[n,:])
             self.state += self.w_bias
             self.state_nonlin = non_linearity(self.state)
-            self.states[n] = self.state_nonlin
-        
+            self.states[n,:] = self.state_nonlin
+
         return self.states
  
 class LeakyReservoirNode(ReservoirNode):
@@ -119,11 +128,11 @@ class LeakyReservoirNode(ReservoirNode):
         self.states[0] = leak_rate * self.state_nonlin
         
         for n in range(1, steps):
-            self.state = numpy.dot(self.w, self.state)
+            self.state = numpy.dot(self.w, self.state_nonlin)
             self.state += numpy.dot(self.w_in, x[n])
             self.state += self.w_bias
             self.state_nonlin = nonlinearity(self.state)
             
-            self.states[n] = (1 - leak_rate) * self.states[n - 1] + leak_rate * self.state_nonlin
+            self.states[n] = (1 - leak_rate) * self.state_nonlin[n - 1] + leak_rate * self.state_nonlin
         
         return self.states

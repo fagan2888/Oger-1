@@ -33,4 +33,4 @@ if __name__ == '__main__':
     opt = optimizer.Optimizer(gridsearch_parameters, error_measures.nrmse)
     
     # Do the grid search
-    opt.grid_search(x,y, RC)
+    opt.grid_search(x,y, RC, n_folds=5)

@@ -4,9 +4,9 @@ Created on Aug 20, 2009
 @author: dvrstrae
 '''
 
-import bimdp
+import mdp
 
-class RidgeRegressionNode(bimdp.BiNode):
+class RidgeRegressionNode(mdp.Node):
     """
     Least-square ridge regression node.
     
