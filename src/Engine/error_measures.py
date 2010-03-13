@@ -38,7 +38,8 @@ def nrmse( input, target, discard=0, var=-1 ):
     
     # check if a variance is given
     if var<=0:
-        var = targetsignal.std()**2
+        # Use normalization with N-1, as in matlab
+        var = targetsignal.std(ddof=1)**2
     
     error = (targetsignal - insignal)**2
     nrmse = np.sqrt( error.mean() / var )
