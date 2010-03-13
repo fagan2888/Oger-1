@@ -7,7 +7,6 @@ import mdp
 import glob
 import os
 import collections
-import pylab
 
 def narma30(n_samples = 10, sample_len = 1000):
     system_order = 30
@@ -18,7 +17,6 @@ def narma30(n_samples = 10, sample_len = 1000):
         y.append(mdp.numx.zeros((sample_len,1)))
         for k in range(system_order,sample_len-1):
             y[e][k+1]=.2*y[e][k]+.04*y[e][k]*mdp.numx.sum(y[e][k-29:k])+1.5*x[e][k-29]*x[e][k] +.001
-        
     return x,y 
 
 def analog_speech (indir='../datasets/Lyon128', indices=range(501)):

@@ -3,13 +3,13 @@ Created on Aug 24, 2009
 
 @author: dvrstrae
 '''
-from Engine import datasets
-from Engine import error_measures
-from Engine import reservoir_nodes
-from Engine import utility_nodes
+import datasets
+import error_measures
+import reservoir_nodes
+import utility_nodes
 
 import mdp
-from mdp.numx import io
+from scipy import io
 import pylab
 import scipy as sp
 
@@ -29,17 +29,14 @@ if __name__ == "__main__":
     
 
     inputs = x[0].shape[1]
+
     # construct individual nodes
     reservoir = reservoir_nodes.ReservoirNode(inputs, 100, input_scaling = 1)
     readout = RidgeRegressionNode()
     mnnode = utility_nodes.MeanAcrossTimeNode()
-    wtanode = utility_nodes.WTANode();
 
     # build network with MDP framework
-    flow = mdp.Flow([reservoir, readout, mnnode], verbose=1)
-    #flow = mdp.Flow([reservoir, readout], verbose=1)
-
-    flownode = mdp.hinet.FlowNode(flow)
+    flow = mdp.Flow([reservoir, readout, mnnode])
     
     pylab.subplot(nx,ny,1)
     pylab.imshow(x[0].T,aspect='auto', interpolation='nearest')
@@ -49,18 +46,16 @@ if __name__ == "__main__":
     
     print "Training..."
     # train and test it
-    for xt,yt in mdp.utils.progressinfo(zip(x[0:n_train_samples-1], y[0:n_train_samples-1])):
-        flownode.train(xt,yt)
-    flownode.stop_training()
+    flow.train([ [x[0:n_train_samples-1]],[x[0:n_train_samples-1], y[0:n_train_samples-1]], [None] ])
 
     ytrain,ytest=[],[];
     
     print "Applying to trainingset..."
     for xtrain in mdp.utils.progressinfo(x[0:n_train_samples-1]):
-        ytrain.append(flownode(xtrain))
+        ytrain.append(flow(xtrain))
     print "Applying to testset..."
     for xtest in mdp.utils.progressinfo(x[n_train_samples:]):
-        ytest.append(flownode(xtest))
+        ytest.append(flow(xtest))
     
     pylab.subplot(nx,ny,2)
     pylab.plot(ytrain[0], 'r')
@@ -88,5 +83,5 @@ if __name__ == "__main__":
     ytestmean=[sp.argmax(sp.mean(sample, axis=0)) for sample in ytest]
     
     
-    print error_measures.mean_error(ymean, ytestmean, lambda x, y, z: x!=y)
+    print mdp.numx.mean(error_measures.loss_01(ymean, ytestmean))
     print "finished"
