@@ -1,0 +1,18 @@
+!SESSION 2010-03-04 16:22:36.271 -----------------------------------------------
+eclipse.buildId=M20090917-0800
+java.version=1.6.0_16
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Command-line arguments:  -data /home/pbrakel/Repositories/organic-reservoir-computing-engine -os linux -ws gtk -arch x86_64
+
+!ENTRY edu.hawaii.ics.csdl.jupiter 1 0 2010-03-04 16:22:40.624
+!MESSAGE Jupiter Review Plugin is up.
+!SESSION 2010-03-04 16:26:36.690 -----------------------------------------------
+eclipse.buildId=M20090917-0800
+java.version=1.6.0_16
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Command-line arguments:  -data /home/pbrakel/Repositories/organic-reservoir-computing-engine -os linux -ws gtk -arch x86_64
+
+!ENTRY edu.hawaii.ics.csdl.jupiter 1 0 2010-03-04 16:26:40.361
+!MESSAGE Jupiter Review Plugin is up.
