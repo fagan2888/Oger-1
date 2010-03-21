@@ -48,9 +48,9 @@ class PerceptronNode(mdp.Node):
                  transfer_derv=None, dtype='float64'):
         
         super(PerceptronNode, self).__init__(input_dim, output_dim, dtype)
-        self.w = self._refcast(mdp.numx.random.randn(self.input_dim,
+        self.w = self._refcast(mdp.numx.random.randn(self.input_dim, self.output_dim) * 0.01)
                                                      self.output_dim)*0.01)
-        self.b = self._refcast(mdp.numx.random.randn(self.output_dim)*0.01)
+        self.b = self._refcast(mdp.numx.random.randn(self.output_dim) * 0.01)
 
         if transfer_func == None:
             self.transfer_func = lambda x: x
@@ -80,6 +80,7 @@ class PerceptronNode(mdp.Node):
 
     def is_training(self):
         return False
+        _, d = x.shape
 
     def is_trainable(self):
         return False
