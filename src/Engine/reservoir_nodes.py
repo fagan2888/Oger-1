@@ -19,8 +19,8 @@ class ReservoirNode(mdp.Node):
     
     """
     
-    def __init__(self, input_dim=1, output_dim=None, spectral_radius=0.9, 
-                 nonlin_func = mdp.numx.tanh, bias_scaling = 0, input_scaling=1, dtype='float64', _instance = 0):
+    def __init__(self, input_dim=1, output_dim=None, spectral_radius=0.9,
+                 nonlin_func='tanh', bias_scaling=0, input_scaling=1, dtype='float64', _instance=0):
         """ Initializes and constructs a random reservoir.
                 
         output_dim -- the number of outputs, which is also the number of
@@ -41,7 +41,7 @@ class ReservoirNode(mdp.Node):
         # Can be ranged over to simulate different 'runs'
         self._instance = _instance
         # Non-linear function
-        self.nonlin_func=nonlin_func
+        self.nonlin_func = nonlin_func
         self.reset_states = True
         self.collected_states = []
 
@@ -57,12 +57,12 @@ class ReservoirNode(mdp.Node):
     def initialize(self):
         """ Initialize the weight matrices of the reservoir node. The w, w_in and w_bias matrices will be created according to the input_scaling, bias_scaling and spectral radius of the node.
         """
-        self.w_in = self.input_scaling*(numpy.random.randint(0,2, [self.output_dim, self.input_dim])*2-1)
-        self.w_bias = numpy.ones(self.output_dim)*self.bias_scaling
-        self.w = mdp.numx_rand.randn(self.output_dim,self.output_dim)
+        self.w_in = self.input_scaling * (numpy.random.randint(0, 2, [self.output_dim, self.input_dim]) * 2 - 1)
+        self.w_bias = numpy.ones(self.output_dim) * self.bias_scaling
+        self.w = mdp.numx_rand.randn(self.output_dim, self.output_dim)
         
         # scale it to spectral radius
-        self.w *= self.spectral_radius/get_spectral_radius(self.w)
+        self.w *= self.spectral_radius / get_spectral_radius(self.w)
     
     def _get_supported_dtypes(self):
         return ['float32', 'float64']
@@ -78,24 +78,25 @@ class ReservoirNode(mdp.Node):
         if self.reset_states:
             initial_state = numpy.zeros((1, self.output_dim))
         else:
-            initial_state = mdp.numx.atleast_2d(self.states[-1,:])
+            initial_state = mdp.numx.atleast_2d(self.states[-1, :])
         
         # Pre-allocate the state vector, adding the initial state
         self.states = mdp.numx.concatenate((initial_state, numpy.zeros((steps, self.output_dim))))
        
+        nonlinear_function_pointer = getattr(mdp.numx, self.nonlin_func)
         # Loop over the input data and compute the reservoir states
         for n in range(steps):
-            self.states[n+1,:] = self.nonlin_func(numpy.dot(self.w, self.states[n,:]) + numpy.dot(self.w_in, x[n,:]) + self.w_bias)    
+            self.states[n + 1, :] = nonlinear_function_pointer(numpy.dot(self.w, self.states[n, :]) + numpy.dot(self.w_in, x[n, :]) + self.w_bias)    
 
         # Return the whole state matrix except the initial state
-        return self.states[1:,:]
+        return self.states[1:, :]
  
 class LeakyReservoirNode(ReservoirNode):
     """ Reservoir node with leaky integrator neurons (a first-order low-pass filter added to the output of a standard neuron). 
     """
 
-    def __init__(self, input_dim=None, output_dim=None, spec_radius=0.9, 
-                nonlin_func = 'tanh', bias_scaling = 0.0, input_scaling=1.0, leak_rate=1.0, dtype='float64'):
+    def __init__(self, input_dim=1, output_dim=None, spec_radius=0.9,
+                nonlin_func='tanh', bias_scaling=0.0, input_scaling=1.0, leak_rate=1.0, dtype='float64'):
         """ Initializes and constructs a random reservoir with leaky-integrator neurons.
                
            output_dim -- the number of outputs, which is also the number of
@@ -119,17 +120,18 @@ class LeakyReservoirNode(ReservoirNode):
         if self.reset_states:
             initial_state = numpy.zeros((1, self.output_dim))
         else:
-            initial_state = mdp.numx.atleast_2d(self.states[-1,:])
+            initial_state = mdp.numx.atleast_2d(self.states[-1, :])
         
         # Pre-allocate the state vector, adding the initial state
         self.states = mdp.numx.concatenate((initial_state, numpy.zeros((steps, self.output_dim))))
        
+        nonlinear_function_pointer = getattr(mdp.numx, self.nonlin_func)
         # Loop over the input data and compute the reservoir states
         for n in range(steps):
             # First compute the output of the non-leaky neuron (standard sigmoid)
-            unfiltered_output = self.nonlin_func(numpy.dot(self.w, self.states[n,:]) + numpy.dot(self.w_in, x[n,:]) + self.w_bias)
+            unfiltered_output = nonlinear_function_pointer(numpy.dot(self.w, self.states[n, :]) + numpy.dot(self.w_in, x[n, :]) + self.w_bias)
             # Apply the low-pass filter
-            self.states[n+1,:] = (1-self.leak_rate)*self.states[n,:] + self.leak_rate*unfiltered_output
+            self.states[n + 1, :] = (1 - self.leak_rate) * self.states[n, :] + self.leak_rate * unfiltered_output
 
         # Return the whole state matrix except the initial state
-        return self.states[1:,:]    
+        return self.states[1:, :]    
