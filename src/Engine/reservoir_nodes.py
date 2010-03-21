@@ -20,7 +20,8 @@ class ReservoirNode(mdp.Node):
     """
     
     def __init__(self, input_dim=1, output_dim=None, spectral_radius=0.9,
-                 nonlin_func='tanh', bias_scaling=0, input_scaling=1, dtype='float64', _instance=0):
+                 nonlin_func='tanh', bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
+                 w_in=None, w=None, w_bias=None):
         """ Initializes and constructs a random reservoir.
                 
         output_dim -- the number of outputs, which is also the number of
@@ -44,6 +45,26 @@ class ReservoirNode(mdp.Node):
         self.nonlin_func = nonlin_func
         self.reset_states = True
         self.collected_states = []
+        
+        # Store any externally passed initialization values for w, w_in and w_bias
+        if w_in is not None and w_in.shape != (output_dim, input_dim):
+            raise mdp.NodeException('Shape of given w_in does not match input/output dimensions of node.')
+        else:
+            self.w_in_initial = w_in
+        if w is not None and w.shape != (output_dim, output_dim):
+            raise mdp.NodeException('Shape of given w does not match input/output dimensions of node.')
+        else:
+            self.w_initial = w
+        if w_bias is not None and w_bias.shape != (output_dim,):
+            raise mdp.NodeException('Shape of given w_bias does not match input/output dimensions of node.')
+        else:
+            self.w_bias_initial = w_bias
+        
+        # Fields for allocating reservoir weight matrix w, input weight matrix w_in
+        # and bias weight matrix w_bias
+        self.w_bias = []
+        self.w_in = []
+        self.w = []
 
         # Call the initialize function to create the weight matrices
         self.initialize()
@@ -57,12 +78,26 @@ class ReservoirNode(mdp.Node):
     def initialize(self):
         """ Initialize the weight matrices of the reservoir node. The w, w_in and w_bias matrices will be created according to the input_scaling, bias_scaling and spectral radius of the node.
         """
-        self.w_in = self.input_scaling * (numpy.random.randint(0, 2, [self.output_dim, self.input_dim]) * 2 - 1)
-        self.w_bias = numpy.ones(self.output_dim) * self.bias_scaling
-        self.w = mdp.numx_rand.randn(self.output_dim, self.output_dim)
+        # Initialize input weight matrix
+        if self.w_in_initial is None:
+            self.w_in = self.input_scaling * (numpy.random.randint(0, 2, [self.output_dim, self.input_dim]) * 2 - 1)
+        else:
+            self.w_in = self.w_in_initial
+            
+        # Initialize bias weight matrix
+        if self.w_bias_initial is None:     
+            self.w_bias = numpy.ones(self.output_dim) * self.bias_scaling
+        else:
+            self.w_bias = self.w_bias_initial
         
-        # scale it to spectral radius
-        self.w *= self.spectral_radius / get_spectral_radius(self.w)
+        # Initialize reservoir weight matrix
+        if self.w_initial is None:
+            self.w = numpy.random.randn(self.output_dim, self.output_dim)
+            # scale it to spectral radius
+            self.w *= self.spectral_radius / get_spectral_radius(self.w)
+        else:
+            self.w = self.w_initial
+        
     
     def _get_supported_dtypes(self):
         return ['float32', 'float64']
@@ -78,10 +113,10 @@ class ReservoirNode(mdp.Node):
         if self.reset_states:
             initial_state = numpy.zeros((1, self.output_dim))
         else:
-            initial_state = mdp.numx.atleast_2d(self.states[-1, :])
+            initial_state = numpy.atleast_2d(self.states[-1, :])
         
         # Pre-allocate the state vector, adding the initial state
-        self.states = mdp.numx.concatenate((initial_state, numpy.zeros((steps, self.output_dim))))
+        self.states = numpy.concatenate((initial_state, numpy.zeros((steps, self.output_dim))))
        
         nonlinear_function_pointer = getattr(mdp.numx, self.nonlin_func)
         # Loop over the input data and compute the reservoir states
@@ -120,10 +155,10 @@ class LeakyReservoirNode(ReservoirNode):
         if self.reset_states:
             initial_state = numpy.zeros((1, self.output_dim))
         else:
-            initial_state = mdp.numx.atleast_2d(self.states[-1, :])
+            initial_state = numpy.atleast_2d(self.states[-1, :])
         
         # Pre-allocate the state vector, adding the initial state
-        self.states = mdp.numx.concatenate((initial_state, numpy.zeros((steps, self.output_dim))))
+        self.states = numpy.concatenate((initial_state, numpy.zeros((steps, self.output_dim))))
        
         nonlinear_function_pointer = getattr(mdp.numx, self.nonlin_func)
         # Loop over the input data and compute the reservoir states
