@@ -123,6 +123,7 @@ class BackpropNode(mdp.Node):
         """Update the parameters according to the input 'x' and target output 't'."""
 
         t = kwargs.get('t')
+        del kwargs['t']
         # Enter gradient mode.
         mdp.activate_extension('gradient')
 
