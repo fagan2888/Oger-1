@@ -138,6 +138,7 @@ def heating_tank(sample_len=1000, inputs=None):
     Tout = T_tube(-sp.floor((V_tube) / (inputs * Ts)));
     U = sp.insert(U, 0, input) # set new throughput   
     Y = sp.insert(Y, 0, Tout) # set new output
+    return U, Y, T_tank
 
 def timit_tiny (indir='/data/aurora/Variables/TIMIT/timittiny'):
     ''' Return data for a small subset of the TIMIT dataset

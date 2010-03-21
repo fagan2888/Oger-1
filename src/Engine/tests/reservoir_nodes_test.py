@@ -21,30 +21,64 @@ class ReservoirNodeTest(unittest.TestCase):
         ''' Test if spectral radius is expected value '''
 
         # Default value
-        r = reservoir_nodes.ReservoirNode (output_dim = self.default_size)
+        r = reservoir_nodes.ReservoirNode (output_dim=self.default_size)
         nose.tools.assert_almost_equals(utility_functions.get_spectral_radius(r.w), sp.amax(sp.absolute(sp.linalg.eigvals(r.w)))) 
 
         # Custom value
         rho = 0.1
-        r = reservoir_nodes.ReservoirNode (output_dim = self.default_size, spectral_radius=rho)
+        r = reservoir_nodes.ReservoirNode (output_dim=self.default_size, spectral_radius=rho)
         nose.tools.assert_almost_equals(utility_functions.get_spectral_radius(r.w), rho) 
 
     def test_zero_input(self):
         ''' Test if zero input returns zero output without bias
         '''
-        r = reservoir_nodes.ReservoirNode (output_dim = self.default_size)
-        assert sp.all(r(sp.zeros((self.input_length,1))) == sp.zeros((self.input_length,self.default_size)))
+        r = reservoir_nodes.ReservoirNode (output_dim=self.default_size)
+        assert sp.all(r(sp.zeros((self.input_length, 1))) == sp.zeros((self.input_length, self.default_size)))
 
     def test_input_mapping(self):
         ''' Test if input mapping is correct for zero internal weight matrix 
         '''
-        r = reservoir_nodes.ReservoirNode (output_dim = self.default_size, spectral_radius=0)
-        assert sp.all(r(sp.ones((self.input_length,1))) == sp.tanh(sp.dot(sp.ones((self.input_length,1)), r.w_in.T)))
+        r = reservoir_nodes.ReservoirNode (output_dim=self.default_size, spectral_radius=0)
+        assert sp.all(r(sp.ones((self.input_length, 1))) == sp.tanh(sp.dot(sp.ones((self.input_length, 1)), r.w_in.T)))
         
     def test_bias(self):
         ''' Test if turning on bias gives expected results 
         '''
-        r = reservoir_nodes.ReservoirNode (output_dim = self.default_size, spectral_radius=0, bias_scaling = 1)
-        assert sp.all(r(sp.zeros((self.input_length,1))) == sp.tile(sp.tanh(r.w_bias), (self.input_length, 1)))
+        r = reservoir_nodes.ReservoirNode (output_dim=self.default_size, spectral_radius=0, bias_scaling=1)
+        assert sp.all(r(sp.zeros((self.input_length, 1))) == sp.tile(sp.tanh(r.w_bias), (self.input_length, 1)))
 
+    def test_passing_custom_reservoir_matrix(self):
+        ''' Test if passing your own reservoir weight matrix gives expected results 
+        '''
+        # Check if weight matrix is initialized correctly
+        r = reservoir_nodes.ReservoirNode (output_dim=2, w=sp.array([[1, 2], [3, 4]]))
+        assert sp.all(r.w == sp.array([[1, 2], [3, 4]]))
+        r.initialize()
+        assert sp.all(r.w == sp.array([[1, 2], [3, 4]]))
+        
+        # Check if dimensionality is checked correctly
+        nose.tools.assert_raises(mdp.NodeException, reservoir_nodes.ReservoirNode, output_dim=2, w=sp.array([[1], [2]]))
 
+    def test_passing_custom_input_matrix(self):
+        ''' Test if passing your own input weight matrix gives expected results 
+        '''
+        # Check if weight matrix is initialized correctly
+        r = reservoir_nodes.ReservoirNode (output_dim=2, w_in=sp.array([[1], [2]]))
+        assert sp.all(r.w_in == sp.array([[1], [2]]))
+        r.initialize()
+        assert sp.all(r.w_in == sp.array([[1], [2]]))
+        
+        # Check if dimensionality is checked correctly
+        nose.tools.assert_raises(mdp.NodeException, reservoir_nodes.ReservoirNode, output_dim=2, w_in=sp.array([[1]]))
+
+    def test_passing_custom_bias_matrix(self):
+        ''' Test if passing your own bias weight matrix gives expected results 
+        '''
+        # Check if weight matrix is initialized correctly
+        r = reservoir_nodes.ReservoirNode (output_dim=2, w_bias=sp.array([1, 2]))
+        assert sp.all(r.w_bias == sp.array([1, 2]))
+        r.initialize()
+        assert sp.all(r.w_bias == sp.array([1, 2]))
+        
+        # Check if dimensionality is checked correctly
+        nose.tools.assert_raises(mdp.NodeException, reservoir_nodes.ReservoirNode, output_dim=2, w_bias=sp.array([[1]]))
