@@ -49,7 +49,6 @@ class PerceptronNode(mdp.Node):
         
         super(PerceptronNode, self).__init__(input_dim, output_dim, dtype)
         self.w = self._refcast(mdp.numx.random.randn(self.input_dim, self.output_dim) * 0.01)
-                                                     self.output_dim)*0.01)
         self.b = self._refcast(mdp.numx.random.randn(self.output_dim) * 0.01)
 
         if transfer_func == None:
