@@ -47,18 +47,9 @@ class ReservoirNode(mdp.Node):
         self.collected_states = []
         
         # Store any externally passed initialization values for w, w_in and w_bias
-        if w_in is not None and w_in.shape != (output_dim, input_dim):
-            raise mdp.NodeException('Shape of given w_in does not match input/output dimensions of node.')
-        else:
-            self.w_in_initial = w_in
-        if w is not None and w.shape != (output_dim, output_dim):
-            raise mdp.NodeException('Shape of given w does not match input/output dimensions of node.')
-        else:
-            self.w_initial = w
-        if w_bias is not None and w_bias.shape != (output_dim,):
-            raise mdp.NodeException('Shape of given w_bias does not match input/output dimensions of node.')
-        else:
-            self.w_bias_initial = w_bias
+        self.w_in_initial = w_in
+        self.w_initial = w
+        self.w_bias_initial = w_bias
         
         # Fields for allocating reservoir weight matrix w, input weight matrix w_in
         # and bias weight matrix w_bias
@@ -76,28 +67,66 @@ class ReservoirNode(mdp.Node):
         return False
     
     def initialize(self):
-        """ Initialize the weight matrices of the reservoir node. The w, w_in and w_bias matrices will be created according to the input_scaling, bias_scaling and spectral radius of the node.
+        """ Initialize the weight matrices of the reservoir node. If no 
+        arguments for w, w_in and w_bias matrices were given at construction
+        time, they will be created as follows:
+        - input matrix : input_scaling * uniform weights in [-1, 1]
+        - bias matrix :  bias_scaling * uniform weights in [-1, 1]
+        - reservoir matrix: gaussian weights rescaled to the desired spectral radius
+        If w, w_in or w_bias were given as a numpy array or a function, these
+        will be used as initialization instead.
         """
         # Initialize input weight matrix
         if self.w_in_initial is None:
-            self.w_in = self.input_scaling * (numpy.random.randint(0, 2, [self.output_dim, self.input_dim]) * 2 - 1)
+            # Initialize it to uniform random values using input_scaling
+            self.w_in = self.input_scaling * (numpy.random.rand(self.output_dim, self.input_dim) * 2 - 1)
         else:
-            self.w_in = self.w_in_initial
-            
+            if callable(self.w_in_initial):
+                self.w_in = self.w_in_initial() # If it is a function, call it
+            else:
+                self.w_in = self.w_in_initial # else just copy it
+        # Check if dimensions of the weight matrix match the dimensions of the node inputs and outputs
+        if self.w_in.shape != (self.output_dim, self.input_dim):
+            exception_str = 'Shape of given w_in does not match input/output dimensions of node. '
+            exception_str += 'Input dim: ' + str(self.input_dim) + ', output dim: ' + str(self.output_dim) + '. '
+            exception_str += 'Shape of w_in: ' + str(self.w_in.shape)
+            raise mdp.NodeException(exception_str)
+                   
         # Initialize bias weight matrix
-        if self.w_bias_initial is None:     
-            self.w_bias = numpy.ones(self.output_dim) * self.bias_scaling
-        else:
-            self.w_bias = self.w_bias_initial
-        
+        if self.w_bias_initial is None:
+            # Initialize it to uniform random values using input_scaling
+            self.w_bias = self.bias_scaling * (numpy.random.rand(self.output_dim) * 2 - 1)
+        else:    
+            if callable(self.w_bias_initial):
+                self.w_bias = self.w_bias_initial() # If it is a function, call it
+            else:
+                self.w_bias = self.w_bias_initial   # else just copy it
+
+        # Check if dimensions of the weight matrix match the dimensions of the node inputs and outputs
+        if self.w_bias.shape != (self.output_dim,):
+            exception_str = 'Shape of given w_bias does not match input/output dimensions of node. '
+            exception_str += 'Input dim: ' + str(self.input_dim) + ', output dim: ' + str(self.output_dim) + '. '
+            exception_str += 'Shape of w_bias: ' + str(self.w_bias.shape)
+            raise mdp.NodeException(exception_str)
+            
         # Initialize reservoir weight matrix
         if self.w_initial is None:
             self.w = numpy.random.randn(self.output_dim, self.output_dim)
             # scale it to spectral radius
             self.w *= self.spectral_radius / get_spectral_radius(self.w)
         else:
-            self.w = self.w_initial
+            if callable(self.w_initial):
+                self.w = self.w_initial() # If it is a function, call it
+            else:
+                self.w = self.w_initial   # else just copy it
         
+        # Check if dimensions of the weight matrix match the dimensions of the node inputs and outputs
+        if self.w.shape != (self.output_dim, self.output_dim):
+            exception_str = 'Shape of given w does not match input/output dimensions of node. '
+            exception_str += 'Output dim: ' + str(self.output_dim) + '. '
+            exception_str += 'Shape of w: ' + str(self.w_in.shape)
+            raise mdp.NodeException(exception_str)
+            
     
     def _get_supported_dtypes(self):
         return ['float32', 'float64']

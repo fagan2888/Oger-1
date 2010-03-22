@@ -4,7 +4,6 @@ Created on Dec 7, 2009
 @author: dvrstrae
 '''
 
-import sys
 import mdp
 import nose
 import unittest
@@ -53,11 +52,22 @@ class ReservoirNodeTest(unittest.TestCase):
         # Check if weight matrix is initialized correctly
         r = reservoir_nodes.ReservoirNode (output_dim=2, w=sp.array([[1, 2], [3, 4]]))
         assert sp.all(r.w == sp.array([[1, 2], [3, 4]]))
+        r.w = []
         r.initialize()
         assert sp.all(r.w == sp.array([[1, 2], [3, 4]]))
         
+    def test_passing_custom_reservoir_matrix_function(self):
+        ''' Test if passing your own reservoir weight matrix generation function gives expected results 
+        '''
+        # Check if weight matrix is initialized correctly
+        r = reservoir_nodes.ReservoirNode (output_dim=2, w=sp.ones((2, 2)))
+        assert sp.all(r.w == sp.array([[1, 1], [1, 1]]))
+        r.w = []
+        r.initialize()
+        assert sp.all(r.w == sp.array([[1, 1], [1, 1]]))
+      
         # Check if dimensionality is checked correctly
-        nose.tools.assert_raises(mdp.NodeException, reservoir_nodes.ReservoirNode, output_dim=2, w=sp.array([[1], [2]]))
+        nose.tools.assert_raises(mdp.NodeException, reservoir_nodes.ReservoirNode, output_dim=2, w=sp.ones((1, 1)))
 
     def test_passing_custom_input_matrix(self):
         ''' Test if passing your own input weight matrix gives expected results 
@@ -65,11 +75,26 @@ class ReservoirNodeTest(unittest.TestCase):
         # Check if weight matrix is initialized correctly
         r = reservoir_nodes.ReservoirNode (output_dim=2, w_in=sp.array([[1], [2]]))
         assert sp.all(r.w_in == sp.array([[1], [2]]))
+        r.w_in = []
         r.initialize()
         assert sp.all(r.w_in == sp.array([[1], [2]]))
         
         # Check if dimensionality is checked correctly
         nose.tools.assert_raises(mdp.NodeException, reservoir_nodes.ReservoirNode, output_dim=2, w_in=sp.array([[1]]))
+
+    def test_passing_custom_input_matrix_function(self):
+        ''' Test if passing your own input weight matrix generation function gives expected results 
+        '''
+        # Check if weight matrix is initialized correctly
+        r = reservoir_nodes.ReservoirNode (output_dim=2, w_in=sp.ones((2, 1)))
+        assert sp.all(r.w_in == sp.array([[1], [1]]))
+        r.w_in = []
+        r.initialize()
+        assert sp.all(r.w_in == sp.array([[1], [1]]))
+        
+        # Check if dimensionality is checked correctly
+        nose.tools.assert_raises(mdp.NodeException, reservoir_nodes.ReservoirNode, output_dim=2, w_in=sp.ones((1, 1)))
+
 
     def test_passing_custom_bias_matrix(self):
         ''' Test if passing your own bias weight matrix gives expected results 
@@ -77,8 +102,22 @@ class ReservoirNodeTest(unittest.TestCase):
         # Check if weight matrix is initialized correctly
         r = reservoir_nodes.ReservoirNode (output_dim=2, w_bias=sp.array([1, 2]))
         assert sp.all(r.w_bias == sp.array([1, 2]))
+        r.w_bias = []
         r.initialize()
         assert sp.all(r.w_bias == sp.array([1, 2]))
         
         # Check if dimensionality is checked correctly
         nose.tools.assert_raises(mdp.NodeException, reservoir_nodes.ReservoirNode, output_dim=2, w_bias=sp.array([[1]]))
+
+    def test_passing_custom_bias_matrix_function(self):
+        ''' Test if passing your own bias weight matrix generation function gives expected results 
+        '''
+        # Check if weight matrix is initialized correctly
+        r = reservoir_nodes.ReservoirNode (output_dim=2, w_bias=sp.ones((2)))
+        assert sp.all(r.w_bias == sp.array([1, 1]))
+        r.w_bias = []
+        r.initialize()
+        assert sp.all(r.w_bias == sp.array([1, 1]))
+        
+        # Check if dimensionality is checked correctly
+        nose.tools.assert_raises(mdp.NodeException, reservoir_nodes.ReservoirNode, output_dim=2, w_bias=sp.ones((1)))
