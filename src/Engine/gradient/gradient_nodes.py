@@ -66,10 +66,6 @@ class GradientExtensionNode(mdp.ExtensionNode, mdp.Node):
         """Calls _gradient_inverse instead of the default _inverse."""
         return self._gradient_inverse(y)
 
-    def param_size(self):
-        """Return the total number of trainable parameters of the model."""
-        return self._param_size()
-
     def is_training(self):
         return False
 
@@ -85,9 +81,6 @@ class GradientExtensionNode(mdp.ExtensionNode, mdp.Node):
         pass
 
     def _gradient_inverse(self, x):
-        pass
-
-    def _param_size(self):
         pass
 
 
@@ -150,9 +143,6 @@ class BackpropNode(mdp.Node):
         parameters.
         """
 
-        # TODO: build checks to see if we are actually in gradient mode.
-        # What if the top node is not a loss node?
-
         if not params == None:
             self._update_params(params)
 
@@ -199,7 +189,7 @@ class BackpropNode(mdp.Node):
         counter = 0
 
         for n in self.gflow:
-            length = n._param_size()
+            length = n._params().size
             n.update_params(params[counter:counter + length])
             counter += length
 
@@ -235,7 +225,4 @@ class GradientPerceptronNode(GradientExtensionNode,
         self._gradient_vector = numx.concatenate((dw.ravel(), dy.sum(axis=0)))
         dx = mult(self.w, dy.T).T
         return dx
-
-    def _param_size(self):
-        return self.w.size + self.b.size
 
