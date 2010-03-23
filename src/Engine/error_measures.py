@@ -30,7 +30,7 @@ def nrmse(input, target):
     error = (targetsignal - input)**2
     return np.sqrt( error.mean() / var )
     
-def nmse( input, target):
+def nmse(input, target):
     """ NMSE calculation.
     
     Calculates the normalized mean square error (NMSE)
@@ -58,7 +58,7 @@ def nmse( input, target):
     error = (targetsignal - input)**2
     return error.mean() / var
     
-def rmse( input, target):
+def rmse(input, target):
     """ RMSE calculation.
     
     Calculates the root mean square error (RMSE)

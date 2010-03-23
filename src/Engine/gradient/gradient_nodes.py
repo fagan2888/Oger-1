@@ -8,10 +8,47 @@ implementations of MDP nodes.
 
 import mdp
 import Engine
+import Engine.nonlinear_nodes
+import Engine.reservoir_nodes
 from mdp import numx
-from mdp.utils import mult
+from mdp.utils import mult   
+    
+# TODO: would we ever plan to use Hessians?
+class GradientNode(mdp.Node):
+    def _gradient(self):
+        return self._gradient_vector
+
+    def _params(self):
+        pass
+
+    #TODO: rename to set_params?
+    def _update_params(self, x):
+        pass
+
+    # TODO: rename to calculate_gradient?
+    def _gradient_inverse(self, x):
+        pass
+
+    def _params_size(self):
+        pass
 
 
+    #TODO: why do we need this?
+    def gradient(self):
+        """Return the gradient that was found after the last backpropagation sweep."""
+        return self._gradient()
+
+    #TODO: why do we need this?
+    def params(self):
+        """Return the parameters of the node as a 1-d array."""
+        return self._params()
+
+    #TODO: why do we need this?
+    def update_params(self, x):
+        """Update the parameters of the node with a 1-d array."""
+        self._update_params(x)
+
+# TODO: why does it break if we subclass GradientNode instead of Node?
 class GradientExtensionNode(mdp.ExtensionNode, mdp.Node):
     """Base class for gradient based MDP nodes.
 
@@ -24,6 +61,7 @@ class GradientExtensionNode(mdp.ExtensionNode, mdp.Node):
     extension_name = "gradient"
 
     # Standard execute but it saves the data in self._last_x.
+    # TODO: why can't this be _execute ??
     def execute(self, x, *args, **kwargs):
         """Process the data contained in 'x'.
         
@@ -37,24 +75,13 @@ class GradientExtensionNode(mdp.ExtensionNode, mdp.Node):
         overwrites this docstring.
         """
 
-        # TODO: I can't get passed the execution checks somehow because they
-        # give errors about the node not being trainable.
-        #self._pre_execution_checks(x)
         self._last_x = x
-        self._last_y = self._execute(self._refcast(x), *args, **kwargs)
+        self._last_y = self._non_extension_execute(x, *args, **kwargs)
         return self._last_y
 
-    def gradient(self):
-        """Return the gradient that was found after the last backpropagation sweep."""
-        return self._gradient()
-
-    def params(self):
-        """Return the parameters of the node as a 1-d array."""
-        return self._params()
-
-    def update_params(self, x):
-        """Update the parameters of the node with a 1-d array."""
-        self._update_params(x)
+    def _inverse(self, y):
+        """Calls _gradient_inverse instead of the default _inverse."""
+        return self._gradient_inverse(y)
 
     def is_invertible(self):
         return True
@@ -62,34 +89,8 @@ class GradientExtensionNode(mdp.ExtensionNode, mdp.Node):
     def is_trainable(self):
         return False
 
-    def inverse(self, y):
-        """Calls _gradient_inverse instead of the default _inverse."""
-        return self._gradient_inverse(y)
-
-    def param_size(self):
-        """Return the total number of trainable parameters of the model."""
-        return self._param_size()
-
     def is_training(self):
         return False
-
-    ## Hook methods to be overwritten.
-
-    def _gradient(self):
-        pass
-
-    def _params(self):
-        pass
-
-    def _update_params(self, x):
-        pass
-
-    def _gradient_inverse(self, x):
-        pass
-
-    def _param_size(self):
-        pass
-
 
 
 class BackpropNode(mdp.Node):
@@ -104,26 +105,26 @@ class BackpropNode(mdp.Node):
 
         self.gflow = gflow
         self.gtrainer = gtrainer
+        
+        # TODO: can this combination be in an object
         self.loss_func = loss_func
         self.derror = derror
 
         if self.derror == None:
-            self.derror = self.delta_error
+            self.derror = lambda x, t: x-t
 
         input_dim = gflow[0].get_input_dim()
         output_dim = gflow[-1].get_output_dim()
 
         super(BackpropNode, self).__init__(input_dim, output_dim, dtype)
 
-    def delta_error(self, x, t):
-        """Function that returns error gradient with respect to x."""
-        return x - t
-
     def _train(self, x, **kwargs):
         """Update the parameters according to the input 'x' and target output 't'."""
 
+        # TODO: what is this?
         t = kwargs.get('t')
         del kwargs['t']
+        
         # Enter gradient mode.
         mdp.activate_extension('gradient')
 
@@ -136,7 +137,7 @@ class BackpropNode(mdp.Node):
         def func(params):
             return self._objective(x, t, params)
 
-        update = self.gtrainer(func, self._params(), **kwargs)
+        update = self.gtrainer.train(func, self._params(), **kwargs)
 
         self._update_params(update)
 
@@ -158,6 +159,7 @@ class BackpropNode(mdp.Node):
 
         y = self.gflow.execute(x)
         
+        # TODO: why not always a loss function?
         if self.loss_func:
             loss = self.loss_func(y, t)
         else:
@@ -213,12 +215,9 @@ class BackpropNode(mdp.Node):
 
 ## MDP (Engine) gradient node implementations ##
 
-class GradientPerceptronNode(GradientExtensionNode,
-                             Engine.nonlinear_nodes.PerceptronNode):
+# Should this not just be part of the PerceptronNode?
+class GradientPerceptronNode(GradientNode, Engine.nonlinear_nodes.PerceptronNode):
     """Gradient version of Engine Perceptron Node"""
-
-    def _gradient(self):
-        return self._gradient_vector
 
     def _params(self):
         return numx.concatenate((self.w.ravel(), self.b.ravel()))
@@ -230,7 +229,7 @@ class GradientPerceptronNode(GradientExtensionNode,
 
     def _gradient_inverse(self, y):
         x = self._last_x
-        dy = self.transfer_derv(self._last_y) * y
+        dy = self.transfer_func.df(x, self._last_y) * y
         dw = mult(x.T, dy)
         self._gradient_vector = numx.concatenate((dw.ravel(), dy.sum(axis=0)))
         dx = mult(self.w, dy.T).T
@@ -238,4 +237,17 @@ class GradientPerceptronNode(GradientExtensionNode,
 
     def _param_size(self):
         return self.w.size + self.b.size
+    
+class GradientReservoirNode(GradientNode, Engine.reservoir_nodes.ReservoirNode):
 
+    # TODO: should this parameter be called y?
+    def _gradient_inverse(self, y):
+        x = self._last_x
+        dy = self.transfer_func.df(x, self._last_y) * y
+        dw = mult(x.T, dy)
+        self._gradient_vector = numx.concatenate((dw.ravel(), dy.sum(axis=0)))
+        dx = mult(self.w, dy.T).T
+        return dx
+
+    def _param_size(self):
+        return 0
