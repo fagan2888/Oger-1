@@ -16,7 +16,7 @@ data_in[1] = 1;
 data_in.shape = (50, 1)
 data_out = np.sin(data_in * 5 * np.pi)
 
-# Generate 1-3-1 MLP 
+# Generate 1-12-1 MLP 
 percnode1 = GradientPerceptronNode(1, 12, transfer_func=TanhFunction)
 percnode2 = GradientPerceptronNode(12, 1)
 myflow = percnode1 + percnode2

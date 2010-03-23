@@ -10,6 +10,8 @@ import mdp
 import Engine
 import Engine.nonlinear_nodes
 import Engine.reservoir_nodes
+import Engine.rbm_nodes
+from Engine.utility_functions import LogisticFunction
 from mdp import numx
 from mdp.utils import mult
 
@@ -28,7 +30,7 @@ class GradientNode(mdp.Node):
     def _gradient_inverse(self, x):
         pass
 
-    def _params_size(self):
+    def _param_size(self):
         pass
 
 
@@ -78,7 +80,7 @@ class GradientExtensionNode(mdp.ExtensionNode, mdp.Node):
         self._last_y = self._non_extension_execute(x, *args, **kwargs)
         return self._last_y
 
-    def _inverse(self, y):
+    def inverse(self, y):
         """Calls _gradient_inverse instead of the default _inverse."""
         return self._gradient_inverse(y)
 
@@ -243,3 +245,34 @@ class GradientReservoirNode(GradientNode, Engine.reservoir_nodes.ReservoirNode):
 
     def _param_size(self):
         return 0
+
+class GradientRBMNode(GradientNode, Engine.rbm_nodes.ERBMNode):
+    """Gradient version of the Engine RBM Node.
+
+    This gradient node is intended for use in a feedforward architecture. This
+    means that the biases for the visibles are ignored.
+    """
+
+    def _params(self):
+        return numx.concatenate((self.w.ravel(), self.bh.ravel()))
+
+    def _set_params(self, x):
+        nw = self.w.size
+        self.w.flat = x[:nw]
+        self.b = x[nw:]
+
+    def _gradient_inverse(self, y):
+        x = self._last_x
+        dy = LogisticFunction.df(x, self._last_y) * y
+        dw = mult(x.T, dy)
+        self._gradient_vector = numx.concatenate((dw.ravel(), dy.sum(axis=0)))
+        dx = mult(self.w, dy.T).T
+        return dx
+
+    def _param_size(self):
+        return self.w.size + self.bh.size
+
+    def inverse(self, y):
+        """Calls _gradient_inverse instead of the default _inverse."""
+        return self._gradient_inverse(y)
+
