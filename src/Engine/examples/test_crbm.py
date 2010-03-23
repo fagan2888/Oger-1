@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # The context is concatenated to the input as if it where one signal.
     v = np.concatenate((u, x), 1)
 
-    crbmnode = CRBMNode(hidden_dim=100, visible_dim=20, context_dim=N * 20)
+    crbmnode = CRBMNode(hidden_dim=100, visible_dim=20, context_dim=N * 20, gaussian=True)
 
     t, d = u.shape
     print 'Training for %d epochs...' % epochs
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         print 'Epoch', i
         # Update every two time steps as batch gradient descent barely converges.
         for j in range(t-1):
-            crbmnode.train(v[j:j+1, :], n_updates=1, epsilon=.001, momentum=.9, decay=.0002)
+            crbmnode.train(v[j:j+1, :], n_updates=1, epsilon=.0001, momentum=.9, decay=.0002)
         # Check the energy and error after each training epoch.
         # Sampling causes the training phase to end so a copy is made first.
         crbmnode_test = crbmnode.copy()

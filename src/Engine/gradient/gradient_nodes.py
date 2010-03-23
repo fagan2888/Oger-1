@@ -11,8 +11,8 @@ import Engine
 import Engine.nonlinear_nodes
 import Engine.reservoir_nodes
 from mdp import numx
-from mdp.utils import mult   
-    
+from mdp.utils import mult
+
 # TODO: would we ever plan to use Hessians?
 class GradientNode(mdp.Node):
     def _gradient(self):
@@ -124,7 +124,6 @@ class BackpropNode(mdp.Node):
         # TODO: what is this?
         t = kwargs.get('t')
         del kwargs['t']
-        
         # Enter gradient mode.
         mdp.activate_extension('gradient')
 
@@ -151,15 +150,11 @@ class BackpropNode(mdp.Node):
         parameters.
         """
 
-        # TODO: build checks to see if we are actually in gradient mode.
-        # What if the top node is not a loss node?
-
         if not params == None:
             self._update_params(params)
 
         y = self.gflow.execute(x)
         
-        # TODO: why not always a loss function?
         if self.loss_func:
             loss = self.loss_func(y, t)
         else:

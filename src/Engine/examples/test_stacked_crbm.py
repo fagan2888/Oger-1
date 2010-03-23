@@ -10,7 +10,7 @@ import Engine.reservoir_nodes
 import Engine.linear_nodes
 from Engine.rbm_nodes import CRBMNode
 from mdp.nodes.misc_nodes import IdentityNode
-from Engine.misc_nodes import ShiftNode
+from Engine.utility_nodes import ShiftNode
 
 # Some recycled functions for data creation.
 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     pcanode = mdp.nodes.PCANode(input_dim=crbm1_size, output_dim=40)
     shift2 = ShiftNode(input_dim=crbm1_size, n_shifts=1)
 
-    PCALayer = mdp.hinet.SameInputLayer([identity2, pcanode])
+    PCALayer = mdp.hinet.SameInputLayer([shift2, pcanode])
 
     x = crbmnode1(x)
     PCALayer.train(x)
@@ -77,9 +77,9 @@ if __name__ == '__main__':
     # Note that this time a normal layer is used to split the PCA and raw data.
     x = PCALayer(x)
     reservoir2 = Engine.reservoir_nodes.ReservoirNode(input_dim=40, output_dim=300)
-    identity3 = IdentityNode(input_dim=crbm1_size)
+    identity2 = IdentityNode(input_dim=crbm1_size)
 
-    ReservoirLayer2 = mdp.hinet.Layer([identity3, reservoir2])
+    ReservoirLayer2 = mdp.hinet.Layer([identity2, reservoir2])
 
     theflow += ReservoirLayer2
 

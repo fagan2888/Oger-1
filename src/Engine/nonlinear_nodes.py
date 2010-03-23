@@ -68,9 +68,6 @@ class PerceptronNode(mdp.Node):
 
     def is_training(self):
         return False
-    
-        # TODO: document what this weird line does
-        _, d = x.shape
 
     def is_trainable(self):
         return False
