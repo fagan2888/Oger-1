@@ -21,8 +21,7 @@ class GradientNode(mdp.Node):
     def _params(self):
         pass
 
-    #TODO: rename to set_params?
-    def _update_params(self, x):
+    def _set_params(self, x):
         pass
 
     # TODO: rename to calculate_gradient?
@@ -44,9 +43,9 @@ class GradientNode(mdp.Node):
         return self._params()
 
     #TODO: why do we need this?
-    def update_params(self, x):
+    def set_params(self, x):
         """Update the parameters of the node with a 1-d array."""
-        self._update_params(x)
+        self._set_params(x)
 
 # TODO: why does it break if we subclass GradientNode instead of Node?
 class GradientExtensionNode(mdp.ExtensionNode, mdp.Node):
@@ -54,7 +53,7 @@ class GradientExtensionNode(mdp.ExtensionNode, mdp.Node):
 
     The gradient method returns the gradient of a node based on its last input
     and output after a backpropagation sweep.  The params method returns the
-    parameters of the node as a 1-d array.  The update_params method takes a
+    parameters of the node as a 1-d array.  The set_params method takes a
     1-d array as its argument and uses it to update the parameters of the node.
     """
 
@@ -121,16 +120,14 @@ class BackpropNode(mdp.Node):
     def _train(self, x, **kwargs):
         """Update the parameters according to the input 'x' and target output 't'."""
 
-        # TODO: what is this?
+        # Extract target values and delete them so they don't interfere with
+        # the train method call below.
+        # TODO: Perhaps the use of target values should be optional to allow
+        # for unsupervised algorithms etc.
         t = kwargs.get('t')
         del kwargs['t']
         # Enter gradient mode.
         mdp.activate_extension('gradient')
-
-        # TODO: It is somehow a bit messy that the trainers already change the
-        # parameters during their evaluation of the objective function but
-        # their final solution might be different from the last parameter
-        # vector they used to evaluate it...
 
         # Generate objective function for the current data.
         def func(params):
@@ -138,7 +135,7 @@ class BackpropNode(mdp.Node):
 
         update = self.gtrainer.train(func, self._params(), **kwargs)
 
-        self._update_params(update)
+        self._set_params(update)
 
         mdp.deactivate_extension('gradient')
 
@@ -151,7 +148,7 @@ class BackpropNode(mdp.Node):
         """
 
         if not params == None:
-            self._update_params(params)
+            self._set_params(params)
 
         y = self.gflow.execute(x)
         
@@ -190,14 +187,14 @@ class BackpropNode(mdp.Node):
 
         return params
 
-    def _update_params(self, params):
+    def _set_params(self, params):
 
         # Number of parameters we distributed so far.
         counter = 0
 
         for n in self.gflow:
             length = n._param_size()
-            n.update_params(params[counter:counter + length])
+            n.set_params(params[counter:counter + length])
             counter += length
 
     def _execute(self, x):
@@ -217,7 +214,7 @@ class GradientPerceptronNode(GradientNode, Engine.nonlinear_nodes.PerceptronNode
     def _params(self):
         return numx.concatenate((self.w.ravel(), self.b.ravel()))
 
-    def _update_params(self, x):
+    def _set_params(self, x):
         nw = self.w.size
         self.w.flat = x[:nw]
         self.b = x[nw:]
