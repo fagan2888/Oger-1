@@ -6,7 +6,8 @@ Created on Feb 9, 2010
 import mdp
 import pylab
 import itertools
-import model_validation 
+import model_validation
+import numpy as np
 
 class Optimizer(object):
     def __init__(self, optimization_dict, loss_function, **kwargs):
@@ -24,6 +25,7 @@ class Optimizer(object):
         self.parameter_ranges = []
         self.paramspace_dimensions = []
         self.parameters = []
+        self.errors = []
 
         # Construct the parameter space
         # Loop over all nodes that need their parameters set
@@ -37,7 +39,7 @@ class Optimizer(object):
 
         # Construct all combinations
         self.param_space = list(itertools.product(*self.parameter_ranges))
-        self.errors = mdp.numx.zeros(self.paramspace_dimensions)
+        
 
     def grid_search (self, data, flow, cross_validate_function=model_validation.n_fold_random, *args, **kwargs):
         ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
@@ -46,6 +48,7 @@ class Optimizer(object):
             - data: a list of iterators which would be passed to MDP flows
             - flow : the MDP flow to do the grid-search on
         '''
+        self.errors = mdp.numx.zeros(self.paramspace_dimensions)
         node_set = set()
         # Loop over all points in the parameter space
         for paramspace_index_flat, parameter_values in enumerate(self.param_space):
@@ -92,5 +95,20 @@ class Optimizer(object):
     def mean_across_parameter(self):
         pass
 
-    def global_optimum(self):
-        pass
+    def get_minimal_error(self):
+        '''Return the minimal error, and the corresponding parameter values as a tuple:
+        (error, param_values), where param_values is a dictionary with the key being the
+        node.parameter_name, and the value the corresponding value of the parameter.
+        '''
+        if self.errors is None:
+            raise Exception('Errors array is empty. No optimization has been performed yet.')
+
+        min_parameter_dict = {}
+        minimal_error = np.min(self.errors)
+        min_parameter_indices = np.unravel_index(np.argmin(self.errors), self.errors.shape)
+
+        for index, param_d in enumerate(self.parameters):
+            opt_parameter_value = self.parameter_ranges[index][min_parameter_indices[index]]
+            min_parameter_dict[str(param_d['node']) + '.' + param_d['parameter']] = opt_parameter_value
+
+        return (minimal_error, min_parameter_dict) 

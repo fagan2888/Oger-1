@@ -28,7 +28,7 @@ if __name__ == "__main__":
     input_dim = inputs[0].shape[1]
 
     # construct individual nodes
-    reservoir = reservoir_nodes.LeakyReservoirNode(input_dim, 100, input_scaling=1, leak_rate=0.05)
+    reservoir = reservoir_nodes.LeakyReservoirNode(input_dim, output_dim=100, input_scaling=1, leak_rate=0.1)
     readout = RidgeRegressionNode(0.001)
     mnnode = utility_nodes.MeanAcrossTimeNode()
 

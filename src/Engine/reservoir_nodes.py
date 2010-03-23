@@ -9,25 +9,28 @@ import numpy
 
 class ReservoirNode(mdp.Node):
     """
-    A standard (ESN) reservoir node. Parameters are:
-    - input_dim: input dimensionality
-    - output_dim: output_dimensionality, i.e. reservoir size
-    - spectral_radius: Spectral radius of the internal weight matrix, default: 0.9
-    - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
-    - bias_scaling: scaling of the bias, a constant input to each neuron, default: 1
-    - input_scaling: scaling of the input weight matrix, default: 1
-    
+    A standard (ESN) reservoir node.
     """
     
     def __init__(self, input_dim=1, output_dim=None, spectral_radius=0.9,
                  nonlin_func='tanh', bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
                  w_in=None, w=None, w_bias=None):
         """ Initializes and constructs a random reservoir.
-                
-        output_dim -- the number of outputs, which is also the number of
-                          neurons in the reservoir
-        prototype -- a prototype reservoir which will be cloned with all
-                     its parameters
+        Parameters are:
+        - input_dim: input dimensionality
+        - output_dim: output_dimensionality, i.e. reservoir size
+        - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
+        - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
+        - input_scaling: scaling of the input weight matrix, default: 1
+        - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
+        
+        Weight matrices are either generated randomly or passed at construction time.
+        if w, w_in or w_bias are not given in the constructor, they are created randomly:
+            - input matrix : input_scaling * uniform weights in [-1, 1]
+            - bias matrix :  bias_scaling * uniform weights in [-1, 1]
+            - reservoir matrix: gaussian weights rescaled to the desired spectral radius
+        If w, w_in or w_bias were given as a numpy array or a function, these
+        will be used as initialization instead.
         """
         super(ReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
         
@@ -150,52 +153,47 @@ class ReservoirNode(mdp.Node):
         nonlinear_function_pointer = getattr(mdp.numx, self.nonlin_func)
         # Loop over the input data and compute the reservoir states
         for n in range(steps):
-            self.states[n + 1, :] = nonlinear_function_pointer(numpy.dot(self.w, self.states[n, :]) + numpy.dot(self.w_in, x[n, :]) + self.w_bias)    
+            self.states[n + 1, :] = nonlinear_function_pointer(numpy.dot(self.w, self.states[n, :]) + numpy.dot(self.w_in, x[n, :]) + self.w_bias)
+            self._post_update_hook(n)    
 
         # Return the whole state matrix except the initial state
         return self.states[1:, :]
+    
+    def _post_update_hook(self, timestep):
+        pass
  
 class LeakyReservoirNode(ReservoirNode):
-    """ Reservoir node with leaky integrator neurons (a first-order low-pass filter added to the output of a standard neuron). 
+    """Reservoir node with leaky integrator neurons (a first-order low-pass filter added to the output of a standard neuron). 
     """
 
     def __init__(self, input_dim=1, output_dim=None, spec_radius=0.9,
                 nonlin_func='tanh', bias_scaling=0.0, input_scaling=1.0, leak_rate=1.0, dtype='float64'):
-        """ Initializes and constructs a random reservoir with leaky-integrator neurons.
-               
-           output_dim -- the number of outputs, which is also the number of
-                             neurons in the reservoir
-           prototype -- a prototype reservoir which will be cloned with all
-                        its parameters
+        """Initializes and constructs a random reservoir with leaky-integrator neurons.
+           Parameters are:
+            - input_dim: input dimensionality
+            - output_dim: output_dimensionality, i.e. reservoir size
+            - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
+            - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
+            - input_scaling: scaling of the input weight matrix, default: 1
+            - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
+            - leak_rate: if 1 it is a standard neuron, lower values give slower dynamics
+            
+            Weight matrices are either generated randomly or passed at construction time.
+            if w, w_in or w_bias are not given in the constructor, they are created randomly:
+                - input matrix : input_scaling * uniform weights in [-1, 1]
+                - bias matrix :  bias_scaling * uniform weights in [-1, 1]
+                - reservoir matrix: gaussian weights rescaled to the desired spectral radius
+            If w, w_in or w_bias were given as a numpy array or a function, these
+            will be used as initialization instead.               
         """
         super(LeakyReservoirNode, self).__init__(input_dim, output_dim, spec_radius,
                                            nonlin_func, bias_scaling, input_scaling, dtype)
        
+        #Initial value for lowpass filter
+        self.previous_state = numpy.zeros(output_dim)
+        # Leak rate, if 1 it is a standard neuron, lower values give slower dynamics 
         self.leak_rate = leak_rate
 
-    def _execute(self, x):
-        ''' Executes simulation with input vector x
-        '''
-        steps = x.shape[0]
-        
-        # Set the initial state of the reservoir
-        # if self.reset_states is true, initialize to zero,
-        # otherwise initialize to the last time-step of the previous execute call (for freerun)
-        if self.reset_states:
-            initial_state = numpy.zeros((1, self.output_dim))
-        else:
-            initial_state = numpy.atleast_2d(self.states[-1, :])
-        
-        # Pre-allocate the state vector, adding the initial state
-        self.states = numpy.concatenate((initial_state, numpy.zeros((steps, self.output_dim))))
-       
-        nonlinear_function_pointer = getattr(mdp.numx, self.nonlin_func)
-        # Loop over the input data and compute the reservoir states
-        for n in range(steps):
-            # First compute the output of the non-leaky neuron (standard sigmoid)
-            unfiltered_output = nonlinear_function_pointer(numpy.dot(self.w, self.states[n, :]) + numpy.dot(self.w_in, x[n, :]) + self.w_bias)
-            # Apply the low-pass filter
-            self.states[n + 1, :] = (1 - self.leak_rate) * self.states[n, :] + self.leak_rate * unfiltered_output
-
-        # Return the whole state matrix except the initial state
-        return self.states[1:, :]    
+    def _post_update_hook(self, timestep):
+        self.states[timestep + 1, :] = (1 - self.leak_rate) * self.previous_state + self.leak_rate * self.states [timestep + 1, :]
+        self.previous_state = self.states[timestep + 1, :]

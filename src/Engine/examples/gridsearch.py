@@ -28,10 +28,15 @@ if __name__ == '__main__':
     flow = mdp.Flow([reservoir, readout])
 
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'bias': mdp.numx.arange(0, 2, 0.5), 'spectral_radius':mdp.numx.arange(0.1, 1, 0.5)}}
+    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, 0.2), 'spectral_radius':mdp.numx.arange(0.1, 1.5, 0.3)}}
 
     # Instantiate an optimizer
     opt = optimizer.Optimizer(gridsearch_parameters, error_measures.nrmse)
     
     # Do the grid search
     opt.grid_search(data, flow, n_folds=5)
+
+    # Get the minimal error
+    min_error, parameters = opt.get_minimal_error()
+    print 'The minimal error is ' + str(min_error)
+    print 'The corresponding parameter values are: ' + ''.join([' ' + key + ' : ' + str(parameters[key]) for key in parameters.keys()])
