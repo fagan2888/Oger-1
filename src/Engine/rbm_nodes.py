@@ -17,6 +17,7 @@ class ERBMNode(RBMNode):
     Gaussian units can be used, a method has been added that returns the
     contrastive divergence gradient and the node has been made invertible.
 
+    For simplicity, the Gaussian units are assumed to have unit variance.
     """
 
     def __init__(self, hidden_dim, visible_dim = None, gaussian = False, dtype = None):
@@ -31,6 +32,14 @@ class ERBMNode(RBMNode):
         self._initialized = False
         self._gaussian = gaussian
 
+
+    def _energy(self, v, h):
+        if self._gaussian:
+            return ((((v - self.bv)**2).sum() / 2) - mult(h, self.bh) -
+                    (mult(v, self.w)*h).sum(axis=1))
+        else:
+            return (-mult(v, self.bv) - mult(h, self.bh) -
+                    (mult(v, self.w)*h).sum(axis=1))
 
     def _train(self, v, n_updates=1, epsilon=0.1, decay=0., momentum=0.):
         """Update the internal structures according to the input data 'v'.
@@ -366,7 +375,12 @@ class CRBMNode(ERBMNode):
         bb = mult(x, self.b)
         ba += self.bv
         bb += self.bh
-        return -(v * ba).sum(axis=1) - (h * bb).sum(axis=1) - (mult(v, self.w)*h).sum(axis=1)
+        if self._gaussian:
+            return (((v - ba)**2).sum() / 2 - (h * bb).sum(axis=1) -
+                    (mult(v, self.w)*h).sum(axis=1))
+        else:
+            return (-(v * ba).sum(axis=1) - (h * bb).sum(axis=1) -
+                    (mult(v, self.w)*h).sum(axis=1))
 
     def energy(self, v, h, x):
         """Compute the energy of the RBM given observed variables state 'v' and
