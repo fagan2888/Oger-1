@@ -2,7 +2,7 @@
 # binary units as it is based on the RBMNode that has the same limitation.
 # TODO: fix the energy functions so that they are correct for gaussian units.
 import mdp
-from Engine.utility_functions import logistic
+from Engine.utility_functions import LogisticFunction
 from mdp.utils import mult
 from mdp.nodes import RBMNode
 
@@ -20,7 +20,7 @@ class ERBMNode(RBMNode):
     For simplicity, the Gaussian units are assumed to have unit variance.
     """
 
-    def __init__(self, hidden_dim, visible_dim = None, gaussian = False, dtype = None):
+    def __init__(self, visible_dim, hidden_dim, gaussian = False, dtype = None):
         """
         Arguments:
 
@@ -40,6 +40,26 @@ class ERBMNode(RBMNode):
         else:
             return (-mult(v, self.bv) - mult(h, self.bh) -
                     (mult(v, self.w)*h).sum(axis=1))
+
+    def train(self, v, n_updates=1, epsilon=0.1, decay=0., momentum=0.):
+        """Update the internal structures according to the input data 'v'.
+        The training is performed using Contrastive Divergence (CD).
+
+        v -- a binary matrix having different variables on different columns
+             and observations on the rows
+        n_updates -- number of CD iterations. Default value: 1
+        epsilon -- learning rate. Default value: 0.1
+        decay -- weight decay term. Default value: 0.
+        momentum -- momentum term. Default value: 0.
+        """        
+
+        if not self.is_training():
+            errstr = "The training phase has already finished."
+            raise mdp.TrainingFinishedException(errstr)
+
+        self._train_phase_started = True
+
+        self._train(v, n_updates, epsilon, decay, momentum)
 
     def _train(self, v, n_updates=1, epsilon=0.1, decay=0., momentum=0.):
         """Update the internal structures according to the input data 'v'.
@@ -205,7 +225,7 @@ class CRBMNode(ERBMNode):
     def _sample_h(self, v, x):
         # returns P(h=1|v,W,b) and a sample from it
         dynamic_b = mult(x, self.b)
-        probs = logistic(self.bh + mult(v, self.w) + dynamic_b)
+        probs = LogisticFunction.f(self.bh + mult(v, self.w) + dynamic_b)
         h = (probs > random(probs.shape)).astype(self.dtype)
         return probs, h
 
@@ -216,7 +236,7 @@ class CRBMNode(ERBMNode):
         if self._gaussian:
             return v_in, v_in
         else:
-            probs = logistic(v_in)
+            probs = LogisticFunction.f(v_in)
             v = (probs > random(probs.shape)).astype(self.dtype)
             return probs, v
 

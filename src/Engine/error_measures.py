@@ -129,3 +129,22 @@ def cosine(input, target):
     A value of 1 means complete alignment, a value of 0 means the vectors are orthogonal.
     '''
     return float(mdp.numx.dot(input, target)) / (mdp.numx.linalg.norm(input) * mdp.numx.linalg.norm(target))
+
+def ce(input, target):
+    """ Compute cross-entropy loss function
+
+    Returns the negative log-likelyhood of the target labels as predicted by
+    the input values.
+
+    Parameters:
+    -----------
+        input : array
+            the input signal
+        target : array
+            the target signal
+    """
+    if input.shape!=target.shape:
+        raise RuntimeError("Input and target should have the same shape")
+
+    return np.sum(-np.log(input[target == 1]))
+

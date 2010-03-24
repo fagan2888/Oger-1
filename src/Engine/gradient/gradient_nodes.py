@@ -10,6 +10,8 @@ import mdp
 import Engine
 import Engine.nonlinear_nodes
 import Engine.reservoir_nodes
+import Engine.rbm_nodes
+from Engine.utility_functions import LogisticFunction
 from mdp import numx
 from mdp.utils import mult
 
@@ -204,3 +206,33 @@ class GradientPerceptronNode(GradientExtensionNode, Engine.nonlinear_nodes.Perce
 
     def _param_size(self):
         return self.w.size + self.b.size
+
+class GradientRBMNode(GradientExtensionNode, Engine.rbm_nodes.ERBMNode):
+    """Gradient version of the Engine RBM Node.
+
+    This gradient node is intended for use in a feedforward architecture. This
+    means that the biases for the visibles are ignored.
+    """
+
+    def _params(self):
+        return numx.concatenate((self.w.ravel(), self.bh.ravel()))
+
+    def _set_params(self, x):
+        nw = self.w.size
+        self.w.flat = x[:nw]
+        self.b = x[nw:]
+
+    def _calculate_gradient(self, y):
+        x = self._last_x
+        dy = LogisticFunction.df(x, self._last_y) * y
+        dw = mult(x.T, dy)
+        self._gradient_vector = numx.concatenate((dw.ravel(), dy.sum(axis=0)))
+        dx = mult(self.w, dy.T).T
+        return dx
+
+    def _param_size(self):
+        return self.w.size + self.bh.size
+
+    def inverse(self, y):
+        """Calls _gradient_inverse instead of the default _inverse."""
+        return self._calculate_gradient(y)
