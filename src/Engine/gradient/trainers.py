@@ -4,21 +4,35 @@ A collection of some trainers that use gradient information.
 The convention is to minimize the objective (error) function.
 """
 
-import mdp
 from mdp import numx
-from scipy.optimize import *
+import scipy.optimize as opt
+
+# More can be found here:
+#  - http://docs.scipy.org/doc/scipy/reference/tutorial/optimize.html
+#  - http://openopt.org/Welcome
+#  - http://wiki.sagemath.org/optimization
 
 class CGTrainer:
     def train(self, func, x0):
         fobj = lambda x: func(x)[1]
         fprime = lambda x: func(x)[0]
-        return fmin_cg(fobj, x0, fprime)
+        return opt.fmin_cg(fobj, x0, fprime)
 
 class BFGSTrainer:
     def train(self, func, x0):
         fobj = lambda x: func(x)[1]
         fprime = lambda x: func(x)[0]
-        return fmin_bfgs(fobj, x0, fprime, disp=2)
+        return opt.fmin_bfgs(fobj, x0, fprime, disp=2)
+        
+class LBFGSBTrainer:
+    def __init__(self, weight_bounds=(-1,1)):
+        self.weight_bounds = weight_bounds
+        
+    def train(self, func, x0):
+        fobj = lambda x: func(x)[1]
+        fprime = lambda x: func(x)[0]
+        bounds = [self.weight_bounds,] * x0.size
+        return opt.fmin_l_bfgs_b(fobj, x0, fprime=fprime, bounds=bounds)[0]
 
 class GradientDescentTrainer:
     def __init__(self, learning_rate=.01, momentum=0, epochs=1, decay=0):
@@ -48,7 +62,7 @@ class GradientDescentTrainer:
             
         updated_params = params
     
-        for epoch in range(self.epochs):
+        for _ in range(self.epochs):
             gradient = func(updated_params)[0]
             self.dparams = self.momentum * self.dparams - self.learning_rate * gradient
             # TODO: how do we make sure that we do not decay the bias terms?
@@ -75,9 +89,9 @@ class RPROPTrainer:
             self._uW = numx.zeros_like(params)
             self.deltaW = numx.ones_like(params)*self.deltainit
             
-        updated_params = params
+        updated_params = params.copy()
     
-        for epoch in range(self.epochs):
+        for _ in range(self.epochs):
             # TODO: properly name variables
             uW = func(updated_params)[0]
 
