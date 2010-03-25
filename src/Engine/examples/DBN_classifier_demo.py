@@ -2,10 +2,7 @@ import mdp
 import pylab
 import numpy as np
 import cPickle
-from Engine.gradient.trainers import *
-from Engine.utility_functions import *
-from Engine.gradient.gradient_nodes import *
-from Engine.error_measures import ce
+import Engine
 from Engine.nonlinear_nodes import PerceptronNode
 from Engine.rbm_nodes import RBMNode
 
@@ -28,9 +25,9 @@ test_labels = image_labels[n_train:n_train + n_test]
 
 # Generate a small subset of the data.
 
-rbmnode1 = RBMNode(784, 100)
-rbmnode2 = RBMNode(100, 200)
-percnode = PerceptronNode(200, 10, transfer_func=SoftmaxFunction)
+rbmnode1 = Engine.nodes.GradientRBMNode(784, 100)
+rbmnode2 = Engine.nodes.GradientRBMNode(100, 200)
+percnode = Engine.nodes.GradientPerceptronNode(200, 10, transfer_func=Engine.utility_functions.SoftmaxFunction)
 
 # Greedy pretraining of RBMs
 

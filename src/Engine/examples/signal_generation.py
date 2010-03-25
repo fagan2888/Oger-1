@@ -8,11 +8,10 @@ Created on Aug 24, 2009
 
 @author: dvrstrae
 '''
-import datasets
-import reservoir_nodes
-import linear_nodes
+from Engine import datasets
+from Engine import reservoir_nodes
+from Engine import linear_nodes
 import utility_nodes
-import mdp
 import pylab
 
 

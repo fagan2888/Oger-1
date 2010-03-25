@@ -3,7 +3,7 @@ Created on Aug 20, 2009
 
 @author: dvrstrae
 '''
-from utility_functions import get_spectral_radius
+import Engine
 import mdp
 import numpy
 
@@ -116,7 +116,7 @@ class ReservoirNode(mdp.Node):
         if self.w_initial is None:
             self.w = numpy.random.randn(self.output_dim, self.output_dim)
             # scale it to spectral radius
-            self.w *= self.spectral_radius / get_spectral_radius(self.w)
+            self.w *= self.spectral_radius / Engine.utils.get_spectral_radius(self.w)
         else:
             if callable(self.w_initial):
                 self.w = self.w_initial() # If it is a function, call it

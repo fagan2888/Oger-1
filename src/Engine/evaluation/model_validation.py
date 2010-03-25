@@ -3,7 +3,6 @@ Created on Aug 25, 2009
 
 @author: dvrstrae
 '''
-import numpy as np
 import mdp
 
 def train_test_only(n_samples, training_fraction):
@@ -21,7 +20,7 @@ def train_test_only(n_samples, training_fraction):
     # Take a fraction training_fraction for training
     train_indices = [randperm[0:int(round(n_samples * training_fraction))]]
     # Use the rest for testing
-    test_indices = np.array([mdp.numx.setdiff1d(randperm, train_indices[-1])])
+    test_indices = mdp.numx.array([mdp.numx.setdiff1d(randperm, train_indices[-1])])
     return train_indices, test_indices
 
 
@@ -38,7 +37,7 @@ def leave_one_out(n_samples):
     all_samples = range(n_samples)
     # Loop over all sample indices, using each one for testing once
     for test_index in all_samples:
-        test_indices.append(np.array([test_index]))
+        test_indices.append(mdp.numx.array([test_index]))
         train_indices.append(mdp.numx.setdiff1d(all_samples, [test_index]))
     return train_indices, test_indices
 
@@ -60,7 +59,7 @@ def n_fold_random(n_samples, n_folds):
         # Select the sample indices used for testing
         test_indices.append(randperm[fold * foldsize:foldsize * (fold + 1)])
         # Select the rest for training
-        train_indices.append(np.array(mdp.numx.setdiff1d(randperm, test_indices[-1])))
+        train_indices.append(mdp.numx.array(mdp.numx.setdiff1d(randperm, test_indices[-1])))
     return train_indices, test_indices
     
 

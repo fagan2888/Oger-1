@@ -8,7 +8,6 @@ implementations of MDP nodes.
 
 import mdp
 from Engine import nonlinear_nodes, reservoir_nodes, rbm_nodes
-from Engine.utility_functions import LogisticFunction
 from mdp import numx
 from mdp.utils import mult
 
@@ -85,7 +84,7 @@ class BackpropNode(mdp.Node):
         self.derror = derror
 
         if self.derror == None:
-            self.derror = lambda x, t: x-t
+            self.derror = lambda x, t: x - t
 
         input_dim = gflow[0].get_input_dim()
         output_dim = gflow[-1].get_output_dim()
@@ -183,6 +182,7 @@ class BackpropNode(mdp.Node):
 ## MDP (Engine) gradient node implementations ##
 
 class GradientPerceptronNode(GradientExtensionNode, Engine.nonlinear_nodes.PerceptronNode):
+class GradientPerceptronNode(GradientNode, Engine.nodes.PerceptronNode):
     """Gradient version of Engine Perceptron Node"""
 
     def _params(self):
@@ -204,7 +204,8 @@ class GradientPerceptronNode(GradientExtensionNode, Engine.nonlinear_nodes.Perce
     def _param_size(self):
         return self.w.size + self.b.size
 
-class GradientRBMNode(GradientExtensionNode, Engine.rbm_nodes.ERBMNode):
+class GradientReservoirNode(GradientNode, Engine.nodes.ReservoirNode):
+class GradientRBMNode(GradientNode, Engine.nodes.ERBMNode):
     """Gradient version of the Engine RBM Node.
 
     This gradient node is intended for use in a feedforward architecture. This
@@ -221,7 +222,7 @@ class GradientRBMNode(GradientExtensionNode, Engine.rbm_nodes.ERBMNode):
 
     def _calculate_gradient(self, y):
         x = self._last_x
-        dy = LogisticFunction.df(x, self._last_y) * y
+        dy = Engine.utils.LogisticFunction.df(x, self._last_y) * y
         dw = mult(x.T, dy)
         self._gradient_vector = numx.concatenate((dw.ravel(), dy.sum(axis=0)))
         dx = mult(self.w, dy.T).T
