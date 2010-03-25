@@ -86,7 +86,10 @@ class Optimizer(object):
             pylab.show()
         elif len(self.parameters) == 2:
             pylab.ion()
-            pylab.imshow(self.errors)
+		    pylab.imshow(self.errors, interpolation='nearest')
+			pylab.ylabel(str(self.parameters[0]['node']) + '.' + self.parameters[0]['parameter'])
+			pylab.xlabel(str(self.parameters[1]['node']) + '.' + self.parameters[1]['parameter'])
+
             pylab.colorbar()
             pylab.show()
         else:
