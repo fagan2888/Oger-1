@@ -8,10 +8,10 @@ Created on Aug 24, 2009
 
 @author: dvrstrae
 '''
-import datasets
-import reservoir_nodes
-import linear_nodes
-import mdp
+from Engine import datasets
+from Engine import reservoir_nodes
+from Engine import linear_nodes
+from Engine import mdp
 import pylab
 
 class FeedbackNode(mdp.Node):

@@ -1,7 +1,7 @@
-import datasets
-import error_measures
-import reservoir_nodes
-import model_validation
+from Engine import datasets
+from Engine import error_measures
+from Engine import reservoir_nodes
+from Engine import model_validation
 import mdp
 
 from Engine.linear_nodes import RidgeRegressionNode
