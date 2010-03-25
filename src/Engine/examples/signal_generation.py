@@ -11,36 +11,10 @@ Created on Aug 24, 2009
 import datasets
 import reservoir_nodes
 import linear_nodes
+import utility_nodes
 import mdp
 import pylab
 
-class FeedbackNode(mdp.Node):
-    def __init__(self, n_timesteps=1, input_dim=None, output_dim=None, dtype=None):
-        super(FeedbackNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
-        self.current_timestep = 0
-        self.n_timesteps = n_timesteps
-        self.last_value = None
-        
-    def is_trainable(self):
-        return True
-
-    def _set_input_dim(self, n):
-        self._input_dim = n
-        self._output_dim = n
-        
-    def __iter__(self):
-        while self.current_timestep < self.n_timesteps:
-            self.current_timestep += 1
-            yield self.last_value
-            
-    def _train(self, x):
-        self.last_value = mdp.numx.atleast_2d(x[-1, :])
-        
-        
-    def _execute(self, x):
-        #self.last_value = mdp.numx.atleast_2d(x[-1,:])
-        self.last_value = x
-        return self.last_value
 
 if __name__ == "__main__":
 

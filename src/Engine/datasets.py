@@ -74,6 +74,12 @@ def mackey_glass(sample_len=1000, tau=17):
     inp.shape = (-1, 1)
     return inp
 
+def mso(sample_len=1000):
+    x = mdp.numx.arange(0, sample_len, 1)
+    x.shape += (1,)
+    signal = mdp.numx.sin(0.2 * x) + mdp.numx.sin(0.311 * x) 
+    return [signal, ]
+	
 def heating_tank(sample_len=1000, inputs=None):
     ''' Return data for the heating tank task. This system models the 
     temperature of the exhaust of a tank which is subject to a constant source 
