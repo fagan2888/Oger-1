@@ -3,10 +3,10 @@ Created on Aug 24, 2009
 
 @author: dvrstrae
 '''
-import datasets
-import error_measures
-import reservoir_nodes
-import utility_nodes
+from Engine import datasets
+from Engine import error_measures
+from Engine import reservoir_nodes
+from Engine import utility_nodes
 
 import mdp
 import pylab

@@ -3,7 +3,7 @@ Created on Aug 20, 2009
 
 @author: dvrstrae
 '''
-import mdp
+from Engine import mdp
 import glob
 import os
 import collections
