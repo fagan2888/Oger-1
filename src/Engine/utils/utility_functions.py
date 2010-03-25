@@ -3,11 +3,10 @@ Created on Aug 20, 2009
 
 @author: dvrstrae
 '''
-from mdp import numx
-
+import mdp
 
 def get_spectral_radius(W):
-    return numx.max(numx.abs(numx.linalg.eigvals(W))) 
+    return mdp.numx.amax(mdp.numx.absolute(mdp.numx.linalg.eigvals(W))) 
 
 class LinearFunction:
     """
@@ -36,7 +35,7 @@ class TanhFunction:
         return numx.tanh(x)
                    
     def df(x, y):
-        return 1. - y**2
+        return 1. - y ** 2
     
     f = staticmethod(f)
     df = staticmethod(df)
@@ -49,7 +48,7 @@ class LogisticFunction:
     derivatives.
     """
     def f(x):
-        return 1./(1. + numx.exp(-x))
+        return 1. / (1. + numx.exp(-x))
                    
     def df(x, y):
         return y * (1 - y)
@@ -100,10 +99,10 @@ class RBFunction:
     derivatives.
     """
     def f(x):
-        return numx.exp(-(x*x))
+        return numx.exp(-(x * x))
                    
     def df(x, y):
-        return -2*(x*y);
+        return - 2 * (x * y);
     
     f = staticmethod(f)
     df = staticmethod(df)
