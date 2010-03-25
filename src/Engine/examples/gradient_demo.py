@@ -1,4 +1,7 @@
 # Shows the use of the gradient based learning module.
+# Note that there is already an MLPNode that implements the same architecture
+# as contstructed in this demo.
+import mdp
 import pylab
 from Engine.nonlinear_nodes import PerceptronNode
 from Engine.gradient.gradient_nodes import BackpropNode 

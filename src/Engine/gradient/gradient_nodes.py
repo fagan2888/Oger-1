@@ -7,10 +7,7 @@ implementations of MDP nodes.
 """
 
 import mdp
-import Engine
-import Engine.nonlinear_nodes
-import Engine.reservoir_nodes
-import Engine.rbm_nodes
+from Engine import nonlinear_nodes, reservoir_nodes, rbm_nodes
 from Engine.utility_functions import LogisticFunction
 from mdp import numx
 from mdp.utils import mult
