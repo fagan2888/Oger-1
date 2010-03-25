@@ -1,5 +1,5 @@
-import numpy as np
 import mdp
+from mdp import numx
 
 def nrmse(input, target):
     """ NRMSE calculation.
@@ -28,7 +28,7 @@ def nrmse(input, target):
     var = targetsignal.std(ddof=1)**2
     
     error = (targetsignal - input)**2
-    return np.sqrt( error.mean() / var )
+    return numx.sqrt( error.mean() / var )
     
 def nmse(input, target):
     """ NMSE calculation.
@@ -79,7 +79,7 @@ def rmse(input, target):
     targetsignal.shape = -1,
             
     error = (targetsignal - input)**2
-    return np.sqrt( error.mean() )
+    return numx.sqrt( error.mean() )
     
 def mse(input, target):
     """ MSE calculation.
@@ -146,5 +146,5 @@ def ce(input, target):
     if input.shape!=target.shape:
         raise RuntimeError("Input and target should have the same shape")
 
-    return np.sum(-np.log(input[target == 1]))
+    return numx.sum(-numx.log(input[target == 1]))
 

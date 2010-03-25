@@ -3,8 +3,8 @@ Created on Aug 24, 2009
 
 @author: dvrstrae
 '''
-import numpy as np
 import mdp
+from mdp import numx
 from mdp.utils import mult
 from Engine.utility_functions import LinearFunction
 
@@ -32,7 +32,7 @@ class SignNode(mdp.Node):
         return ['float32', 'float64']
 
     def _execute(self, x):
-        return np.sign(x)
+        return numx.sign(x)
 
 
 class PerceptronNode(mdp.Node):
@@ -60,7 +60,7 @@ class PerceptronNode(mdp.Node):
     def _execute(self, x):
         n, d = x.shape
         if n > 1:
-            bias = np.tile(self.b, (n, 1))
+            bias = numx.tile(self.b, (n, 1))
         else:
             bias = self.b
         y = self.transfer_func.f(mult(x, self.w) + bias)

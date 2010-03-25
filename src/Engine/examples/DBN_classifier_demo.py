@@ -1,4 +1,5 @@
 import mdp
+import pylab
 import numpy as np
 import cPickle
 from Engine.gradient.trainers import *
@@ -8,9 +9,9 @@ from Engine.error_measures import ce
 
 data = cPickle.load(open('/home/pbrakel/Data/mnist/mnist.p'))
 
-n_train = 200
-n_test = 100
-epochs = 25
+n_train = 40000
+n_test = 5000
+epochs = 1
 
 image_data = data['trainimages']
 image_labels = data['trainlabels']
@@ -31,26 +32,31 @@ percnode = GradientPerceptronNode(200, 10, transfer_func=SoftmaxFunction)
 
 # Greedy pretraining of RBMs
 
+print 'Training first layer...'
 for epoch in range(epochs):
-    for c in train_data:
+    for c in mdp.utils.progressinfo(train_data):
         rbmnode1.train(c.reshape((1, 784)), n_updates=1, epsilon=.1)
 
 hiddens = rbmnode1(train_data)
 
+print 'Training second layer...'
 for epoch in range(epochs):
-    for c in hiddens:
+    for c in mdp.utils.progressinfo(hiddens):
         rbmnode2.train(c.reshape((1, 100)), n_updates=1, epsilon=.1)
 
 # Create flow and backpropagation node.
 
+# Store weights.
+w_generative = rbmnode1.w.copy()
 
 myflow = rbmnode1 + rbmnode2 + percnode
 
 bpnode = BackpropNode(myflow, GradientDescentTrainer(momentum=.9), loss_func=ce)
 
 # Fine-tune for classification
+print 'Fine-tuning for classification...'
 for epoch in range(epochs):
-    for i in range(len(train_data)):
+    for i in mdp.utils.progressinfo(range(len(train_data))):
         label = np.array(np.eye(10)[train_labels[i], :])
         bpnode.train(x=train_data[i].reshape((1, 784)), t=label.reshape((1, 10)))
 
@@ -61,7 +67,20 @@ out[np.arange(out.shape[0]), np.argmax(out, axis=1)] = 1
 out[out < 1] = 0
 t_test = np.array([int(i) for i in test_labels])
 correct = np.sum(out[np.arange(len(t_test)), t_test])
-print correct / float(len(test_labels))
+print 'Proportion of correctly classified digits:', correct / float(len(test_labels))
 
+# Draw a picture of the input weights before and after fine-tuning.
+image = np.zeros((28 * 20, 28 * 10))
 
+for i in range(10):
+    for j in range(10):
+        image[i*28:(i+1)*28, j*28:(j+1)*28] = w_generative[:, i * 10 + j].ravel().reshape((28, 28))
+        
+
+for i in range(10, 20):
+    for j in range(10):
+        image[i*28:(i+1)*28, j*28:(j+1)*28] = rbmnode1.w[:, (i-10) * 10 + j].ravel().reshape((28, 28))
+        
+pylab.imshow(image, cmap=pylab.cm.gray)
+pylab.show
 

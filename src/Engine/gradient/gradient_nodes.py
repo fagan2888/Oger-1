@@ -7,10 +7,7 @@ implementations of MDP nodes.
 """
 
 import mdp
-import Engine
-import Engine.nonlinear_nodes
-import Engine.reservoir_nodes
-import Engine.rbm_nodes
+from Engine import nonlinear_nodes, reservoir_nodes, rbm_nodes
 from Engine.utility_functions import LogisticFunction
 from mdp import numx
 from mdp.utils import mult
@@ -210,7 +207,7 @@ class BackpropNode(mdp.Node):
 ## MDP (Engine) gradient node implementations ##
 
 # Should this not just be part of the PerceptronNode?
-class GradientPerceptronNode(GradientNode, Engine.nonlinear_nodes.PerceptronNode):
+class GradientPerceptronNode(GradientNode, nonlinear_nodes.PerceptronNode):
     """Gradient version of Engine Perceptron Node"""
 
     def _params(self):
@@ -232,7 +229,7 @@ class GradientPerceptronNode(GradientNode, Engine.nonlinear_nodes.PerceptronNode
     def _param_size(self):
         return self.w.size + self.b.size
     
-class GradientReservoirNode(GradientNode, Engine.reservoir_nodes.ReservoirNode):
+class GradientReservoirNode(GradientNode, reservoir_nodes.ReservoirNode):
 
     # TODO: should this parameter be called y?
     def _gradient_inverse(self, y):
@@ -246,7 +243,7 @@ class GradientReservoirNode(GradientNode, Engine.reservoir_nodes.ReservoirNode):
     def _param_size(self):
         return 0
 
-class GradientRBMNode(GradientNode, Engine.rbm_nodes.ERBMNode):
+class GradientRBMNode(GradientNode, rbm_nodes.ERBMNode):
     """Gradient version of the Engine RBM Node.
 
     This gradient node is intended for use in a feedforward architecture. This

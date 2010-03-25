@@ -1,4 +1,6 @@
 # Shows the use of the gradient based learning module.
+# Note that there is already an MLPNode that implements the same architecture
+# as contstructed in this demo.
 import mdp
 import pylab
 import numpy as np
@@ -20,9 +22,6 @@ data_out = np.sin(data_in * 5 * np.pi)
 percnode1 = GradientPerceptronNode(1, 12, transfer_func=TanhFunction)
 percnode2 = GradientPerceptronNode(12, 1)
 myflow = percnode1 + percnode2
-
-#bpnode = BackpropNode(myflow, gradient_descent)
-#bpnode.train(x=data_in, t=data_out, epochs=1500, learning_rate=.001, momentum=.3)
 
 choice = input('What optimization method do you want to use?\n0: Conjugate gradient\n1: BFGS (low memory Newton)\n2: gradient descent\n3: RPROP\n...')
 choices = [CGTrainer(), BFGSTrainer(), GradientDescentTrainer(epochs=30000), RPROPTrainer(epochs=30000)]
