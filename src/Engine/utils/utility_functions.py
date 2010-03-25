@@ -15,14 +15,13 @@ class LinearFunction:
     Implements two static methods, one for the function and one for its
     derivatives.
     """
+    @staticmethod
     def f(x):
         return x
                    
+    @staticmethod
     def df(x, y):
         return 1.
-
-    f = staticmethod(f)
-    df = staticmethod(df)
 
 class TanhFunction:
     """
@@ -31,14 +30,13 @@ class TanhFunction:
     Implements two static methods, one for the function and one for its
     derivatives.
     """
+    @staticmethod
     def f(x):
         return mdp.numx.tanh(x)
                    
+    @staticmethod
     def df(x, y):
         return 1. - y ** 2
-    
-    f = staticmethod(f)
-    df = staticmethod(df)
     
 class LogisticFunction:
     """
@@ -47,14 +45,13 @@ class LogisticFunction:
     Implements two static methods, one for the function and one for its
     derivatives.
     """
+    @staticmethod
     def f(x):
         return 1. / (1. + mdp.numx.exp(-x))
                    
+    @staticmethod
     def df(x, y):
         return y * (1 - y)
-
-    f = staticmethod(f)
-    df = staticmethod(df)
         
 class SoftmaxFunction: 
     """
@@ -63,6 +60,7 @@ class SoftmaxFunction:
     Implements two static methods, one for the function and one for its
     derivatives.
     """
+    @staticmethod
     def f(x):
         n, d = x.shape
         out = mdp.numx.zeros((n, d))
@@ -71,6 +69,7 @@ class SoftmaxFunction:
             out[i, :] = activation / mdp.numx.sum(activation)
         return out
                    
+    @staticmethod
     def df(x, y):
 #        [Sm,Q] = size(y);
 #        da_dn = cell(1,Q);
@@ -88,25 +87,6 @@ class SoftmaxFunction:
         # more elegant way.
         return 1.
     
-    f = staticmethod(f)
-    df = staticmethod(df)
-    
-class RBFunction: 
-    """
-    Container class for the radial basis function.
-    
-    Implements two static methods, one for the function and one for its
-    derivatives.
-    """
-    def f(x):
-        return mdp.numx.exp(-(x * x))
-                   
-    def df(x, y):
-        return - 2 * (x * y);
-    
-    f = staticmethod(f)
-    df = staticmethod(df)
-    
 class SignFunction:
     """
     Container class for the sign function.
@@ -114,12 +94,10 @@ class SignFunction:
     Implements two static methods, one for the function and one for its
     derivatives.
     """
+    @staticmethod
     def f(x):
         return mdp.numx.sign(x)
                    
+    @staticmethod
     def df(x, y):
         raise NotImplementedError, "Derivative of the sign function does not exist"
-
-    f = staticmethod(f)
-    df = staticmethod(df)
-

@@ -4,7 +4,6 @@
 	Ordinary differential equations.
 """
 
-import odeproblempython
 import mdp
 import numpy
 

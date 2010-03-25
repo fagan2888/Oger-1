@@ -51,3 +51,5 @@ if __name__ == "__main__":
     pylab.subplot(313)
     pylab.plot(mdp.numx.concatenate((ytrain[-freerun_steps:], output[0:freerun_steps])))
     pylab.plot(x[-2 * freerun_steps:])
+    
+    pylab.show()

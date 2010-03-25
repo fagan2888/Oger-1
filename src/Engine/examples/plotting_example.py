@@ -23,9 +23,10 @@ if __name__ == '__main__':
     flow = mdp.Flow([reservoir, readout])
 
     # 1D plotting example
-    print "First a scan of the spectral radius : gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.2, 0.1)}}"
+    print "First a scan of the spectral radius"
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.2, 0.1)}}
+    gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.3, 0.1)}}
+    print "gridsearch_parameters = " + str(gridsearch_parameters)
     opt1D = Engine.evaluation.Optimizer(gridsearch_parameters, Engine.utils.nrmse)
     
     # Run the gridsearch
@@ -34,8 +35,8 @@ if __name__ == '__main__':
 
     # 1D plotting example
     print "Then we range over both spectral radius and input scaling"
-    print "gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.2, 0.2), 'input_scaling': mdp.numx.arange(0.5, .7, 0.1)}}"
-    gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.2, 0.2), 'input_scaling': mdp.numx.arange(0.5, .7, 0.1)}}
+    gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.3, 0.2), 'input_scaling': mdp.numx.arange(0.5, .8, 0.1)}}
+    print "gridsearch_parameters = " + str(gridsearch_parameters)
     opt2D = Engine.evaluation.Optimizer(gridsearch_parameters, Engine.utils.nrmse)
 
     # Run the gridsearch

@@ -7,7 +7,6 @@ import mdp
 import glob
 import os
 import collections
-import scipy as sp
 from scipy.io import loadmat
 
 def narma30(n_samples=10, sample_len=1000):

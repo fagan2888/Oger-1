@@ -3,16 +3,10 @@ Created on Aug 24, 2009
 
 @author: dvrstrae
 '''
-from Engine import datasets
-from Engine import error_measures
-from Engine import reservoir_nodes
-from Engine import utility_nodes
-
 import mdp
+import Engine
 import pylab
 import scipy as sp
-
-from Engine.linear_nodes import RidgeRegressionNode
 
 if __name__ == "__main__":
 
@@ -20,7 +14,7 @@ if __name__ == "__main__":
     washout=0
     train_frac = .9;
 
-    [x,y] = datasets.timit_tiny()
+    [x,y] = Engine.datasets.timit_tiny()
     
     n_samples = len(x);
     n_train_samples = int(round(n_samples*train_frac));
@@ -29,10 +23,10 @@ if __name__ == "__main__":
 
     inputs = x[0].shape[1]
     # construct individual nodes
-    reservoir = reservoir_nodes.ReservoirNode(inputs, 100, input_scaling = 1)
-    readout = RidgeRegressionNode()
-    mnnode = utility_nodes.MeanAcrossTimeNode()
-    wtanode = utility_nodes.WTANode();
+    reservoir = Engine.nodes.ReservoirNode(inputs, 100, input_scaling = 1)
+    readout = Engine.nodes.RidgeRegressionNode()
+    mnnode = Engine.nodes.MeanAcrossTimeNode()
+    wtanode = Engine.nodes.WTANode();
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout, mnnode], verbose=1)
@@ -87,5 +81,5 @@ if __name__ == "__main__":
     ytestmean=[sp.argmax(sp.mean(sample, axis=0)) for sample in ytest]
     
     
-    print error_measures.mean_error(ymean, ytestmean, lambda x, y, z: x!=y)
+    print Engine.utils.mean_error(ymean, ytestmean, lambda x, y, z: x!=y)
     print "finished"

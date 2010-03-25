@@ -79,7 +79,7 @@ def mse(input_signal, target_signal):
         targetsignal : array
             the target_signal signal
     """            
-    error = (targetsignal.flatten() - input_signal.flatten()) ** 2
+    error = (target_signal.flatten() - input_signal.flatten()) ** 2
     return error.mean()
 
 def loss_01(input_signal, target_signal):

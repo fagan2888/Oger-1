@@ -1,17 +1,10 @@
-from Engine import datasets 
-from Engine import error_measures
-from Engine import ode_nodes
-
 import mdp
+import Engine
 import pylab
-
-from Engine.linear_nodes import RidgeRegressionNode
-
-import odeproblempython
+import Engine.odesolver
 import numpy
-from utility_functions import get_spectral_radius
 
-class OdeLeakyIntegrator(odeproblempython.OdeProblemPython):
+class OdeLeakyIntegrator(Engine.odesolver.OdeProblemPython):
         # Initialize the class. This also calls all C++ - constructors.
         def __init__(self, leak_rate = 1.0, input_dim = 1, output_dim = 100, **kwargs):
                 super(OdeLeakyIntegrator, self).__init__(**kwargs)
@@ -19,7 +12,7 @@ class OdeLeakyIntegrator(odeproblempython.OdeProblemPython):
                 self.src = 1.0
                 self.spectral_radius = 0.9
                 self.conn_mat = mdp.numx_rand.randn(output_dim,output_dim)
-                self.conn_mat *= self.spectral_radius/get_spectral_radius(self.conn_mat)
+                self.conn_mat *= self.spectral_radius/Engine.utils.get_spectral_radius(self.conn_mat)
                 self.conn_mat -= leak_rate*mdp.numx.eye(output_dim,output_dim)
                 self.w_in = 1.0*(numpy.random.randint(0,2, [output_dim, input_dim])*2-1)
 
@@ -65,14 +58,14 @@ if __name__ == "__main__":
         nx=4
         ny=1
 
-        [x,y] = datasets.narma30(sample_len=9000)
+        [x,y] = Engine.datasets.narma30(sample_len=9000)
 
         # construct individual nodes
         op = OdeLeakyIntegrator( leak_rate = 1.5, output_dim = nr_nodes )
         op.set_accuracy(1e-8)
         # op.set_save_every(0.01) #not necessary to save internal values.
-        reservoir = ode_nodes.OdeNode(inputs,nr_nodes,odeproblem=op, dt = 0.1, init_dt = 1e-5, dt_min = 1e-6, dt_max = 0.05)
-        readout = RidgeRegressionNode(0)
+        reservoir = Engine.nodes.OdeNode(inputs,nr_nodes,odeproblem=op, dt = 0.1, init_dt = 1e-5, dt_min = 1e-6, dt_max = 0.05)
+        readout = Engine.nodes.RidgeRegressionNode(0)
         
         #dt = 0.1; init_dt = 1e-5; dt_min = 1e-6; dt_max = 0.05
         #state = numpy.zeros( (100,), complex )
@@ -112,6 +105,6 @@ if __name__ == "__main__":
         pylab.plot(reservoir.states)
         pylab.show()
 
-        print error_measures.nrmse(y[1],testout, discard=washout)
+        print Engine.utils.nrmse(y[1],testout, discard=washout)
         print "finished"
 
