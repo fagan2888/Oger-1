@@ -19,15 +19,15 @@ if __name__ == "__main__":
     
     print "Simple training and testing (one fold, i.e. no cross-validation), training_fraction = 0.5."
     print "cross_validate_function = crossvalidation.train_test_only"
-    errors = Engine.evaluation.validate(data, flow, Engine.error_measures.nrmse, cross_validate_function=Engine.evaluation.train_test_only, training_fraction=0.5)
+    errors = Engine.evaluation.validate(data, flow, Engine.utils.nrmse, cross_validate_function=Engine.evaluation.train_test_only, training_fraction=0.5)
     print errors
        
     print "5-fold cross-validation"
     print "cross_validate_function = crossvalidation.cross_validate"
-    errors = Engine.evaluation.validate(data, flow, Engine.error_measures.nrmse, n_folds=5)
+    errors = Engine.evaluation.validate(data, flow, Engine.utils.nrmse, n_folds=5)
     print errors
     print
 
     print "Leave-one-out cross-validation"
-    errors = Engine.evaluation.validate(data, flow, Engine.error_measures.nrmse, cross_validate_function=Engine.evaluation.leave_one_out)
+    errors = Engine.evaluation.validate(data, flow, Engine.utils.nrmse, cross_validate_function=Engine.evaluation.leave_one_out)
     print errors

@@ -61,7 +61,7 @@ if __name__ == "__main__":
                       outputs[n_train_samples:]])
     ytestmean = sp.array([sp.argmax(sample) for sample in ytest])
     
-    print "Error: " + str(mdp.numx.mean(Engine.error_measures.loss_01(ymean,
+    print "Error: " + str(mdp.numx.mean(Engine.utils.loss_01(ymean,
                                                                ytestmean)))
     pylab.show()
     

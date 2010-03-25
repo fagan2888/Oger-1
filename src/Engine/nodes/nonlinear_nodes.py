@@ -46,7 +46,7 @@ class PerceptronNode(mdp.Node):
     """
 
     # TODO: re-include Engine.utils.LinearFunction as default value for transfer_func 
-    def __init__(self, transfer_func, input_dim=None, output_dim=None, dtype='float64'):        
+    def __init__(self, input_dim=None, output_dim=None, dtype='float64', transfer_func=None):        
         super(PerceptronNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
         
         self.transfer_func = transfer_func

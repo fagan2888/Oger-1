@@ -7,7 +7,7 @@ implementations of MDP nodes.
 """
 
 import mdp
-from Engine import nonlinear_nodes, reservoir_nodes, rbm_nodes
+import Engine
 from mdp import numx
 from mdp.utils import mult
 
@@ -181,8 +181,7 @@ class BackpropNode(mdp.Node):
 
 ## MDP (Engine) gradient node implementations ##
 
-class GradientPerceptronNode(GradientExtensionNode, Engine.nonlinear_nodes.PerceptronNode):
-class GradientPerceptronNode(GradientNode, Engine.nodes.PerceptronNode):
+class GradientPerceptronNode(GradientExtensionNode, Engine.nodes.PerceptronNode):
     """Gradient version of Engine Perceptron Node"""
 
     def _params(self):
@@ -204,8 +203,7 @@ class GradientPerceptronNode(GradientNode, Engine.nodes.PerceptronNode):
     def _param_size(self):
         return self.w.size + self.b.size
 
-class GradientReservoirNode(GradientNode, Engine.nodes.ReservoirNode):
-class GradientRBMNode(GradientNode, Engine.nodes.ERBMNode):
+class GradientRBMNode(GradientExtensionNode, Engine.nodes.ReservoirNode):
     """Gradient version of the Engine RBM Node.
 
     This gradient node is intended for use in a feedforward architecture. This

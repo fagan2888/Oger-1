@@ -3,31 +3,25 @@ Created on Feb 24, 2010
 
 @author: dvrstrae
 '''
-'''
-Created on Aug 24, 2009
 
-@author: dvrstrae
-'''
-from Engine import datasets
-from Engine import reservoir_nodes
-from Engine import linear_nodes
-import utility_nodes
+import Engine
 import pylab
+import mdp
 
 
 if __name__ == "__main__":
 
     freerun_steps = 500
     
-    x = datasets.mackey_glass(sample_len=10000)
+    x = Engine.datasets.mackey_glass(sample_len=10000)
     xtrain = x[0:-freerun_steps]
     ytrain = xtrain[1:]
     xtrain = xtrain[0:-1]
         
     # construct individual nodes
-    reservoir = reservoir_nodes.LeakyReservoirNode(output_dim=100, input_scaling=1, leak_rate=0.5)
-    readout = linear_nodes.RidgeRegressionNode(0.01)
-    fb = FeedbackNode(n_timesteps=freerun_steps)
+    reservoir = Engine.nodes.LeakyReservoirNode(output_dim=100, input_scaling=1, leak_rate=0.5)
+    readout = Engine.nodes.RidgeRegressionNode(0.01)
+    fb = Engine.nodes.FeedbackNode(n_timesteps=freerun_steps)
     
      
     # build network with MDP framework

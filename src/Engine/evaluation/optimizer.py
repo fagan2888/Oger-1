@@ -3,11 +3,10 @@ Created on Feb 9, 2010
 
 @author: dvrstrae
 '''
+import Engine
 import mdp
 import pylab
 import itertools
-import model_validation
-import numpy as np
 
 class Optimizer(object):
     def __init__(self, optimization_dict, loss_function, **kwargs):
@@ -41,7 +40,7 @@ class Optimizer(object):
         self.param_space = list(itertools.product(*self.parameter_ranges))
         
 
-    def grid_search (self, data, flow, cross_validate_function=model_validation.n_fold_random, *args, **kwargs):
+    def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
         ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
             for each value in the parameter space.
             Input arguments are:
@@ -65,7 +64,7 @@ class Optimizer(object):
            
             # After all node parameters have been set and initialized, do the cross-validation
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions) 
-            self.errors[paramspace_index_full] = mdp.numx.mean(model_validation.validate(data, flow, self.loss_function, cross_validate_function, *args, **kwargs))
+            self.errors[paramspace_index_full] = mdp.numx.mean(Engine.evaluation.validate(data, flow, self.loss_function, cross_validate_function, *args, **kwargs))
 
     def plot_results(self):
         ''' Plot the results of the optimization. Works for 1D and 2D scans, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
@@ -86,9 +85,9 @@ class Optimizer(object):
             pylab.show()
         elif len(self.parameters) == 2:
             pylab.ion()
-		    pylab.imshow(self.errors, interpolation='nearest')
-			pylab.ylabel(str(self.parameters[0]['node']) + '.' + self.parameters[0]['parameter'])
-			pylab.xlabel(str(self.parameters[1]['node']) + '.' + self.parameters[1]['parameter'])
+            pylab.imshow(self.errors, interpolation='nearest')
+            pylab.ylabel(str(self.parameters[0]['node']) + '.' + self.parameters[0]['parameter'])
+            pylab.xlabel(str(self.parameters[1]['node']) + '.' + self.parameters[1]['parameter'])
 
             pylab.colorbar()
             pylab.show()
@@ -107,8 +106,8 @@ class Optimizer(object):
             raise Exception('Errors array is empty. No optimization has been performed yet.')
 
         min_parameter_dict = {}
-        minimal_error = np.min(self.errors)
-        min_parameter_indices = np.unravel_index(np.argmin(self.errors), self.errors.shape)
+        minimal_error = mdp.numx.amin(self.errors)
+        min_parameter_indices = mdp.numx.unravel_index(mdp.numx.argmin(self.errors), self.errors.shape)
 
         for index, param_d in enumerate(self.parameters):
             opt_parameter_value = self.parameter_ranges[index][min_parameter_indices[index]]

@@ -3,20 +3,16 @@
 # outputs and the true probabilities distributions over the words according to
 # the grammar itself.
 
-import grammars
 import os
 import gzip
-from Engine import reservoir_nodes
-from Engine.error_measures import cosine
+import Engine
 
 import mdp
 import pylab
 
-from Engine.linear_nodes import RidgeRegressionNode
-
 if __name__ == "__main__":
 
-    l = grammars.simple_pcfg()
+    l = Engine.datasets.simple_pcfg()
 
     testdata = []
 
@@ -51,8 +47,8 @@ if __name__ == "__main__":
     inputs = len(vocab)
     translate = dict([(vocab[i], i) for i in range(inputs)])
 
-    reservoir = reservoir_nodes.ReservoirNode(inputs, 100, input_scaling = 1)
-    readout = RidgeRegressionNode()
+    reservoir = Engine.nodes.ReservoirNode(inputs, 100, input_scaling=1)
+    readout = Engine.nodes.RidgeRegressionNode()
 
     # Build MDP network.
     flow = mdp.Flow([reservoir, readout], verbose=1)
@@ -98,7 +94,7 @@ if __name__ == "__main__":
     # Save test results in ytest.
     ytest = flownode(x)
 
-    results = [cosine(ytest[i], testprobs[i + 1]) for i in range(Nx - 1)]
+    results = [Engine.utils.cosine(ytest[i], testprobs[i + 1]) for i in range(Nx - 1)]
     print 'Average cosine between outputs and ground distributions:', mdp.numx.mean(results)
     results = mdp.numx.array(results)[:-7]
     results = results.reshape(((Nx - 8) / 8, 8))

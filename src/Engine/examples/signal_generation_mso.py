@@ -6,15 +6,15 @@ if __name__ == "__main__":
 
     freerun_steps = 5000
     
-    x = Engine.mso(sample_len=10000)
+    x = Engine.datasets.mso(sample_len=10000)
     xtrain = x[0][0:-freerun_steps]
     ytrain = xtrain[1:]
     xtrain = xtrain[0:-1]
 
     # construct individual nodes
-    reservoir = Engine.LeakyReservoirNode(output_dim=100, input_scaling=0.1, leak_rate=0.5)
-    readout = Engine.RidgeRegressionNode(0.)
-    fb = Engine.FeedbackNode(n_timesteps=freerun_steps)
+    reservoir = Engine.nodes.LeakyReservoirNode(output_dim=100, input_scaling=0.1, leak_rate=0.5)
+    readout = Engine.nodes.RidgeRegressionNode(0.)
+    fb = Engine.nodes.FeedbackNode(n_timesteps=freerun_steps)
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout, fb], verbose=1)
@@ -25,10 +25,10 @@ if __name__ == "__main__":
     gridsearch_parameters = {readout:{'ridge_param': mdp.numx.exp(mdp.numx.arange(-10, 2, 1))}}
 
     # Instantiate an optimizer
-    opt = Engine.Optimizer(gridsearch_parameters, Engine.nrmse)
+    opt = Engine.evaluation.Optimizer(gridsearch_parameters, Engine.utils.nrmse)
     
     # Do the grid search
-    opt.grid_search(data, flow, cross_validate_function=Engine.train_test_only, training_fraction=0.5)
+    opt.grid_search(data, flow, cross_validate_function=Engine.evaluation.train_test_only, training_fraction=0.5)
 
     # Get the minimal error
     min_error, parameters = opt.get_minimal_error()
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     # TODO: this should be a dict of dicts, same as gridsearch_parameters
     readout.ridge_param = parameters['RidgeRegressionNode.ridge_param']
     
-    data = [ [xtrain,] , [[xtrain, ytrain],], [xtrain,]];
+    data = [ [xtrain, ] , [[xtrain, ytrain], ], [xtrain, ]];
 
     flow.train(data)
                 

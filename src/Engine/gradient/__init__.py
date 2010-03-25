@@ -1,4 +1,4 @@
-from gradient_nodes import (GradientNode, GradientExtensionNode, BackpropNode, GradientPerceptronNode, GradientReservoirNode, GradientRBMNode)
+from gradient_nodes import (GradientExtensionNode, BackpropNode, GradientPerceptronNode, GradientRBMNode)
 from trainers import (CGTrainer, BFGSTrainer, RPROPTrainer)
 
 del gradient_nodes

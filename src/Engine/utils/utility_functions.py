@@ -32,7 +32,7 @@ class TanhFunction:
     derivatives.
     """
     def f(x):
-        return numx.tanh(x)
+        return mdp.numx.tanh(x)
                    
     def df(x, y):
         return 1. - y ** 2
@@ -48,7 +48,7 @@ class LogisticFunction:
     derivatives.
     """
     def f(x):
-        return 1. / (1. + numx.exp(-x))
+        return 1. / (1. + mdp.numx.exp(-x))
                    
     def df(x, y):
         return y * (1 - y)
@@ -65,10 +65,10 @@ class SoftmaxFunction:
     """
     def f(x):
         n, d = x.shape
-        out = numx.zeros((n, d))
+        out = mdp.numx.zeros((n, d))
         for i in range(n):
-            activation = numx.exp(x[i, :])
-            out[i, :] = activation / numx.sum(activation)
+            activation = mdp.numx.exp(x[i, :])
+            out[i, :] = activation / mdp.numx.sum(activation)
         return out
                    
     def df(x, y):
@@ -99,7 +99,7 @@ class RBFunction:
     derivatives.
     """
     def f(x):
-        return numx.exp(-(x * x))
+        return mdp.numx.exp(-(x * x))
                    
     def df(x, y):
         return - 2 * (x * y);
@@ -115,7 +115,7 @@ class SignFunction:
     derivatives.
     """
     def f(x):
-        return numx.sign(x)
+        return mdp.numx.sign(x)
                    
     def df(x, y):
         raise NotImplementedError, "Derivative of the sign function does not exist"

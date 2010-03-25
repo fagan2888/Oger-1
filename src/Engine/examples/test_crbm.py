@@ -3,7 +3,7 @@
 import pylab
 import mdp
 import numpy as np
-from Engine.rbm_nodes import CRBMNode
+import Engine
 
 # Some recycled functions for data creation.
 
@@ -13,12 +13,12 @@ def generate_data(N):
     u = np.mat(np.zeros((T, 20)))
     for i in range(1, T, 38):
         if i % 76 == 1:
-            u[i-1:i+19, :] = np.eye(20)
-            u[i+18:i+38, :] = np.eye(20)[np.arange(19, -1, -1)]
-            u[i-1:i+19, :] += np.eye(20)[np.arange(19, -1, -1)] 
+            u[i - 1:i + 19, :] = np.eye(20)
+            u[i + 18:i + 38, :] = np.eye(20)[np.arange(19, -1, -1)]
+            u[i - 1:i + 19, :] += np.eye(20)[np.arange(19, -1, -1)] 
         else:
-            u[i-1:i+19, 1] = 1
-            u[i+18:i+38, 8] = 1
+            u[i - 1:i + 19, 1] = 1
+            u[i + 18:i + 38, 8] = 1
     return u
 
 def get_context(u, N=4):
@@ -46,15 +46,15 @@ if __name__ == '__main__':
     # The context is concatenated to the input as if it where one signal.
     v = np.concatenate((u, x), 1)
 
-    crbmnode = CRBMNode(hidden_dim=100, visible_dim=20, context_dim=N * 20, gaussian=True)
+    crbmnode = Engine.nodes.CRBMNode(hidden_dim=100, visible_dim=20, context_dim=N * 20, gaussian=True)
 
     t, d = u.shape
     print 'Training for %d epochs...' % epochs
     for i in range(epochs):
         print 'Epoch', i
         # Update every two time steps as batch gradient descent barely converges.
-        for j in range(t-1):
-            crbmnode.train(v[j:j+1, :], n_updates=1, epsilon=.0001, momentum=.9, decay=.0002)
+        for j in range(t - 1):
+            crbmnode.train(v[j:j + 1, :], n_updates=1, epsilon=.0001, momentum=.9, decay=.0002)
         # Check the energy and error after each training epoch.
         # Sampling causes the training phase to end so a copy is made first.
         crbmnode_test = crbmnode.copy()

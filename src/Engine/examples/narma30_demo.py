@@ -1,7 +1,4 @@
-from Engine import datasets 
-from Engine import error_measures
-from Engine import reservoir_nodes
-from Engine import linear_nodes
+import Engine
 import pylab
 import mdp
 
@@ -14,11 +11,11 @@ if __name__ == "__main__":
     nx = 4
     ny = 1
 
-    [x, y] = datasets.narma30(sample_len=1000)
+    [x, y] = Engine.datasets.narma30(sample_len=1000)
 
     # construct individual nodes
-    reservoir = reservoir_nodes.ReservoirNode(inputs, 100, input_scaling=0.05)
-    readout = linear_nodes.RidgeRegressionNode()
+    reservoir = Engine.nodes.ReservoirNode(inputs, 100, input_scaling=0.05)
+    readout = Engine.nodes.RidgeRegressionNode()
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout], verbose=1)
@@ -32,7 +29,7 @@ if __name__ == "__main__":
     trainout = flow(x[0])
     testout = flow(x[9])
 
-    print "NRMSE: " + str(error_measures.nrmse(y[9], testout))
+    print "NRMSE: " + str(Engine.utils.nrmse(y[9], testout))
 
     #plot the input
     pylab.subplot(nx, ny, 1)

@@ -5,24 +5,20 @@ Created on Feb 9, 2010
 '''
 
 import mdp
-from Engine import reservoir_nodes
-from Engine import linear_nodes
-from Engine import datasets
-from Engine import error_measures
-from Engine import optimizer
+import Engine
 
 if __name__ == '__main__':
     ''' Example of doing a grid-search
         Runs the NARMA 30 task for bias values = 0 to 2 with 0.5 stepsize and spectral radius = 0.1 to 1 with stepsize 0.5
     '''
     input_size = 1
-    inputs, outputs = datasets.narma30()
+    inputs, outputs = Engine.datasets.narma30()
 
     data = [inputs, zip(inputs, outputs)]
 
     # construct individual nodes
-    reservoir = reservoir_nodes.ReservoirNode(input_size, 10)
-    readout = linear_nodes.RidgeRegressionNode(0)
+    reservoir = Engine.nodes.ReservoirNode(input_size, 10)
+    readout = Engine.nodes.RidgeRegressionNode(0)
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout])
@@ -31,10 +27,10 @@ if __name__ == '__main__':
     gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, 0.2), 'spectral_radius':mdp.numx.arange(0.1, 1.5, 0.3)}}
 
     # Instantiate an optimizer
-    opt = optimizer.Optimizer(gridsearch_parameters, error_measures.nrmse)
+    opt = Engine.evaluation.Optimizer(gridsearch_parameters, Engine.utils.nrmse)
     
     # Do the grid search
-    opt.grid_search(data, flow, n_folds=5)
+    opt.grid_search(data, flow, cross_validate_function=Engine.evaluation.n_fold_random, n_folds=5)
 
     # Get the minimal error
     min_error, parameters = opt.get_minimal_error()

@@ -6,11 +6,6 @@ import mdp
 import mdp.hinet
 import numpy as np
 import Engine
-import Engine.reservoir_nodes
-import Engine.linear_nodes
-from Engine.rbm_nodes import CRBMNode
-from mdp.nodes.misc_nodes import IdentityNode
-from Engine.utility_nodes import ShiftNode
 
 # Some recycled functions for data creation.
 
@@ -20,12 +15,12 @@ def generate_data(N):
     u = np.mat(np.zeros((T, 20)))
     for i in range(1, T, 38):
         if i % 76 == 1:
-            u[i-1:i+19, :] = np.eye(20)
-            u[i+18:i+38, :] = np.eye(20)[np.arange(19, -1, -1)]
-            u[i-1:i+19, :] += np.eye(20)[np.arange(19, -1, -1)] 
+            u[i - 1:i + 19, :] = np.eye(20)
+            u[i + 18:i + 38, :] = np.eye(20)[np.arange(19, -1, -1)]
+            u[i - 1:i + 19, :] += np.eye(20)[np.arange(19, -1, -1)] 
         else:
-            u[i-1:i+19, 1] = 1
-            u[i+18:i+38, 8] = 1
+            u[i - 1:i + 19, 1] = 1
+            u[i + 18:i + 38, 8] = 1
     return u
 
 
@@ -44,27 +39,27 @@ if __name__ == '__main__':
     # throught a PCA node as well. This is solved by using layers and identity nodes.
 
     # First reservoir layer
-    reservoir1 = Engine.reservoir_nodes.ReservoirNode(input_dim=20, output_dim=300)
-    shift1 = ShiftNode(input_dim=20, n_shifts=1)
+    reservoir1 = Engine.nodes.ReservoirNode(input_dim=20, output_dim=300)
+    shift1 = Engine.nodes.ShiftNode(input_dim=20, n_shifts=1)
 
     ReservoirLayer1 = mdp.hinet.SameInputLayer([shift1, reservoir1])
 
     # First CRBM.
     # Note that the output of the InputLayer will be 320 dimensional.
-    crbmnode1 = CRBMNode(hidden_dim=crbm1_size, visible_dim=20, context_dim=300)
+    crbmnode1 = Engine.nodes.CRBMNode(hidden_dim=crbm1_size, visible_dim=20, context_dim=300)
 
     x = ReservoirLayer1(u)
 
     print 'Training first CRBM layer...'
     for epoch in range(epochs):
-        for i in range(len(x)-1):
-            crbmnode1.train(x[i:i+1, :], epsilon=.001, decay=.0002)
+        for i in range(len(x) - 1):
+            crbmnode1.train(x[i:i + 1, :], epsilon=.001, decay=.0002)
 
     theflow = ReservoirLayer1 + crbmnode1
 
     # PCA layer
     pcanode = mdp.nodes.PCANode(input_dim=crbm1_size, output_dim=40)
-    shift2 = ShiftNode(input_dim=crbm1_size, n_shifts=1)
+    shift2 = Engine.nodes.ShiftNode(input_dim=crbm1_size, n_shifts=1)
 
     PCALayer = mdp.hinet.SameInputLayer([shift2, pcanode])
 
@@ -76,8 +71,8 @@ if __name__ == '__main__':
     # Second reservoir layer.
     # Note that this time a normal layer is used to split the PCA and raw data.
     x = PCALayer(x)
-    reservoir2 = Engine.reservoir_nodes.ReservoirNode(input_dim=40, output_dim=300)
-    identity2 = IdentityNode(input_dim=crbm1_size)
+    reservoir2 = Engine.nodes.ReservoirNode(input_dim=40, output_dim=300)
+    identity2 = mdp.nodes.IdentityNode(input_dim=crbm1_size)
 
     ReservoirLayer2 = mdp.hinet.Layer([identity2, reservoir2])
 
@@ -86,18 +81,18 @@ if __name__ == '__main__':
     # Second CRBM.
     x = ReservoirLayer2(x)
 
-    crbmnode2 = CRBMNode(hidden_dim=crbm2_size, visible_dim=crbm1_size, context_dim=300)
+    crbmnode2 = Engine.nodes.CRBMNode(hidden_dim=crbm2_size, visible_dim=crbm1_size, context_dim=300)
 
     print 'Training second CRBM layer...'
     for epoch in range(epochs):
-        for i in range(len(x)-1):
-            crbmnode2.train(x[i:i+1, :], epsilon=.001, decay=.0002)
+        for i in range(len(x) - 1):
+            crbmnode2.train(x[i:i + 1, :], epsilon=.001, decay=.0002)
 
     theflow += crbmnode2
     x = crbmnode2(x)
 
     # And finally a linear classifier to put on top.
-    readout = Engine.linear_nodes.RidgeRegressionNode(ridge_param=.0000001,
+    readout = Engine.nodes.RidgeRegressionNode(ridge_param=.0000001,
                                                       input_dim=crbm2_size, output_dim=20)
 
     readout.train(x, t)
