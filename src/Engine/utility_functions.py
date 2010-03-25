@@ -83,11 +83,6 @@ class SignFunction:
     def df(x, y):
         raise NotImplementedError, "Derivative of the sign function does not exist"
 
-<<<<<<< local
-=======
-    f = staticmethod(f)
-    df = staticmethod(df)
-
 class CrossEntropyFunction:
     """
     Container class for the multi-class cross-entropy function.
@@ -95,12 +90,10 @@ class CrossEntropyFunction:
     Implements two static methods, one for the function and one for its
     derivatives.
     """
+    @staticmethod
     def f(x, t):
-        return sum(-numx.log(x[t == 1]))
+        return sum(-np.log(x[t == 1]))
 
+    @staticmethod
     def df(x, t):
         return -t/x
-
-    f = staticmethod(f)
-    df = staticmethod(df)
->>>>>>> other
