@@ -1,8 +1,9 @@
 # RBM based nodes. So far this file only contains the CRBM and supports only
 # binary units as it is based on the RBMNode that has the same limitation.
 # TODO: fix the energy functions so that they are correct for gaussian units.
+
+import Engine
 import mdp
-from Engine.utility_functions import LogisticFunction
 from mdp.utils import mult
 from mdp.nodes import RBMNode
 
@@ -20,7 +21,7 @@ class ERBMNode(RBMNode):
     For simplicity, the Gaussian units are assumed to have unit variance.
     """
 
-    def __init__(self, visible_dim, hidden_dim, gaussian = False, dtype = None):
+    def __init__(self, visible_dim, hidden_dim, gaussian=False, dtype=None):
         """
         Arguments:
 
@@ -35,11 +36,11 @@ class ERBMNode(RBMNode):
 
     def _energy(self, v, h):
         if self._gaussian:
-            return ((((v - self.bv)**2).sum() / 2) - mult(h, self.bh) -
-                    (mult(v, self.w)*h).sum(axis=1))
+            return ((((v - self.bv) ** 2).sum() / 2) - mult(h, self.bh) - 
+                    (mult(v, self.w) * h).sum(axis=1))
         else:
-            return (-mult(v, self.bv) - mult(h, self.bh) -
-                    (mult(v, self.w)*h).sum(axis=1))
+            return (-mult(v, self.bv) - mult(h, self.bh) - 
+                    (mult(v, self.w) * h).sum(axis=1))
 
     def train(self, v, n_updates=1, epsilon=0.1, decay=0., momentum=0.):
         """Update the internal structures according to the input data 'v'.
@@ -87,13 +88,13 @@ class ERBMNode(RBMNode):
         dwt, dbvt, dbht = self.get_CD_gradient(v, n_updates)
 
         # update parameters
-        dw = momentum*dw + epsilon*dwt - decay*w
+        dw = momentum * dw + epsilon * dwt - decay * w
         w += dw
 
-        dbv = momentum*dbv + epsilon*dbvt
+        dbv = momentum * dbv + epsilon * dbvt
         bv += dbv
 
-        dbh = momentum*dbh + epsilon*dbht
+        dbh = momentum * dbh + epsilon * dbht
         bh += dbh
 
         self._delta = (dw, dbv, dbh)
@@ -126,17 +127,17 @@ class ERBMNode(RBMNode):
         # find dw
         data_term = mult(v.T, ph_data)
         model_term = mult(v_model.T, ph_model)
-        dw = (data_term - model_term)/n
+        dw = (data_term - model_term) / n
         
         # find dbv
         data_term = v.sum(axis=0)
         model_term = v_model.sum(axis=0)
-        dbv = (data_term - model_term)/n
+        dbv = (data_term - model_term) / n
 
         # find dbh
         data_term = ph_data.sum(axis=0)
         model_term = ph_model.sum(axis=0)
-        dbh = (data_term - model_term)/n
+        dbh = (data_term - model_term) / n
 
         return (dw, dbv, dbh)
 
@@ -149,7 +150,7 @@ class ERBMNode(RBMNode):
         if self._gaussian:
             return v_in, v_in
         else:
-            probs = 1./(1. + exp(-v_in))
+            probs = 1. / (1. + exp(-v_in))
             v = (probs > random(probs.shape)).astype(self.dtype)
             return probs, v
 
@@ -205,15 +206,15 @@ class CRBMNode(ERBMNode):
         self._initialized = True
         
         # undirected weights
-        self.w = self._refcast(randn(self.visible_dim, self.output_dim)*0.01)
+        self.w = self._refcast(randn(self.visible_dim, self.output_dim) * 0.01)
         # context to visible weights
-        self.a = self._refcast(randn(self.context_dim, self.visible_dim)*0.01)
+        self.a = self._refcast(randn(self.context_dim, self.visible_dim) * 0.01)
         # context to hidden weights
-        self.b = self._refcast(randn(self.context_dim , self.output_dim)*0.01)
+        self.b = self._refcast(randn(self.context_dim , self.output_dim) * 0.01)
         # bias on the visible (input) units
-        self.bv = self._refcast(randn(self.visible_dim)*0.01)
+        self.bv = self._refcast(randn(self.visible_dim) * 0.01)
         # bias on the hidden (output) units
-        self.bh = self._refcast(randn(self.output_dim)*0.01)
+        self.bh = self._refcast(randn(self.output_dim) * 0.01)
 
         # delta w, a, b, bv, bh used for momentum term
         self._delta = (0., 0., 0., 0., 0.)
@@ -225,7 +226,7 @@ class CRBMNode(ERBMNode):
     def _sample_h(self, v, x):
         # returns P(h=1|v,W,b) and a sample from it
         dynamic_b = mult(x, self.b)
-        probs = LogisticFunction.f(self.bh + mult(v, self.w) + dynamic_b)
+        probs = Engine.utils.LogisticFunction.f(self.bh + mult(v, self.w) + dynamic_b)
         h = (probs > random(probs.shape)).astype(self.dtype)
         return probs, h
 
@@ -236,7 +237,7 @@ class CRBMNode(ERBMNode):
         if self._gaussian:
             return v_in, v_in
         else:
-            probs = LogisticFunction.f(v_in)
+            probs = Engine.utils.LogisticFunction.f(v_in)
             v = (probs > random(probs.shape)).astype(self.dtype)
             return probs, v
 
@@ -291,28 +292,28 @@ class CRBMNode(ERBMNode):
         # find dw
         data_term = mult(v.T, ph_data)
         model_term = mult(v_model.T, ph_model)
-        dw = (data_term - model_term)/n
+        dw = (data_term - model_term) / n
 
         # find da
         data_term = v
         model_term = v_model
         # Should I include the weight decay here as well?
-        da = mult(x.T, data_term - model_term)/n
+        da = mult(x.T, data_term - model_term) / n
         
         # find db
         data_term = ph_data
         model_term = ph_model
-        db = mult(x.T, data_term - model_term)/n
+        db = mult(x.T, data_term - model_term) / n
         
         # find dbv
         data_term = v.sum(axis=0)
         model_term = v_model.sum(axis=0)
-        dbv = (data_term - model_term)/n
+        dbv = (data_term - model_term) / n
 
         # find dbh
         data_term = ph_data.sum(axis=0)
         model_term = ph_model.sum(axis=0)
-        dbh = (data_term - model_term)/n
+        dbh = (data_term - model_term) / n
 
         return (dw, dbv, dbh, da, db)
 
@@ -344,23 +345,23 @@ class CRBMNode(ERBMNode):
         dwt, dbvt, dbht, dat, dbt = self.get_CD_gradient(x, n_updates)
 
         # update w
-        dw = momentum*dw + epsilon*dwt - decay*w
+        dw = momentum * dw + epsilon * dwt - decay * w
         w += dw
 
         # update a
-        da = momentum*da + epsilon*dat - decay*a
+        da = momentum * da + epsilon * dat - decay * a
         a += da
         
         # update b
-        db = momentum*db + epsilon*dbt - decay*b
+        db = momentum * db + epsilon * dbt - decay * b
         b += db
         
         # update bv
-        dbv = momentum*dbv + epsilon*dbvt
+        dbv = momentum * dbv + epsilon * dbvt
         bv += dbv
 
         # update bh
-        dbh = momentum*dbh + epsilon*dbht
+        dbh = momentum * dbh + epsilon * dbht
         bh += dbh
 
         self._delta = (dw, da, db, dbv, dbh)
@@ -396,11 +397,11 @@ class CRBMNode(ERBMNode):
         ba += self.bv
         bb += self.bh
         if self._gaussian:
-            return (((v - ba)**2).sum() / 2 - (h * bb).sum(axis=1) -
-                    (mult(v, self.w)*h).sum(axis=1))
+            return (((v - ba) ** 2).sum() / 2 - (h * bb).sum(axis=1) - 
+                    (mult(v, self.w) * h).sum(axis=1))
         else:
-            return (-(v * ba).sum(axis=1) - (h * bb).sum(axis=1) -
-                    (mult(v, self.w)*h).sum(axis=1))
+            return (-(v * ba).sum(axis=1) - (h * bb).sum(axis=1) - 
+                    (mult(v, self.w) * h).sum(axis=1))
 
     def energy(self, v, h, x):
         """Compute the energy of the RBM given observed variables state 'v' and

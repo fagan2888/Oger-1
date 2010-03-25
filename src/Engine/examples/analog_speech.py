@@ -3,23 +3,17 @@ Created on Aug 24, 2009
 
 @author: dvrstrae
 '''
-from Engine import datasets
-from Engine import error_measures
-from Engine import reservoir_nodes
-from Engine import utility_nodes
-
+import Engine
 import mdp
 import pylab
 import scipy as sp
-
-from Engine.linear_nodes import RidgeRegressionNode
 
 if __name__ == "__main__":
 
     n_subplots_x, n_subplots_y = 2, 1
     train_frac = .9
 
-    [inputs, outputs] = datasets.analog_speech(indir="/Users/dvrstrae/Lyon128")
+    [inputs, outputs] = Engine.datasets.analog_speech(indir="/Users/dvrstrae/Lyon128")
     
     n_samples = len(inputs)
     n_train_samples = int(round(n_samples * train_frac))
@@ -28,9 +22,9 @@ if __name__ == "__main__":
     input_dim = inputs[0].shape[1]
 
     # construct individual nodes
-    reservoir = reservoir_nodes.LeakyReservoirNode(input_dim, output_dim=100, input_scaling=1, leak_rate=0.1)
-    readout = RidgeRegressionNode(0.001)
-    mnnode = utility_nodes.MeanAcrossTimeNode()
+    reservoir = Engine.nodes.LeakyReservoirNode(input_dim, output_dim=100, input_scaling=1, leak_rate=0.1)
+    readout = Engine.nodes.RidgeRegressionNode(0.001)
+    mnnode = Engine.nodes.MeanAcrossTimeNode()
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout, mnnode])
@@ -67,7 +61,7 @@ if __name__ == "__main__":
                       outputs[n_train_samples:]])
     ytestmean = sp.array([sp.argmax(sample) for sample in ytest])
     
-    print "Error: " + str(mdp.numx.mean(error_measures.loss_01(ymean,
+    print "Error: " + str(mdp.numx.mean(Engine.error_measures.loss_01(ymean,
                                                                ytestmean)))
     pylab.show()
     

@@ -1,10 +1,7 @@
 import mdp
 import numpy as np
 import cPickle
-from Engine.gradient.trainers import *
-from Engine.utility_functions import *
-from Engine.gradient.gradient_nodes import *
-from Engine.error_measures import ce
+import Engine
 
 data = cPickle.load(open('/home/pbrakel/Data/mnist/mnist.p'))
 
@@ -25,9 +22,9 @@ test_labels = image_labels[n_train:n_train + n_test]
 
 # Generate a small subset of the data.
 
-rbmnode1 = GradientRBMNode(784, 100)
-rbmnode2 = GradientRBMNode(100, 200)
-percnode = GradientPerceptronNode(200, 10, transfer_func=SoftmaxFunction)
+rbmnode1 = Engine.nodes.GradientRBMNode(784, 100)
+rbmnode2 = Engine.nodes.GradientRBMNode(100, 200)
+percnode = Engine.nodes.GradientPerceptronNode(200, 10, transfer_func=Engine.utility_functions.SoftmaxFunction)
 
 # Greedy pretraining of RBMs
 

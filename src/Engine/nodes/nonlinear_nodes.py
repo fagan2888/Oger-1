@@ -4,9 +4,9 @@ Created on Aug 24, 2009
 @author: dvrstrae
 '''
 import numpy as np
+import Engine
 import mdp
 from mdp.utils import mult
-from Engine.utility_functions import LinearFunction
 
 # TODO: is this node ever used?
 class SignNode(mdp.Node):
@@ -45,7 +45,8 @@ class PerceptronNode(mdp.Node):
     Using softmax as the transfer function turns this into logistic regression.
     """
 
-    def __init__(self, input_dim=None, output_dim=None, transfer_func=LinearFunction, dtype='float64'):        
+    # TODO: re-include Engine.utils.LinearFunction as default value for transfer_func 
+    def __init__(self, transfer_func, input_dim=None, output_dim=None, dtype='float64'):        
         super(PerceptronNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
         
         self.transfer_func = transfer_func
