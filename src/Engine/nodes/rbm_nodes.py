@@ -165,6 +165,19 @@ class ERBMNode(RBMNode):
         else:
             return v
 
+    # TODO: This _execute method is identical to the one in the original RBMNode and
+    # could just have been inherited but somehow this messes up the
+    # BackpropNode throwing that _non_extension__execute doesn't exist.
+    def _execute(self, v, return_probs=True):
+        """If 'return_probs' is True, returns the probability of the
+        hidden variables h[n,i] being 1 given the observations v[n,:].
+        If 'return_probs' is False, return a sample from that probability.
+        """
+        probs, h = self._sample_h(v)
+        if return_probs:
+            return probs
+        else:
+            return h
 
 class CRBMNode(ERBMNode):
     """Conditional Restricted Boltzmann Machine node. This type of

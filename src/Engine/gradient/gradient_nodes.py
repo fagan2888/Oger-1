@@ -24,6 +24,8 @@ class GradientExtensionNode(mdp.ExtensionNode):
 
     def _execute(self, x, *args, **kwargs):
         """ Standard _execute but it saves the state."""
+        # TODO: This only seems to work for nodes that explicitly redefine
+        # _execute and not for nodes that inherited it.
         y = self._non_extension__execute(x, *args, **kwargs)
         self._last_x = x
         self._last_y = y
@@ -203,7 +205,7 @@ class GradientPerceptronNode(GradientExtensionNode, Engine.nodes.PerceptronNode)
     def _param_size(self):
         return self.w.size + self.b.size
 
-class GradientRBMNode(GradientExtensionNode, Engine.nodes.ReservoirNode):
+class GradientRBMNode(GradientExtensionNode, Engine.nodes.ERBMNode):
     """Gradient version of the Engine RBM Node.
 
     This gradient node is intended for use in a feedforward architecture. This

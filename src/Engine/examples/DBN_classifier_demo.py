@@ -3,6 +3,7 @@ import pylab
 import numpy as np
 import cPickle
 import Engine
+from Engine.utils import ce
 
 data = cPickle.load(open('/home/pbrakel/Data/mnist/mnist.p'))
 
@@ -23,9 +24,9 @@ test_labels = image_labels[n_train:n_train + n_test]
 
 # Generate a small subset of the data.
 
-rbmnode1 = Engine.gradient.GradientRBMNode(784, 100)
-rbmnode2 = Engine.gradient.GradientRBMNode(100, 200)
-percnode = Engine.gradient.GradientPerceptronNode(200, 10, transfer_func=Engine.utils.SoftmaxFunction)
+rbmnode1 = Engine.nodes.ERBMNode(784, 100)
+rbmnode2 = Engine.nodes.ERBMNode(100, 200)
+percnode = Engine.nodes.PerceptronNode(200, 10, transfer_func=Engine.utils.SoftmaxFunction)
 
 # Greedy pretraining of RBMs
 
@@ -48,7 +49,7 @@ w_generative = rbmnode1.w.copy()
 
 myflow = rbmnode1 + rbmnode2 + percnode
 
-bpnode = Engine.nodes.BackpropNode(myflow, Engine.gradient.GradientDescentTrainer(momentum=.9), loss_func=ce)
+bpnode = Engine.gradient.BackpropNode(myflow, Engine.gradient.GradientDescentTrainer(momentum=.9), loss_func=ce)
 
 # Fine-tune for classification
 print 'Fine-tuning for classification...'
@@ -78,6 +79,7 @@ for i in range(10, 20):
     for j in range(10):
         image[i * 28:(i + 1) * 28, j * 28:(j + 1) * 28] = rbmnode1.w[:, (i - 10) * 10 + j].ravel().reshape((28, 28))
         
+
 pylab.imshow(image, cmap=pylab.cm.gray)
-pylab.show
+pylab.show()
 

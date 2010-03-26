@@ -25,9 +25,6 @@ if __name__ == '__main__':
 
     u = np.array(generate_data(60))
 
-    # Size of the context.
-    N = 12
-
     epochs = 10
 
 
