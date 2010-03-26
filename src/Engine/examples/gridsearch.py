@@ -34,5 +34,11 @@ if __name__ == '__main__':
 
     # Get the minimal error
     min_error, parameters = opt.get_minimal_error()
+    
     print 'The minimal error is ' + str(min_error)
-    print 'The corresponding parameter values are: ' + ''.join([' ' + key + ' : ' + str(parameters[key]) for key in parameters.keys()])
+    print 'The corresponding parameter values are: '
+    output_str = '' 
+    for node in parameters.keys():
+        for node_param in parameters[node].keys():
+            output_str += str(node) + '.' + node_param + ' : ' + str(parameters[node][node_param]) + '\n'
+    print output_str

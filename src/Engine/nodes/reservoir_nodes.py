@@ -5,7 +5,6 @@ Created on Aug 20, 2009
 '''
 import Engine
 import mdp
-import numpy
 
 class ReservoirNode(mdp.Node):
     """
@@ -13,7 +12,7 @@ class ReservoirNode(mdp.Node):
     """
     
     def __init__(self, input_dim=1, output_dim=None, spectral_radius=0.9,
-                 nonlin_func='tanh', bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
+                 nonlin_func=Engine.utils.TanhFunction, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
                  w_in=None, w=None, w_bias=None):
         """ Initializes and constructs a random reservoir.
         Parameters are:
@@ -82,7 +81,7 @@ class ReservoirNode(mdp.Node):
         # Initialize input weight matrix
         if self.w_in_initial is None:
             # Initialize it to uniform random values using input_scaling
-            self.w_in = self.input_scaling * (numpy.random.rand(self.output_dim, self.input_dim) * 2 - 1)
+            self.w_in = self.input_scaling * (mdp.numx.random.rand(self.output_dim, self.input_dim) * 2 - 1)
         else:
             if callable(self.w_in_initial):
                 self.w_in = self.w_in_initial() # If it is a function, call it
@@ -98,7 +97,7 @@ class ReservoirNode(mdp.Node):
         # Initialize bias weight matrix
         if self.w_bias_initial is None:
             # Initialize it to uniform random values using input_scaling
-            self.w_bias = self.bias_scaling * (numpy.random.rand(self.output_dim) * 2 - 1)
+            self.w_bias = self.bias_scaling * (mdp.numx.random.rand(self.output_dim) * 2 - 1)
         else:    
             if callable(self.w_bias_initial):
                 self.w_bias = self.w_bias_initial() # If it is a function, call it
@@ -114,7 +113,7 @@ class ReservoirNode(mdp.Node):
             
         # Initialize reservoir weight matrix
         if self.w_initial is None:
-            self.w = numpy.random.randn(self.output_dim, self.output_dim)
+            self.w = mdp.numx.random.randn(self.output_dim, self.output_dim)
             # scale it to spectral radius
             self.w *= self.spectral_radius / Engine.utils.get_spectral_radius(self.w)
         else:
@@ -143,17 +142,17 @@ class ReservoirNode(mdp.Node):
         # if self.reset_states is true, initialize to zero,
         # otherwise initialize to the last time-step of the previous execute call (for freerun)
         if self.reset_states:
-            initial_state = numpy.zeros((1, self.output_dim))
+            initial_state = mdp.numx.zeros((1, self.output_dim))
         else:
-            initial_state = numpy.atleast_2d(self.states[-1, :])
+            initial_state = mdp.numx.atleast_2d(self.states[-1, :])
         
         # Pre-allocate the state vector, adding the initial state
-        self.states = numpy.concatenate((initial_state, numpy.zeros((steps, self.output_dim))))
+        self.states = mdp.numx.concatenate((initial_state, mdp.numx.zeros((steps, self.output_dim))))
        
-        nonlinear_function_pointer = getattr(mdp.numx, self.nonlin_func)
+        nonlinear_function_pointer = self.nonlin_func.f
         # Loop over the input data and compute the reservoir states
         for n in range(steps):
-            self.states[n + 1, :] = nonlinear_function_pointer(numpy.dot(self.w, self.states[n, :]) + numpy.dot(self.w_in, x[n, :]) + self.w_bias)
+            self.states[n + 1, :] = nonlinear_function_pointer(mdp.numx.dot(self.w, self.states[n, :]) + mdp.numx.dot(self.w_in, x[n, :]) + self.w_bias)
             self._post_update_hook(n)    
 
         # Return the whole state matrix except the initial state
@@ -190,7 +189,7 @@ class LeakyReservoirNode(ReservoirNode):
                                            nonlin_func, bias_scaling, input_scaling, dtype)
        
         #Initial value for lowpass filter
-        self.previous_state = numpy.zeros(output_dim)
+        self.previous_state = mdp.numx.zeros(output_dim)
         # Leak rate, if 1 it is a standard neuron, lower values give slower dynamics 
         self.leak_rate = leak_rate
 
