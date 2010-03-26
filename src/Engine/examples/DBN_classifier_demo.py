@@ -3,7 +3,6 @@ import pylab
 import numpy as np
 import cPickle
 import Engine
-from Engine.utils import ce
 
 data = cPickle.load(open('/home/pbrakel/Data/mnist/mnist.p'))
 
@@ -49,7 +48,7 @@ w_generative = rbmnode1.w.copy()
 
 myflow = rbmnode1 + rbmnode2 + percnode
 
-bpnode = Engine.gradient.BackpropNode(myflow, Engine.gradient.GradientDescentTrainer(momentum=.9), loss_func=ce)
+bpnode = Engine.gradient.BackpropNode(myflow, Engine.gradient.GradientDescentTrainer(momentum=.9), loss_func=Engine.utils.ce)
 
 # Fine-tune for classification
 print 'Fine-tuning for classification...'
