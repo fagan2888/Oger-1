@@ -166,7 +166,7 @@ class LeakyReservoirNode(ReservoirNode):
     """
 
     def __init__(self, input_dim=1, output_dim=None, spec_radius=0.9,
-                nonlin_func='tanh', bias_scaling=0.0, input_scaling=1.0, leak_rate=1.0, dtype='float64'):
+                nonlin_func=Engine.utils.TanhFunction, bias_scaling=0.0, input_scaling=1.0, leak_rate=1.0, dtype='float64'):
         """Initializes and constructs a random reservoir with leaky-integrator neurons.
            Parameters are:
             - input_dim: input dimensionality
