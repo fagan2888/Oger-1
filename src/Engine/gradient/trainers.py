@@ -106,9 +106,9 @@ class GradientDescentTrainer:
         Returns the parameters that minimize the loss.
         """
         if self.dparams is None:
-            self.dparams = numx.zeros(params.shape)
+            self.dparams = numx.zeros(x0.shape)
             
-        updated_params = params
+        updated_params = x0
     
         for _ in range(self.epochs):
             gradient = func(updated_params)[0]
@@ -143,10 +143,10 @@ class RPROPTrainer:
         """
         if self._uW is None:
             # TODO: should we not refcast here?
-            self._uW = numx.zeros_like(params)
-            self.deltaW = numx.ones_like(params)*self.deltainit
+            self._uW = numx.zeros_like(x0)
+            self.deltaW = numx.ones_like(x0)*self.deltainit
             
-        updated_params = params.copy()
+        updated_params = x0.copy()
     
         for _ in range(self.epochs):
             # TODO: properly name variables

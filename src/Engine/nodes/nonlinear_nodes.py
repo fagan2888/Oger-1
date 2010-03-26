@@ -67,9 +67,6 @@ class PerceptronNode(mdp.Node):
         y = self.transfer_func.f(mult(x, self.w) + bias)
         return y
 
-    def is_training(self):
-        return False
-
     def is_trainable(self):
         return False
 

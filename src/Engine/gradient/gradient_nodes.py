@@ -246,3 +246,4 @@ class GradientRBMNode(GradientExtensionNode, Engine.nodes.ERBMNode):
     def inverse(self, y):
         """Calls _gradient_inverse instead of the default _inverse."""
         return self._calculate_gradient(y)
+

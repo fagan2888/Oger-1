@@ -7,8 +7,8 @@ from Engine.utils import ce
 
 data = cPickle.load(open('/home/pbrakel/Data/mnist/mnist.p'))
 
-n_train = 40000
-n_test = 5000
+n_train = 400
+n_test = 100
 epochs = 1
 
 image_data = data['trainimages']
