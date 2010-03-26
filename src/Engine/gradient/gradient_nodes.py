@@ -77,6 +77,18 @@ class BackpropNode(mdp.Node):
     """
 
     def __init__(self, gflow, gtrainer, loss_func=None, derror=None, dtype='float64'):
+        """Create a BackpropNode that encapsulates a flow of gradient nodes.
+
+        Arguments:
+
+            gflow -- The flow of gradient supported nodes to use.
+            gtrainer -- A trainer object to use for training the flow.
+            loss_func -- A scalar returning loss function.
+            derror -- The gradient of the loss function with respect to the
+                outputs.  By default this will taken to be 'y - t' where y is the
+                output and t the desired value.
+        """
+
 
         self.gflow = gflow
         self.gtrainer = gtrainer
