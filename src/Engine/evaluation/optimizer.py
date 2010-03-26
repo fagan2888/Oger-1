@@ -99,8 +99,9 @@ class Optimizer(object):
 
     def get_minimal_error(self):
         '''Return the minimal error, and the corresponding parameter values as a tuple:
-        (error, param_values), where param_values is a dictionary with the key being the
-        node.parameter_name, and the value the corresponding value of the parameter.
+        (error, param_values), where param_values is a dictionary of dictionaries,  
+        with the key of the outer dictionary being the node, and inner dictionary
+        consisting of (parameter:optimal_value) pairs.
         '''
         if self.errors is None:
             raise Exception('Errors array is empty. No optimization has been performed yet.')
@@ -111,6 +112,12 @@ class Optimizer(object):
 
         for index, param_d in enumerate(self.parameters):
             opt_parameter_value = self.parameter_ranges[index][min_parameter_indices[index]]
-            min_parameter_dict[str(param_d['node']) + '.' + param_d['parameter']] = opt_parameter_value
+            # If there already is an entry for the current node in the dict, add the 
+            # optimal parameter/value entry to the existing dict
+            if param_d['node'] in min_parameter_dict:
+                min_parameter_dict[param_d['node']][param_d['parameter']] = opt_parameter_value
+            # Otherwise, create a new dict
+            else:
+                min_parameter_dict[param_d['node']] = {param_d['parameter'] : opt_parameter_value}
 
         return (minimal_error, min_parameter_dict) 
