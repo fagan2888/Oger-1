@@ -20,9 +20,11 @@ gradient package for training.
 
 from gradient_nodes import (GradientExtensionNode, BackpropNode, GradientPerceptronNode, GradientRBMNode)
 from trainers import (CGTrainer, BFGSTrainer, RPROPTrainer, GradientDescentTrainer, LBFGSBTrainer)
+from models import (MLPNode, AutoencoderNode)
 
 del gradient_nodes
 del trainers
+del models
 
 __all__ = ['GradientExtensionNode', 'BackpropNode', 'GradientPerceptronNode', 'GradientRBMNode',
-          'CGTrainer', 'BFGSTrainer', 'RPROPTrainer', 'GradientDescentTrainer', 'LBFGSBTrainer']
+          'CGTrainer', 'BFGSTrainer', 'RPROPTrainer', 'GradientDescentTrainer', 'LBFGSBTrainer', 'MLPNode,', 'AutoencoderNode']
