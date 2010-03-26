@@ -43,6 +43,9 @@ class GradientExtensionNode(mdp.ExtensionNode):
 
     def is_training(self):
         return False
+    
+    def get_current_train_phase(self):
+        return -1
 
     def gradient(self):
         """Return the gradient that was found after the last backpropagation sweep."""
