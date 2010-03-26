@@ -4,7 +4,7 @@ import numpy as np
 import cPickle
 import Engine
 
-data = cPickle.load(open('/home/pbrakel/Data/mnist/mnist.p'))
+data = cPickle.load(open('/afs/elis/usr/pbrakel/mnist.p'))
 
 n_train = 40000
 n_test = 5000
