@@ -39,12 +39,18 @@ class GradientExtensionNode(mdp.ExtensionNode):
         return True
 
     def is_trainable(self):
+        """Make sure that a node which is trainable, is made untrainable
+        so that we can run execute on a possible untrained node."""
         return False
 
     def is_training(self):
+        """Make sure that a node which is trainable, is made untrainable
+        so that we can run execute on a possible untrained node."""
         return False
     
     def get_current_train_phase(self):
+        """Make sure that a node which is trainable, is made untrainable
+        so that we can run execute on a possible untrained node."""
         return -1
 
     def gradient(self):
@@ -96,6 +102,7 @@ class BackpropNode(mdp.Node):
 
         super(BackpropNode, self).__init__(input_dim, output_dim, dtype)
 
+    @mdp.with_extension('gradient')
     def _train(self, x, **kwargs):
         """Update the parameters according to the input 'x' and target output 't'."""
 
@@ -105,9 +112,6 @@ class BackpropNode(mdp.Node):
         # for unsupervised algorithms etc.
         t = kwargs.get('t')
 
-        # Enter gradient mode.
-        mdp.activate_extension('gradient')
-
         # Generate objective function for the current data.
         def func(params):
             return self._objective(x, t, params)
@@ -115,8 +119,6 @@ class BackpropNode(mdp.Node):
         update = self.gtrainer.train(func, self._params())
 
         self._set_params(update)
-
-        mdp.deactivate_extension('gradient')
 
     def _objective(self, x, t, params=None):
         """Get the gradient and loss of the objective.
