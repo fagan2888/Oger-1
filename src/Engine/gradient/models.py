@@ -2,11 +2,8 @@
 Several pre-defined models that use the gradient nodes.
 """
 import mdp
-from Engine.nonlinear_nodes import PerceptronNode
-from Engine.gradient.gradient_nodes import BackpropNode, GradientPerceptronNode
-from Engine.gradient.trainers import *
-from Engine.utility_functions import *
-from Engine.error_measures import mse
+import Engine
+import trainers
 
 # TODO: The Autoencoder has not been tested yet.
 
@@ -17,7 +14,7 @@ class MLPNode(mdp.Node):
     """
 
     def __init__(self, input_dim, output_dim, hidden_dim=100,
-                 trainer=GradientDescentTrainer(), loss='mse', dtype='float64'):
+                 trainer=trainers.GradientDescentTrainer(), loss='mse', dtype='float64'):
         """Initializes and construcs a multi layer perceptron.
 
         Arguments:
@@ -37,23 +34,23 @@ class MLPNode(mdp.Node):
         super(MLPNode, self).__init__(input_dim, output_dim, dtype)
 
         if loss == 'mse':
-            transfer = LinearFunction()
-            loss_f = mse
+            transfer = Engine.utils.LinearFunction()
+            loss_f = Engine.utils.mse
         if loss == 'ce':
-            transfer = SoftmaxFunction()
-            loss_f = ce
+            transfer = Engine.utils.SoftmaxFunction()
+            loss_f = Engine.utils.ce
 
         # TODO: Turn these into normal perceptron nodes once the extension
         # mechanism is fixed.
-        perceptron1 = GradientPerceptronNode(input_dim, hidden_dim,
-                                             transfer_func=TanhFunction)
-        perceptron2 = GradientPerceptronNode(hidden_dim, output_dim,
+        perceptron1 = Engine.gradient.GradientPerceptronNode(input_dim, hidden_dim,
+                                             transfer_func=Engine.utils.TanhFunction)
+        perceptron2 = Engine.gradient.GradientPerceptronNode(hidden_dim, output_dim,
                                              transfer_func=transfer)
 
         # This is a flow.
         self.layers = perceptron1 + perceptron2
 
-        self._bpnode = BackpropNode(self.layers, trainer, loss_f)
+        self._bpnode = Engine.gradient.BackpropNode(self.layers, trainer, loss_f)
 
     def _train(self, x, t):
         """Train the perceptron to produce the desired output 't'."""
@@ -77,7 +74,7 @@ class MLPNode(mdp.Node):
 class AutoencoderNode(MLPNode):
     """Use a multilayer perceptron to reconstruct its input."""
 
-    def __init__(self, input_dim, hidden_dim=100, trainer=GradientDescentTrainer(),
+    def __init__(self, input_dim, hidden_dim=100, trainer=trainers.GradientDescentTrainer(),
                  dtype='float64'):
         
         super(AutoencoderNode, self).__init__(input_dim, input_dim, hidden_dim, trainer,
