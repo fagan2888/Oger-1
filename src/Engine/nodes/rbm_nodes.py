@@ -179,6 +179,7 @@ class ERBMNode(RBMNode):
         else:
             return h
 
+
 class CRBMNode(ERBMNode):
     """Conditional Restricted Boltzmann Machine node. This type of
     RBM models the joint probability of the hidden and visible
