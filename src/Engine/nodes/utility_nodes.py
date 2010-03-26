@@ -4,6 +4,7 @@ Created on Aug 20, 2009
 @author: dvrstrae
 '''
 import mdp
+import scipy.signal
 
 class FeedbackNode(mdp.Node):
     def __init__(self, n_timesteps=1, input_dim=None, output_dim=None, dtype=None):
@@ -31,6 +32,7 @@ class FeedbackNode(mdp.Node):
         self.last_value = x
         return self.last_value
 
+# TODO: this onlt works on x and not y
 class WashoutNode(mdp.Node):
     """
          Remove initial states.
@@ -150,3 +152,64 @@ class ShiftNode(mdp.Node):
     def _set_input_dim(self, n):
         self._input_dim = n
         self._output_dim = n
+        
+        
+class ResampleNode(mdp.Node):
+    """ Resamples the input signal. Based on scipy.signal.resample
+    
+    CODE FROM: Georg Holzmann
+    """
+    
+    def __init__(self, input_dim=None, ratio=0.5, dtype='float64', window=None):
+        """ Initializes and constructs a random reservoir.
+                
+        input_dim -- the number of inputs (output dimension is always
+                     the same as input dimension)
+    
+        ratio     -- ratio of up or down sampling
+                     (e.g. 0.5 means downsampling to half the samplingrate)
+        
+        window    -- see window parameter in scipy.signal.resample
+        """
+        super(ResampleNode, self).__init__(input_dim, input_dim, dtype)
+        self.ratio = ratio
+        self.window = window
+        
+    def is_trainable(self):
+        return False
+    
+    def _get_supported_dtypes(self):
+        return ['float32', 'float64']
+
+    def _execute(self, x):
+        """ Resample input vector x.
+        """
+        self.oldlength = len(x)
+        newlength = self.oldlength * self.ratio
+        sig = scipy.signal.resample(x, newlength, window=self.window)
+        return sig.copy()
+    
+    def _inverse(self, y):
+        """ Inverse the resampling.
+        """
+        sig = scipy.signal.resample(y, self.oldlength, window=self.window)
+        return sig.copy()
+        
+class TimeFramesNode2(mdp.nodes.TimeFramesNode):
+    """ An extension of TimeFramesNode that preserves the temporal
+    length of the data.
+    """
+    def __init__(self, time_frames, input_dim=None, dtype=None):
+        super(TimeFramesNode2, self).__init__(input_dim=input_dim, dtype=dtype, time_frames=time_frames)
+
+    def _execute(self, x):
+        tf = x.shape[0] - (self.time_frames-1)
+        rows = self.input_dim
+        cols = self.output_dim
+        y = mdp.numx.zeros((x.shape[0], cols), dtype=self.dtype)
+        for frame in range(self.time_frames):
+            y[-tf:, frame*rows:(frame+1)*rows] = x[frame:frame+tf, :]
+        return y
+    
+    def pseudo_inverse(self, y):
+        pass
