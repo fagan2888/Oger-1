@@ -9,6 +9,7 @@ from mdp import numx
 from mdp.utils import mult
 
 # TODO: is this node ever used?
+# TODO: could we turn this in a generic "function" node?
 class SignNode(mdp.Node):
     """
      Compute the sign function of the input.
@@ -35,6 +36,7 @@ class SignNode(mdp.Node):
         return numx.sign(x)
 
 
+# TODO what about the mdp.PerceptronClassifier??
 class PerceptronNode(mdp.Node):
     """
     Trains a (non-linear) perceptron using gradient descent.
