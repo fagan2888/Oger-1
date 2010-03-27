@@ -63,7 +63,7 @@ def n_fold_random(n_samples, n_folds):
     return train_indices, test_indices
     
 
-def validate(data, flow, error_measure, cross_validate_function=n_fold_random, *args, **kwargs):
+def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs):
     '''
     validate(data, flow, error_measure, cross_validate_function=n_fold_random *args, **kwargs)
     
@@ -76,7 +76,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, *
           - n_fold_random (default): split dataset in n_folds parts, for each fold train on n_folds-1 parts and test on the remainder
           - leave_one_out : do cross-validation with len(inputs) folds, using a single sample for testing in each fold and the rest for training
           - train_test_only : divide dataset into train- and testset, using training_fraction as the fraction of samples used for training
-    
+    - progress is a boolean to enable a progress bar (default True)
     '''
     test_error = []
     # Get the number of samples 
@@ -84,8 +84,14 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, *
     # Get the indices of the training and testing samples for each fold by calling the 
     # cross_validate_function hook
     train_samples, test_samples = cross_validate_function(n_samples, *args, **kwargs)
-    print "Performing cross-validation using " + cross_validate_function.__name__
-    for fold in mdp.utils.progressinfo(range(len(train_samples)), style='timer'):
+    
+    if progress:
+        print "Performing cross-validation using " + cross_validate_function.__name__
+        iter = mdp.utils.progressinfo(range(len(train_samples)), style='timer')
+    else:
+        iter = range(len(train_samples))
+        
+    for fold in iter:
         # Get the training data from the whole data set
         train_data = data_subset(data, train_samples[fold])
         # Empty list to store test errors for current fold

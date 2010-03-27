@@ -6,6 +6,7 @@ Created on Feb 9, 2010
 
 import mdp
 import Engine
+import mdp.parallel.pp_support
 
 if __name__ == '__main__':
     ''' Example of doing a grid-search
@@ -28,6 +29,11 @@ if __name__ == '__main__':
 
     # Instantiate an optimizer
     opt = Engine.evaluation.Optimizer(gridsearch_parameters, Engine.utils.nrmse)
+    
+    mdp.activate_extension("parallel")
+    opt.scheduler = mdp.parallel.ProcessScheduler(n_processes=4, verbose=True)
+#    opt.scheduler = mdp.parallel.ThreadScheduler(n_threads=4, verbose=True)
+#    opt.scheduler = mdp.parallel.pp_support.LocalPPScheduler(ncpus=2, max_queue_length=0, verbose=True)
     
     # Do the grid search
     opt.grid_search(data, flow, cross_validate_function=Engine.evaluation.n_fold_random, n_folds=5)

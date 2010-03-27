@@ -48,10 +48,10 @@ class Optimizer(object):
             - flow : the MDP flow to do the grid-search on
         '''
         self.errors = mdp.numx.zeros(self.paramspace_dimensions)
-        node_set = set()
         # Loop over all points in the parameter space
-        for paramspace_index_flat, parameter_values in enumerate(self.param_space):
+        for paramspace_index_flat, parameter_values in  mdp.utils.progressinfo(enumerate(self.param_space), style='timer', length=len(self.param_space)):
             # Set all parameters of all nodes to the correct values
+            node_set = set()
             for parameter_index, node_parameter in enumerate(self.parameters):
                 # Add the current node to the set of nodes whose parameters are changed, and which should be re-initialized 
                 node_set.add(node_parameter['node'])
@@ -64,7 +64,7 @@ class Optimizer(object):
            
             # After all node parameters have been set and initialized, do the cross-validation
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions) 
-            self.errors[paramspace_index_full] = mdp.numx.mean(Engine.evaluation.validate(data, flow, self.loss_function, cross_validate_function, *args, **kwargs))
+            self.errors[paramspace_index_full] = mdp.numx.mean(Engine.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs))
 
     def plot_results(self):
         ''' Plot the results of the optimization. Works for 1D and 2D scans, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
@@ -121,3 +121,84 @@ class Optimizer(object):
                 min_parameter_dict[param_d['node']] = {param_d['parameter'] : opt_parameter_value}
 
         return (minimal_error, min_parameter_dict) 
+    
+    
+    
+
+    
+class ParameterSettingNode(mdp.Node):
+    
+    def __init__(self, flow, loss_function, cross_validation, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
+        super(ParameterSettingNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
+        self.flow = flow
+        self.loss_function = loss_function
+        self.cross_validation = cross_validation
+        
+        # TODO: this is a bit messy...
+        self.args = args
+        self.kwargs = kwargs
+        
+    def execute(self, x):
+        params = x[0]
+        data = x[1]
+        
+        # Set all parameters of all nodes to the correct values
+        node_set = set()
+        for node_index, node_dict in params.items():
+            for parameter, value in node_dict.items():
+                node = self.flow[node_index]
+                node_set.add(node)
+                node.__setattr__(parameter, value)
+        
+        # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
+        for node in node_set:
+            if hasattr(node, 'initialize'):
+                node.initialize()
+       
+        # TODO: could this set of functions also be a parameter?
+        return [mdp.numx.mean(Engine.evaluation.validate(data, self.flow, self.loss_function, self.cross_validation, progress=False, *self.args, **self.kwargs))]
+        
+    def is_trainable(self):
+        return False
+
+@mdp.extension_method("parallel", Optimizer)
+def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
+    ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
+        for each value in the parameter space.
+        Input arguments are:
+        - data: a list of iterators which would be passed to MDP flows
+        - flow : the MDP flow to do the grid-search on
+    '''
+    
+    if not hasattr(self, 'scheduler') or self.scheduler is None:
+        err = ("No scheduler was assigned to the Optimizer so cannot run in parallel mode.")
+        raise Exception(err)
+        
+    self.errors = mdp.numx.zeros(self.paramspace_dimensions)
+    
+    data_parallel = []
+    
+    # Loop over all points in the parameter space
+    for paramspace_index_flat, parameter_values in enumerate(self.param_space):
+        params = {}
+
+        for parameter_index, node_parameter in enumerate(self.parameters):
+            node_index = flow.flow.index(node_parameter['node'])
+            if not node_index in params:
+                params[node_index] = {}
+                
+            params[node_index][node_parameter['parameter']] = parameter_values[parameter_index]
+        
+        data_parallel.append([[params, data]])
+
+    parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs),])
+
+    results = parallel_flow.execute(data_parallel, scheduler=self.scheduler)
+
+    i = 0
+    for paramspace_index_flat, parameter_values in enumerate(self.param_space):
+        paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions) 
+        self.errors[paramspace_index_full] = results[i]
+        i+=1
+        
+    self.scheduler.shutdown()

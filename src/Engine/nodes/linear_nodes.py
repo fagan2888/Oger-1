@@ -24,7 +24,6 @@ class RidgeRegressionNode(mdp.nodes.LinearRegressionNode):
                       "variables may be linearly dependent).")
             raise mdp.NodeException(errstr)
         
-        print "training"
         self.beta = mdp.utils.mult(inv_xTx, self._xTy)
 
 class ParallelLinearRegressionNode(mdp.parallel.ParallelExtensionNode, mdp.nodes.LinearRegressionNode):
