@@ -238,15 +238,15 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
         params = {}
 
         for parameter_index, node_parameter in enumerate(self.parameters):
-            node_index = flow.flow.index(node_parameter['node'])
+            node_index = flow.flow.index(node_parameter[0])
             if not node_index in params:
                 params[node_index] = {}
                 
-            params[node_index][node_parameter['parameter']] = parameter_values[parameter_index]
+            params[node_index][node_parameter[1]] = parameter_values[parameter_index]
         
         data_parallel.append([[params, data]])
 
-    parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs),])
+    parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs), ])
 
     results = parallel_flow.execute(data_parallel, scheduler=self.scheduler)
 
@@ -254,6 +254,6 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
     for paramspace_index_flat, parameter_values in enumerate(self.param_space):
         paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions) 
         self.errors[paramspace_index_full] = results[i]
-        i+=1
+        i += 1
         
     self.scheduler.shutdown()
