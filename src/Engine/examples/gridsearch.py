@@ -24,7 +24,7 @@ if __name__ == '__main__':
     flow = mdp.Flow([reservoir, readout])
 
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, 0.2), 'spectral_radius':mdp.numx.arange(0.1, 1.5, 0.3)}}
+    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, .2), 'spectral_radius':mdp.numx.arange(0.1, 1.5, .3)}}
 
     # Instantiate an optimizer
     opt = Engine.evaluation.Optimizer(gridsearch_parameters, Engine.utils.nrmse)

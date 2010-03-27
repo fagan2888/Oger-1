@@ -34,7 +34,7 @@ class Optimizer(object):
                 # Append the parameter name and ranges to the corresponding lists
                 self.parameter_ranges.append((self.optimization_dict[node_key])[parameter])
                 self.paramspace_dimensions.append(len(self.parameter_ranges[-1]))
-                self.parameters.append({'node':node_key, 'parameter':parameter})
+                self.parameters.append((node_key, parameter))
 
         # Construct all combinations
         self.param_space = list(itertools.product(*self.parameter_ranges))
@@ -54,8 +54,8 @@ class Optimizer(object):
             # Set all parameters of all nodes to the correct values
             for parameter_index, node_parameter in enumerate(self.parameters):
                 # Add the current node to the set of nodes whose parameters are changed, and which should be re-initialized 
-                node_set.add(node_parameter['node'])
-                node_parameter['node'].__setattr__(node_parameter['parameter'], parameter_values[parameter_index])
+                node_set.add(node_parameter[0])
+                node_parameter[0].__setattr__(node_parameter[1], parameter_values[parameter_index])
             
             # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
             for node in node_set:
@@ -66,58 +66,113 @@ class Optimizer(object):
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions) 
             self.errors[paramspace_index_full] = mdp.numx.mean(Engine.evaluation.validate(data, flow, self.loss_function, cross_validate_function, *args, **kwargs))
 
-    def plot_results(self):
-        ''' Plot the results of the optimization. Works for 1D and 2D scans, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
+    def plot_results(self, node_param_list=None):
+        ''' Plot the results of the optimization. 
+        
+            Works for 1D and 2D scans, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
+            node_param_list is an optional argument. It is a list of (node, param_string) tuples.
+            Before plotting, the mean will be taken over all these node.param_string combinations,
+            which is useful to plot/reduce multi-dimensional parameter sweeps.
         '''
 
+        errors_to_plot, var_errors, parameters = self.mean_and_var(node_param_list)
+             
         # If we have ranged over only one parameter
-        if len(self.parameters) == 1:
+        if errors_to_plot.ndim == 1:
             # Average errors over folds
-            mean_errors = map(mdp.numx.mean, self.errors)
-            
-            #Variance across folds
-            var_errors = map(mdp.numx.var, self.errors)
-            
             pylab.ion()
-            pylab.errorbar(self.parameter_ranges[0], mean_errors, var_errors)
-            pylab.xlabel(str(self.parameters[0]['node']) + '.' + self.parameters[0]['parameter'])
+            print "Warning: parameter_ranges still wrong!"
+            pylab.errorbar(self.parameter_ranges[0], errors_to_plot, var_errors)
+            pylab.xlabel(str(parameters[0][0]) + '.' + parameters[0][1])
             pylab.ylabel(self.loss_function.__name__)
             pylab.show()
-        elif len(self.parameters) == 2:
+        elif errors_to_plot.ndim == 2:
             pylab.ion()
             pylab.imshow(self.errors, interpolation='nearest')
-            pylab.ylabel(str(self.parameters[0]['node']) + '.' + self.parameters[0]['parameter'])
-            pylab.xlabel(str(self.parameters[1]['node']) + '.' + self.parameters[1]['parameter'])
+            pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
+            pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
 
             pylab.colorbar()
             pylab.show()
         else:
-            print ("Plotting only works for 1D or 2D parameter sweeps!")
+            raise Exception("Too many parameter dimensions to plot: " + str(errors_to_plot.ndim))
 
-    def mean_across_parameter(self):
-        pass
+    def mean_and_var(self, node_param_list):
+        ''' Return a tuple containing the mean and variance of the errors over a certain parameter.
+            
+            Gives the mean/variance of the errors w.r.t. the parameter given by 
+            node_param_list, where each element is a (node, parameter) tuple.
+            If the list has only one element, the variance w.r.t this parameter
+            is also returned, otherwise the second return argument is None.
+        '''
+        # In case of an empty list, we just return the errors
+        if node_param_list is None:
+            return self.errors, None, self.parameters
+        
+        # Check if we have the requested node.parameter combinations in the optimization_dict
+        for node, param_string in node_param_list:    
+            if not node in self.optimization_dict:
+                raise Exception('Cannot take the mean, given node ' + str(node) + ' is not in optimization_dict.')
+            if not param_string in self.optimization_dict[node]:
+                raise Exception("Cannot take the mean, given parameter '" + param_string + "' is not in optimization_dict.")
 
-    def get_minimal_error(self):
+        # take a copy, so we can eliminate some of the parameters later
+        # However, we don't want to do a deep copy, just create a new list 
+        # with references to the old elements, hence the [:]
+        parameters = self.parameters[:]
+        errors = self.errors[:]
+        
+        # Loop over all parameters in node_param_list and iteratively compute 
+        # the mean
+        for node, param_string in node_param_list:
+            # Find the axis we need to take the mean across
+            axis = parameters.index((node, param_string))
+            
+            # Finally, return the mean and variance
+            mean_errors = mdp.numx.mean(errors, axis)
+            
+            # In case we take the mean over only one dimension, we can return
+            # the variance as well
+            if len(node_param_list) == 1:
+                # Use ddof = 1 to mimic matlab var
+                var = mdp.numx.var(errors, axis, ddof=1)
+            else:
+                var = None
+            
+            # Remove the corresponding dimension from errors and parameters for
+            # the next iteration of the for loop
+            errors = mean_errors
+            parameters.remove((node, param_string))
+            
+        return errors, var, parameters
+         
+
+    def get_minimal_error(self, node_param_list=None):
         '''Return the minimal error, and the corresponding parameter values as a tuple:
         (error, param_values), where param_values is a dictionary of dictionaries,  
         with the key of the outer dictionary being the node, and inner dictionary
         consisting of (parameter:optimal_value) pairs.
+        If the optional argument node_param_list is given, first the mean of the
+        error will be taken over all (node, parameter) tuples in the node_param_list
+        before taking the minimum
         '''
         if self.errors is None:
             raise Exception('Errors array is empty. No optimization has been performed yet.')
 
+        errors, _, parameters = self.mean_and_var(node_param_list)
         min_parameter_dict = {}
-        minimal_error = mdp.numx.amin(self.errors)
-        min_parameter_indices = mdp.numx.unravel_index(mdp.numx.argmin(self.errors), self.errors.shape)
+        minimal_error = mdp.numx.amin(errors)
+        min_parameter_indices = mdp.numx.unravel_index(mdp.numx.argmin(errors), errors.shape)
 
-        for index, param_d in enumerate(self.parameters):
-            opt_parameter_value = self.parameter_ranges[index][min_parameter_indices[index]]
+        for index, param_d in enumerate(parameters):
+            global_param_index = self.parameters.index(param_d)
+            opt_parameter_value = self.parameter_ranges[global_param_index][min_parameter_indices[index]]
             # If there already is an entry for the current node in the dict, add the 
             # optimal parameter/value entry to the existing dict
-            if param_d['node'] in min_parameter_dict:
-                min_parameter_dict[param_d['node']][param_d['parameter']] = opt_parameter_value
+            if param_d[0] in min_parameter_dict:
+                min_parameter_dict[param_d[0]][param_d[1]] = opt_parameter_value
             # Otherwise, create a new dict
             else:
-                min_parameter_dict[param_d['node']] = {param_d['parameter'] : opt_parameter_value}
+                min_parameter_dict[param_d[0]] = {param_d[1] : opt_parameter_value}
 
         return (minimal_error, min_parameter_dict) 
