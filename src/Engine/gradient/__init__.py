@@ -1,5 +1,5 @@
 """
-This is the Engine package for gradient based learning.
+This subpackage contains nodes and trainers for gradient based learning.
 
 Its purpose is to automate backpropagation and gradient calculation for models
 that can be trained using gradient methods.  This allows complex architectures
