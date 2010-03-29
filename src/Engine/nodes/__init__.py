@@ -1,3 +1,7 @@
+"""
+This subpackage contains a number of Engine-related nodes. It contains several additional MDP nodes such as RBM nodes, reservoir nodes and signal processing nodes.
+"""
+
 from reservoir_nodes import (ReservoirNode, LeakyReservoirNode)
 from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)
 from nonlinear_nodes import (SignNode, PerceptronNode)
@@ -11,3 +15,5 @@ del rbm_nodes
 del linear_nodes
 del nonlinear_nodes
 del utility_nodes
+
+__all__ = ['ReservoirNode', 'LeakyReservoirNode', 'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'SignNode', 'PerceptronNode ERBMNode', 'CRBMNode', 'FeedbackNode', 'WashoutNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'ResampleNode', 'TimeFramesNode2']

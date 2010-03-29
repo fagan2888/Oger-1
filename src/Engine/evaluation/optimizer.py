@@ -44,8 +44,8 @@ class Optimizer(object):
         ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
             for each value in the parameter space.
             Input arguments are:
-            - data: a list of iterators which would be passed to MDP flows
-            - flow : the MDP flow to do the grid-search on
+                - data: a list of iterators which would be passed to MDP flows
+                - flow : the MDP flow to do the grid-search on
         '''
         self.errors = mdp.numx.zeros(self.paramspace_dimensions)
         # Loop over all points in the parameter space
@@ -221,8 +221,8 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
     ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
         for each value in the parameter space.
         Input arguments are:
-        - data: a list of iterators which would be passed to MDP flows
-        - flow : the MDP flow to do the grid-search on
+            - data: a list of iterators which would be passed to MDP flows
+            - flow : the MDP flow to do the grid-search on
     '''
     
     if not hasattr(self, 'scheduler') or self.scheduler is None:
