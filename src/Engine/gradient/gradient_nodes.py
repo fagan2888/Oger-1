@@ -106,7 +106,7 @@ class BackpropNode(mdp.Node):
         self.loss_func = loss_func
         self.derror = derror
 
-        if self.derror == None:
+        if self.derror is None:
             self.derror = lambda x, t: x - t
 
         input_dim = gflow[0].get_input_dim()
@@ -140,7 +140,7 @@ class BackpropNode(mdp.Node):
         parameters.
         """
 
-        if not params == None:
+        if params is not None:
             self._set_params(params)
 
         y = self.gflow.execute(x)

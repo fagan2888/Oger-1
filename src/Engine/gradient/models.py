@@ -15,7 +15,7 @@ class MLPNode(mdp.Node):
 
     def __init__(self, input_dim, output_dim, hidden_dim=100,
                  trainer=trainers.GradientDescentTrainer(), loss='mse', dtype='float64'):
-        """Initializes and construcs a multi layer perceptron.
+        """Initializes and constructs a multilayer perceptron.
 
         Arguments:
         

@@ -7,8 +7,8 @@ import Engine
 print 'Loading data...'
 data = cPickle.load(open('/afs/elis/group/snn/mnist/mnist.p'))
 
-n_train = 40000
-n_test = 5000
+n_train = 400
+n_test = 50
 epochs = 1
 
 image_data = data['trainimages']
