@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     # construct individual nodes
     reservoir = Engine.nodes.ReservoirNode(input_scaling=0.1, output_dim=100)
-    readout = Engine.nodes.RidgeRegressionNode(0.001)
+    readout = mdp.nodes.LinearRegressionNode()
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout])
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # 1D plotting example
     print "Then we range over both spectral radius and input scaling, instantiating 5 reservoirs for each setting."
     gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.3, 0.2),
-                                        'input_scaling': mdp.numx.arange(0.5, .8, 0.1),
+                                        'input_scaling': mdp.numx.arange(0.1, 0.5, 0.1),
                                         '_instance':range(5)}}
     print "gridsearch_parameters = " + str(gridsearch_parameters)
     opt2D = Engine.evaluation.Optimizer(gridsearch_parameters, Engine.utils.nrmse)

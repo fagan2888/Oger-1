@@ -84,6 +84,7 @@ class Optimizer(object):
         if errors_to_plot.ndim == 1:
             # Average errors over folds
             pylab.ion()
+            pylab.figure()
             # Get the index of the remaining parameter to plot using the correct 
             # parameter ranges
             param_index = self.parameters.index(parameters[0])
@@ -93,21 +94,43 @@ class Optimizer(object):
             pylab.show()
         elif errors_to_plot.ndim == 2:
             pylab.ion()
+            
             # Get the index of the remaining parameter to plot using the correct 
             # parameter ranges
-            param_index0 = self.parameters.index(parameters[0])
-            param_index1 = self.parameters.index(parameters[1])
+            param_index0 = self.parameters.index(parameters[1])
+            param_index1 = self.parameters.index(parameters[0])
+            
+            extent = [self.parameter_ranges[param_index0][0],
+                        self.parameter_ranges[param_index0][-1],
+                        self.parameter_ranges[param_index1][0],
+                        self.parameter_ranges[param_index1][-1]]
+
+            # Fix the range bounds
+            xstep = (-extent[0]+extent[1])/len(self.parameter_ranges[param_index0])
+            ystep = (-extent[2]+extent[3])/len(self.parameter_ranges[param_index1])
+            
+            extent = [extent[0]-xstep/2, extent[1]+xstep/2, extent[2]-ystep/2, extent[3]+ystep/2]
+            
             # Display the image, using the edge values of the parameter ranges
             # to set the axis labels
-            pylab.imshow(self.errors, cmap=pylab.hsv(),
-                         extent=[self.parameter_ranges[param_index0][0],
-                                 self.parameter_ranges[param_index0][-1],
-                                 self.parameter_ranges[param_index1][0],
-                                 self.parameter_ranges[param_index1][-1], ])
-            pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
-            pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
 
+            pylab.figure()
+            pylab.imshow(errors_to_plot, cmap=pylab.jet(), interpolation='nearest',
+                         extent=extent, aspect="auto")
+            pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
+            pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
+            pylab.suptitle('mean')
             pylab.colorbar()
+
+            if node_param_list is not None:
+                pylab.figure()
+                pylab.imshow(var_errors, cmap=pylab.jet(), interpolation='nearest',
+                             extent=extent, aspect="auto")
+                pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
+                pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
+                pylab.suptitle('variance')
+                pylab.colorbar()
+            
             pylab.show()
         else:
             raise Exception("Too many parameter dimensions to plot: " + str(errors_to_plot.ndim))
