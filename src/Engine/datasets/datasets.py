@@ -71,7 +71,7 @@ def mackey_glass(sample_len=1000, tau=17):
     # Squash timeseries through tanh
     inp = mdp.numx.tanh(inp - 1)
     inp.shape = (-1, 1)
-    return inp
+    return [inp, ]
 
 def mso(sample_len=1000):
     x = mdp.numx.arange(0, sample_len, 1)
