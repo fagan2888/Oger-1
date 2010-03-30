@@ -4,23 +4,28 @@ Created on Aug 25, 2009
 @author: dvrstrae
 '''
 import mdp
+import Engine
 
-def train_test_only(n_samples, training_fraction):
+def train_test_only(n_samples, training_fraction, random=True):
     '''
-    train_test_only(n_samples, training_fraction) -> train_indices, test_indices
+    train_test_only(n_samples, training_fraction, random) -> train_indices, test_indices
     
-    Return indices to do simple training and testing. Only one fold is created, using training_fraction of the dataset for training and the rest for testing.
-    The samples are selected randomly.
+    Return indices to do simple training and testing. Only one fold is created, 
+    using training_fraction of the dataset for training and the rest for testing.
+    The samples are selected randomly by default but this can be disabled.
     Two lists are returned, with 1 element each.
     - train_indices contains the indices of the dataset used for training
     - test_indices contains the indices of the dataset used for testing
     '''
-    # Shuffle the samples
-    randperm = mdp.numx.random.permutation(n_samples)
+    if random:
+        # Shuffle the samples randomly
+        perm = mdp.numx.random.permutation(n_samples)
+    else:
+        perm = range(n_samples)
     # Take a fraction training_fraction for training
-    train_indices = [randperm[0:int(round(n_samples * training_fraction))]]
+    train_indices = [perm[0:int(round(n_samples * training_fraction))]]
     # Use the rest for testing
-    test_indices = mdp.numx.array([mdp.numx.setdiff1d(randperm, train_indices[-1])])
+    test_indices = mdp.numx.array([mdp.numx.setdiff1d(perm, train_indices[-1])])
     return train_indices, test_indices
 
 
@@ -65,7 +70,7 @@ def n_fold_random(n_samples, n_folds):
 
 def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs):
     '''
-    validate(data, flow, error_measure, cross_validate_function=n_fold_random *args, **kwargs)
+    validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs)
     
     Perform  cross-validation on a flow, return the validation test_error for each fold.
     - inputs and outputs are lists of arrays
@@ -96,15 +101,41 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
         train_data = data_subset(data, train_samples[fold])
         # Empty list to store test errors for current fold
         fold_error = []
-        # Copy the flownode so we can re-train it for every fold
-        f_copy = flow.copy()
+        
+        # Copy the flow so we can re-train it for every fold
+        # Only nodes that need training are copied.
+        f_copy = mdp.Flow([])
+        for node in flow:
+            if node.is_trainable():
+                f_copy += node.copy()
+            else:
+                f_copy += node 
+                
         # train on all training samples
         f_copy.train(train_data)
+        
         # test on all test samples
         for index in test_samples[fold]:
             test_data = data_subset(data, index)
+            
+            # If the last node is a feedback node: 
+            if isinstance(flow[-1], Engine.nodes.FeedbackNode):
+                for i in range(len(flow)):
+                    # Disable state resetting for all reservoir nodes.
+                    if isinstance(f_copy[i], Engine.nodes.ReservoirNode):
+                        f_copy[i].reset_states = False       
+                    if isinstance(f_copy[i], Engine.nodes.FeedbackNode):
+                        f_copy[i].reset()
+                               
+                # Run flow on training data so we have an initial state to start from
+                f_copy(train_data[0])     
+                
+                # TODO: the feedback node gets initiated with the last *estimated* timestep,
+                # not the last training example. Fixing this will improve performance!
+            
             fold_error.append(error_measure(f_copy(test_data[0]), test_data[-1][-1]))
         test_error.append(mdp.numx.mean(fold_error))
+
     return test_error
 
 def data_subset(data, data_indices):
