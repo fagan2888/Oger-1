@@ -67,7 +67,8 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
     '''
     validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs) -> test_errors
     
-    Perform  cross-validation on a flow, return the validation test_error for each fold.
+    Perform  cross-validation on a flow, return the validation test_error for each fold. For every flow, the flow.train() method is called
+    on the training data, and the flow.execute() function is called on the test data.
         - inputs and outputs are lists of arrays
         - flow is an mdp.Flow
         - error_measure is a function which should return a scalar
@@ -110,6 +111,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
 def data_subset(data, data_indices):
     '''
     data_subset(data, data_indices) -> data_subset
+    
     Return a subset of the examples in data given by data_indices.
     Data_indices can be a slice, a list of scalars or a numpy array.
     '''

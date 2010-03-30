@@ -9,6 +9,9 @@ import pylab
 import itertools
 
 class Optimizer(object):
+    ''' Class to perform optimization of the parameters of a flow using cross-validation.
+        Supports grid-searching of a parameter space.
+    '''
     def __init__(self, optimization_dict, loss_function, **kwargs):
         ''' Construct an Optimizer object.
             optimization_dict: a dictionary of dictionaries. 
@@ -69,7 +72,7 @@ class Optimizer(object):
     def plot_results(self, node_param_list=None):
         ''' Plot the results of the optimization. 
         
-            Works for 1D and 2D scans, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
+            Works for 1D and 2D linear sweeps, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
             node_param_list is an optional argument. It is a list of (node, param_string) tuples.
             Before plotting, the mean will be taken over all these node.param_string combinations,
             which is useful to plot/reduce multi-dimensional parameter sweeps.
@@ -81,14 +84,26 @@ class Optimizer(object):
         if errors_to_plot.ndim == 1:
             # Average errors over folds
             pylab.ion()
-            print "Warning: parameter_ranges still wrong!"
-            pylab.errorbar(self.parameter_ranges[0], errors_to_plot, var_errors)
+            # Get the index of the remaining parameter to plot using the correct 
+            # parameter ranges
+            param_index = self.parameters.index(parameters[0])
+            pylab.errorbar(self.parameter_ranges[param_index], errors_to_plot, var_errors)
             pylab.xlabel(str(parameters[0][0]) + '.' + parameters[0][1])
             pylab.ylabel(self.loss_function.__name__)
             pylab.show()
         elif errors_to_plot.ndim == 2:
             pylab.ion()
-            pylab.imshow(self.errors, interpolation='nearest')
+            # Get the index of the remaining parameter to plot using the correct 
+            # parameter ranges
+            param_index0 = self.parameters.index(parameters[0])
+            param_index1 = self.parameters.index(parameters[1])
+            # Display the image, using the edge values of the parameter ranges
+            # to set the axis labels
+            pylab.imshow(self.errors, cmap=pylab.hsv(),
+                         extent=[self.parameter_ranges[param_index0][0],
+                                 self.parameter_ranges[param_index0][-1],
+                                 self.parameter_ranges[param_index1][0],
+                                 self.parameter_ranges[param_index1][-1], ])
             pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
             pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
 

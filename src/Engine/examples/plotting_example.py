@@ -7,10 +7,7 @@ import mdp
 import Engine
 
 if __name__ == '__main__':
-    ''' Example of plotting results of a parameter sweep
-        Runs the NARMA 30 task for spectral radius = 0 to 1.5 and plots the error
-        The cross-validation error is stored in the variable errors
-    '''
+
     [inputs, outputs] = Engine.datasets.narma30()
     data = [inputs, zip(inputs, outputs)]
 
@@ -22,19 +19,20 @@ if __name__ == '__main__':
     flow = mdp.Flow([reservoir, readout])
 
     # 1D plotting example
-    print "First a scan of the spectral radius"
+    print "First a scan of the spectral radius, instantiating 5 reservoirs for each setting."
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.3, 0.3), '_instance':range(2)}}
+    gridsearch_parameters = {reservoir:{'_instance':range(5), 'spectral_radius':mdp.numx.arange(0.6, 1.3, 0.1)}}
     print "gridsearch_parameters = " + str(gridsearch_parameters)
     opt1D = Engine.evaluation.Optimizer(gridsearch_parameters, Engine.utils.nrmse)
     
     # Run the gridsearch
     opt1D.grid_search(data, flow, n_folds=3, cross_validate_function=Engine.evaluation.n_fold_random)
+    
     # Plot the results, after taking the mean over the reservoir instances
     opt1D.plot_results([(reservoir, '_instance')])
 
     # 1D plotting example
-    print "Then we range over both spectral radius and input scaling"
+    print "Then we range over both spectral radius and input scaling, instantiating 5 reservoirs for each setting."
     gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.6, 1.3, 0.2),
                                         'input_scaling': mdp.numx.arange(0.5, .8, 0.1),
                                         '_instance':range(5)}}
