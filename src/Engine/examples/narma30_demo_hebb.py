@@ -14,11 +14,16 @@ if __name__ == "__main__":
     [x, y] = Engine.datasets.narma30(sample_len=1000)
 
     # construct individual nodes
-    reservoir = Engine.nodes.ReservoirNode(inputs, 100, input_scaling=0.05)
+    reservoir = Engine.nodes.HebbReservoirNode(inputs, 100, input_scaling=0.05)
     readout = Engine.nodes.RidgeRegressionNode()
 
     # build network with MDP framework
     flow = Engine.nodes.InspectableFlow([reservoir, readout], verbose=1)
+#    flow = mdp.Flow([reservoir, readout], verbose=1)
+    
+#    for epoch in range(10):
+#        for datapoint in x:
+#            reservoir.train(datapoint)
     
     data = [x[0:-1], zip(x[0:-1], y[0:-1])]
     
@@ -45,6 +50,7 @@ if __name__ == "__main__":
     pylab.plot(y[9], 'b')
     
     pylab.subplot(nx, ny, 4)
+#    pylab.plot(flow.inspect(0))
     pylab.plot(flow.inspect(reservoir))
     pylab.show()
     

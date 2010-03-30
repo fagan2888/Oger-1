@@ -27,7 +27,7 @@ if __name__ == "__main__":
     mnnode = Engine.nodes.MeanAcrossTimeNode()
 
     # build network with MDP framework
-    flow = mdp.Flow([reservoir, readout, mnnode])
+    flow = Engine.nodes.InspectableFlow([reservoir, readout, mnnode])
     
     pylab.subplot(n_subplots_x, n_subplots_y, 1)
     pylab.imshow(inputs[0].T, aspect='auto', interpolation='nearest')
@@ -51,7 +51,7 @@ if __name__ == "__main__":
         ytest.append(flow(xtest))
         
     pylab.subplot(n_subplots_x, n_subplots_y, 2)
-    pylab.plot(reservoir.states)
+    pylab.plot(flow.inspect(reservoir))
     pylab.title("Sample reservoir states")
     pylab.xlabel("Timestep")
     pylab.ylabel("Activation")

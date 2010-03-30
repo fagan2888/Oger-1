@@ -77,7 +77,7 @@ if __name__ == "__main__":
         
 
         # build network with MDP framework
-        flow = mdp.Flow([reservoir, readout], verbose=1)
+        flow = Engine.nodes.InspectableFlow([reservoir, readout], verbose=1)
         #  flow = mdp.Flow([reservoir], verbose=1)
         RC = mdp.hinet.FlowNode(flow)
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         pylab.plot(y[1][washout:], 'b')
 
         pylab.subplot(nx,ny,4)
-        pylab.plot(reservoir.states)
+        pylab.plot(flow.inspect(reservoir))
         pylab.show()
 
         print Engine.utils.nrmse(y[1],testout, discard=washout)

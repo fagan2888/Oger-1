@@ -1,6 +1,7 @@
 import Engine
 import pylab
 import mdp
+import time
 
 if __name__ == "__main__":
 
@@ -18,13 +19,19 @@ if __name__ == "__main__":
     readout = Engine.nodes.RidgeRegressionNode()
 
     # build network with MDP framework
-    flow = Engine.nodes.InspectableFlow([reservoir, readout], verbose=1)
+    flow = mdp.parallel.ParallelFlow([reservoir, readout], verbose=1)
     
+    scheduler = mdp.parallel.ThreadScheduler(n_threads=2, verbose=True)
+#    scheduler = mdp.parallel.ProcessScheduler(n_processes=2, verbose=True)
+#    scheduler = mdp.parallel.pp_support.LocalPPScheduler(ncpus=2, max_queue_length=0, verbose=True)
+
     data = [x[0:-1], zip(x[0:-1], y[0:-1])]
     
     # train the flow 
-    flow.train(data)
+    flow.train(data, scheduler)
     
+    scheduler.shutdown()
+
     #apply the trained flow to the training data and test data
     trainout = flow(x[0])
     testout = flow(x[9])
@@ -47,4 +54,4 @@ if __name__ == "__main__":
     pylab.subplot(nx, ny, 4)
     pylab.plot(flow.inspect(reservoir))
     pylab.show()
-    
+
