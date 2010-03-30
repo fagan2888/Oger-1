@@ -1,3 +1,7 @@
+"""
+This subpackage contains a number of Engine-related nodes. It contains several additional MDP nodes such as RBM nodes, reservoir nodes and signal processing nodes.
+"""
+
 from flows import InspectableFlow
 from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, FeedbackReservoirNode, MixIn)
 from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)

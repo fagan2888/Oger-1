@@ -24,12 +24,12 @@ class ReservoirNode(mdp.Node):
                  w_in=None, w=None, w_bias=None):
         """ Initializes and constructs a random reservoir.
         Parameters are:
-        - input_dim: input dimensionality
-        - output_dim: output_dimensionality, i.e. reservoir size
-        - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
-        - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
-        - input_scaling: scaling of the input weight matrix, default: 1
-        - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
+            - input_dim: input dimensionality
+            - output_dim: output_dimensionality, i.e. reservoir size
+            - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
+            - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
+            - input_scaling: scaling of the input weight matrix, default: 1
+            - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
         
         Weight matrices are either generated randomly or passed at construction time.
         if w, w_in or w_bias are not given in the constructor, they are created randomly:
@@ -80,9 +80,9 @@ class ReservoirNode(mdp.Node):
         """ Initialize the weight matrices of the reservoir node. If no 
         arguments for w, w_in and w_bias matrices were given at construction
         time, they will be created as follows:
-        - input matrix : input_scaling * uniform weights in [-1, 1]
-        - bias matrix :  bias_scaling * uniform weights in [-1, 1]
-        - reservoir matrix: gaussian weights rescaled to the desired spectral radius
+            - input matrix : input_scaling * uniform weights in [-1, 1]
+            - bias matrix :  bias_scaling * uniform weights in [-1, 1]
+            - reservoir matrix: gaussian weights rescaled to the desired spectral radius
         If w, w_in or w_bias were given as a numpy array or a function, these
         will be used as initialization instead.
         """
@@ -168,13 +168,13 @@ class LeakyReservoirNode(ReservoirNode):
     def __init__(self, leak_rate=1.0, **kwargs):
         """Initializes and constructs a random reservoir with leaky-integrator neurons.
            Parameters are:
-            - input_dim: input dimensionality
-            - output_dim: output_dimensionality, i.e. reservoir size
-            - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
-            - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
-            - input_scaling: scaling of the input weight matrix, default: 1
-            - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
-            - leak_rate: if 1 it is a standard neuron, lower values give slower dynamics
+                - input_dim: input dimensionality
+                - output_dim: output_dimensionality, i.e. reservoir size
+                - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
+                - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
+                - input_scaling: scaling of the input weight matrix, default: 1
+                - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
+                - leak_rate: if 1 it is a standard neuron, lower values give slower dynamics
             
             Weight matrices are either generated randomly or passed at construction time.
             if w, w_in or w_bias are not given in the constructor, they are created randomly:

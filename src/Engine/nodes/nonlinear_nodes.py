@@ -12,11 +12,8 @@ from mdp.utils import mult
 # TODO: could we turn this in a generic "function" node?
 class SignNode(mdp.Node):
     """
-     Compute the sign function of the input.
-        
-        This simple node computes the sign function of its input
-    
-    # PyUML: Do not remove this line! # XMI_ID:__6oqMK0EEd6_mKvLwRcUQA
+    Compute the sign function of the input.
+    This simple node computes the sign function of its input
     """
     
     def __init__(self, input_dim=None, output_dim=None, dtype='float64'):
