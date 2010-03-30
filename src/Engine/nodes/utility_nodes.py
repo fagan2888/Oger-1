@@ -7,14 +7,31 @@ import mdp
 import scipy.signal
 
 class FeedbackNode(mdp.Node):
+    """FeedbackNode creates the ability to feed back a certain part of a flow as 
+    input to the flow. It both implements the Node API and the generator API and
+    can thus be used as input for a flow.
+    
+    The duration that the feedback node feeds back data can be given. Prior to using 
+    the node as data generator, it should be executed so it can store the previous 
+    state.
+    
+    When a FeedbackNode is reused several times, reset() should be called prior to
+    each use which resets the internal counter.
+    
+    Note that this node keeps state and can thus NOT be used in parallel using threads.
+    """ 
     def __init__(self, n_timesteps=1, input_dim=None, output_dim=None, dtype=None):
         super(FeedbackNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
-        self.current_timestep = 0
+        
         self.n_timesteps = n_timesteps
         self.last_value = None
+        self.current_timestep = 0
+        
+    def reset(self):
+        self.current_timestep = 0
         
     def is_trainable(self):
-        return True
+        return False
 
     def _set_input_dim(self, n):
         self._input_dim = n
@@ -24,15 +41,12 @@ class FeedbackNode(mdp.Node):
         while self.current_timestep < self.n_timesteps:
             self.current_timestep += 1
             yield self.last_value
-            
-    def _train(self, x):
-        self.last_value = mdp.numx.atleast_2d(x[-1, :])
                 
     def _execute(self, x):
-        self.last_value = x
+        self.last_value = mdp.numx.atleast_2d(x[-1, :])
         return self.last_value
 
-# TODO: this onlt works on x and not y
+# TODO: this only works on x and not y
 class WashoutNode(mdp.Node):
     """
          Remove initial states.

@@ -6,6 +6,14 @@ Created on Aug 20, 2009
 import Engine
 import mdp
 
+# TODO: MDP parallelization assumes that nodes are state-less when executing! The current ReservoirNode
+# does not adhere to this and therefor are not parallelizable. A solution is to make the state local. 
+# But this again breaks if we start doing some form of on-line learning. In this case we need, or, 
+# fork-join but this only work when training (and joining is often not possible), or do not have 
+# fork-join in training mode which will force synchronous execution.
+
+# TODO: leaky neuron is also broken when parallel! 
+
 class ReservoirNode(mdp.Node):
     """
     A standard (ESN) reservoir node.
@@ -45,8 +53,8 @@ class ReservoirNode(mdp.Node):
         self._instance = _instance
         # Non-linear function
         self.nonlin_func = nonlin_func
-        self.reset_states = True
-        self.collected_states = []
+        
+        self.initial_state = mdp.numx.zeros((1, self.output_dim))        
         
         # Store any externally passed initialization values for w, w_in and w_bias
         self.w_in_initial = w_in
@@ -55,10 +63,10 @@ class ReservoirNode(mdp.Node):
         
         # Fields for allocating reservoir weight matrix w, input weight matrix w_in
         # and bias weight matrix w_bias
-        self.w_bias = []
         self.w_in = []
         self.w = []
-
+        self.w_bias = []
+        
         # Call the initialize function to create the weight matrices
         self.initialize()
         
@@ -129,7 +137,6 @@ class ReservoirNode(mdp.Node):
             exception_str += 'Shape of w: ' + str(self.w_in.shape)
             raise mdp.NodeException(exception_str)
             
-    
     def _get_supported_dtypes(self):
         return ['float32', 'float64']
 
@@ -138,35 +145,27 @@ class ReservoirNode(mdp.Node):
         """
         steps = x.shape[0]
         
-        # Set the initial state of the reservoir
-        # if self.reset_states is true, initialize to zero,
-        # otherwise initialize to the last time-step of the previous execute call (for freerun)
-        if self.reset_states:
-            initial_state = mdp.numx.zeros((1, self.output_dim))
-        else:
-            initial_state = mdp.numx.atleast_2d(self.states[-1, :])
-        
         # Pre-allocate the state vector, adding the initial state
-        self.states = mdp.numx.concatenate((initial_state, mdp.numx.zeros((steps, self.output_dim))))
-       
+        states = mdp.numx.concatenate((self.initial_state, mdp.numx.zeros((steps, self.output_dim))))
+        
         nonlinear_function_pointer = self.nonlin_func.f
         # Loop over the input data and compute the reservoir states
         for n in range(steps):
-            self.states[n + 1, :] = nonlinear_function_pointer(mdp.numx.dot(self.w, self.states[n, :]) + mdp.numx.dot(self.w_in, x[n, :]) + self.w_bias)
-            self._post_update_hook(n)    
+            states[n + 1, :] = nonlinear_function_pointer(mdp.numx.dot(self.w, states[n, :]) + mdp.numx.dot(self.w_in, x[n, :]) + self.w_bias)
+            self._post_update_hook(states, x, n)    
 
         # Return the whole state matrix except the initial state
-        return self.states[1:, :]
+        return states[1:, :]
     
-    def _post_update_hook(self, timestep):
+    def _post_update_hook(self, states, input, timestep):
         pass
+    
  
 class LeakyReservoirNode(ReservoirNode):
     """Reservoir node with leaky integrator neurons (a first-order low-pass filter added to the output of a standard neuron). 
     """
 
-    def __init__(self, input_dim=1, output_dim=None, spec_radius=0.9,
-                nonlin_func=Engine.utils.TanhFunction, bias_scaling=0.0, input_scaling=1.0, leak_rate=1.0, dtype='float64'):
+    def __init__(self, leak_rate=1.0, **kwargs):
         """Initializes and constructs a random reservoir with leaky-integrator neurons.
            Parameters are:
             - input_dim: input dimensionality
@@ -185,14 +184,76 @@ class LeakyReservoirNode(ReservoirNode):
             If w, w_in or w_bias were given as a numpy array or a function, these
             will be used as initialization instead.               
         """
-        super(LeakyReservoirNode, self).__init__(input_dim, output_dim, spec_radius,
-                                           nonlin_func, bias_scaling, input_scaling, dtype)
+        super(LeakyReservoirNode, self).__init__(**kwargs)
        
-        #Initial value for lowpass filter
-        self.previous_state = mdp.numx.zeros(output_dim)
         # Leak rate, if 1 it is a standard neuron, lower values give slower dynamics 
         self.leak_rate = leak_rate
 
-    def _post_update_hook(self, timestep):
-        self.states[timestep + 1, :] = (1 - self.leak_rate) * self.previous_state + self.leak_rate * self.states [timestep + 1, :]
-        self.previous_state = self.states[timestep + 1, :]
+    def _post_update_hook(self, states, input, timestep):
+        states[timestep + 1, :] = (1 - self.leak_rate) * states[timestep, :] + self.leak_rate * states[timestep + 1, :]
+
+class TrainableReservoirNode(ReservoirNode):
+    """A reservoir node that allows on-line training of the internal connections. Use
+    this node for this purpose instead of implementing the _post_update_hook in the
+    normal ReservoirNode as this is incompatible with parallelization. 
+    """
+    def is_trainable(self):
+        return True
+    
+    def _train(self, x):
+        states = self._execute(x)
+        self._post_train_hook(states, input)
+        
+    def _post_update_hook(self, states, input, timestep):
+        super(TrainableReservoirNode, self)._post_update_hook(states, input, timestep)
+        if self.is_training():
+            self._post_train_update_hook(states, input, timestep) 
+
+    def _post_train_update_hook(self, states, input, timestep):
+        """Implement this function for on-line training after each time-step
+        """ 
+        pass
+
+    def _post_train_hook(self, states, input):
+        """Implement this function for training after each time-series
+        """ 
+        pass
+
+class HebbReservoirNode(TrainableReservoirNode):
+    """This node does nothing good, it is just a demo of training a reservoir.
+    """
+    def _post_train_update_hook(self, states, input, timestep):
+        self.w -= 0.01*mdp.utils.mult(states[timestep+1:timestep+2, :].T, states[timestep:timestep+1, :])
+        self.w_in -= 0.01*mdp.utils.mult(states[timestep+1:timestep+2, :].T, input[timestep:timestep+1, :])
+        self.w_bias -= 0.01*states[timestep + 1, :];
+
+class FeedbackReservoirNode(ReservoirNode):
+    """This is a reservoir node that can be used for setups that use output 
+    feedback. Note that because state needs to be stored in the Node object,
+    this Node type is not parallelizable using threads.
+    """
+    
+    def __init__(self, reset_states=True, **kwargs):
+        super(FeedbackReservoirNode, self).__init__(**kwargs)
+        self.reset_states = reset_states
+        self.states = None
+        
+    def _execute(self, x):        
+        # Set the initial state of the reservoir
+        # if self.reset_states is true, initialize to zero,
+        # otherwise initialize to the last time-step of the previous execute call (for freerun)
+        if self.reset_states:
+            self.initial_state = mdp.numx.zeros((1, self.output_dim))
+        else:
+            self.initial_state = mdp.numx.atleast_2d(self.states[-1, :])
+
+        self.states = super(FeedbackReservoirNode, self)._execute(x)
+
+        return self.states
+    
+def MixIn(OriginalClass, mixInClass, makeLast=False):
+    if mixInClass not in OriginalClass.__bases__:
+        if makeLast:
+            OriginalClass.__bases__ += (mixInClass,)
+        else:
+            OriginalClass.__bases__ = (mixInClass,) + OriginalClass.__bases__
