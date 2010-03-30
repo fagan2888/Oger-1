@@ -19,11 +19,10 @@ if __name__ == "__main__":
 
     # build network with MDP framework
     flow = Engine.nodes.InspectableFlow([reservoir, readout], verbose=1)
-#    flow = mdp.Flow([reservoir, readout], verbose=1)
     
-#    for epoch in range(10):
-#        for datapoint in x:
-#            reservoir.train(datapoint)
+    for epoch in range(10):
+        for datapoint in x:
+            reservoir.train(datapoint)
     
     data = [x[0:-1], zip(x[0:-1], y[0:-1])]
     
