@@ -1,0 +1,1 @@
+epydoc -v --introspect-only -o docs Engine --exclude-introspect=Engine.nodes.* --exclude-introspect=Engine.datasets.* --exclude-introspect=Engine.gradient.*  --exclude-introspect=Engine.evaluation.* --exclude-introspect=Engine.utils.* --exclude-introspect=Engine.evaluation.* --exclude-introspect=[\?]+ 

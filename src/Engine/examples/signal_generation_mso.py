@@ -34,8 +34,8 @@ if __name__ == "__main__":
     min_error, parameters = opt.get_minimal_error()
     print parameters
     
-    # TODO: this should be a dict of dicts, same as gridsearch_parameters
-    readout.ridge_param = parameters['RidgeRegressionNode.ridge_param']
+    # Get the optimal ridge parameter
+    readout.ridge_param = parameters[readout]['ridge_param']
     
     data = [ [xtrain, ] , [[xtrain, ytrain], ], [xtrain, ]];
 

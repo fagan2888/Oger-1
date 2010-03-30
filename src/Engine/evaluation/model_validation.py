@@ -12,8 +12,8 @@ def train_test_only(n_samples, training_fraction):
     Return indices to do simple training and testing. Only one fold is created, using training_fraction of the dataset for training and the rest for testing.
     The samples are selected randomly.
     Two lists are returned, with 1 element each.
-    - train_indices contains the indices of the dataset used for training
-    - test_indices contains the indices of the dataset used for testing
+        - train_indices contains the indices of the dataset used for training
+        - test_indices contains the indices of the dataset used for testing
     '''
     # Shuffle the samples
     randperm = mdp.numx.random.permutation(n_samples)
@@ -30,8 +30,8 @@ def leave_one_out(n_samples):
     
     Return indices to do leave-one-out cross-validation. Per fold, one example is used for testing and the rest for training.
     Two lists are returned, with n_samples elements each.
-    - train_indices contains the indices of the dataset used for training
-    - test_indices contains the indices of the dataset used for testing
+        - train_indices contains the indices of the dataset used for training
+        - test_indices contains the indices of the dataset used for testing
     '''
     train_indices, test_indices = [], []
     all_samples = range(n_samples)
@@ -47,8 +47,8 @@ def n_fold_random(n_samples, n_folds):
     n_fold_random(n_samples, n_folds) -> train_indices, test_indices
     
     Return indices to do random n_fold cross_validation. Two lists are returned, with n_folds elements each.
-    - train_indices contains the indices of the dataset used for training
-    - test_indices contains the indices of the dataset used for testing
+        - train_indices contains the indices of the dataset used for training
+        - test_indices contains the indices of the dataset used for testing
     '''
     # Create random permutation of number of samples
     randperm = mdp.numx.random.permutation(n_samples)
@@ -65,18 +65,19 @@ def n_fold_random(n_samples, n_folds):
 
 def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs):
     '''
-    validate(data, flow, error_measure, cross_validate_function=n_fold_random *args, **kwargs)
+    validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs) -> test_errors
     
-    Perform  cross-validation on a flow, return the validation test_error for each fold.
-    - inputs and outputs are lists of arrays
-    - flow is an mdp.Flow
-    - error_measure is a function which should return a scalar
-    - cross_validate_function is a function which determines the type of cross-validation
-      Possible values are:
-          - n_fold_random (default): split dataset in n_folds parts, for each fold train on n_folds-1 parts and test on the remainder
-          - leave_one_out : do cross-validation with len(inputs) folds, using a single sample for testing in each fold and the rest for training
-          - train_test_only : divide dataset into train- and testset, using training_fraction as the fraction of samples used for training
-    - progress is a boolean to enable a progress bar (default True)
+    Perform  cross-validation on a flow, return the validation test_error for each fold. For every flow, the flow.train() method is called
+    on the training data, and the flow.execute() function is called on the test data.
+        - inputs and outputs are lists of arrays
+        - flow is an mdp.Flow
+        - error_measure is a function which should return a scalar
+        - cross_validate_function is a function which determines the type of cross-validation
+          Possible values are:
+              - n_fold_random (default): split dataset in n_folds parts, for each fold train on n_folds-1 parts and test on the remainder
+              - leave_one_out : do cross-validation with len(inputs) folds, using a single sample for testing in each fold and the rest for training
+              - train_test_only : divide dataset into train- and testset, using training_fraction as the fraction of samples used for training
+        - progress is a boolean to enable a progress bar (default True)
     '''
     test_error = []
     # Get the number of samples 
@@ -109,6 +110,8 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
 
 def data_subset(data, data_indices):
     '''
+    data_subset(data, data_indices) -> data_subset
+    
     Return a subset of the examples in data given by data_indices.
     Data_indices can be a slice, a list of scalars or a numpy array.
     '''

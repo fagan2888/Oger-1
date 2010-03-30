@@ -14,9 +14,8 @@ if __name__ == "__main__":
     freerun_steps = 500
     
     x = Engine.datasets.mackey_glass(sample_len=10000)
-    xtrain = x[0:-freerun_steps]
-    ytrain = xtrain[1:]
-    xtrain = xtrain[0:-1]
+    xtrain = x[0:-freerun_steps - 1]
+    ytrain = x[1:-freerun_steps]
         
     # construct individual nodes
     reservoir = Engine.nodes.LeakyReservoirNode(output_dim=100, input_scaling=1, leak_rate=0.5)
@@ -40,15 +39,11 @@ if __name__ == "__main__":
     output = flow.execute(fb)
         
     #collected_states=mdp.numx.array(reservoir.collected_states)
-    pylab.subplot(311)
+    pylab.subplot(211)
     #pylab.plot(mdp.numx.concatenate((mdp.numx.array(training_states[-freerun_steps:,:]), collected_states[0:freerun_steps,:])))
     pylab.plot(training_states[-freerun_steps:, :])
-    
-    pylab.subplot(312)
-    #pylab.plot(reservoir.states[-2*freerun_steps:])
-    #pylab.plot(collected_states[0:freerun_steps,:])
-    
-    pylab.subplot(313)
+        
+    pylab.subplot(212)
     pylab.plot(mdp.numx.concatenate((ytrain[-freerun_steps:], output[0:freerun_steps])))
     pylab.plot(x[-2 * freerun_steps:])
     
