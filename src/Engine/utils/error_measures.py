@@ -1,5 +1,11 @@
 import mdp
 
+def timeslice(range, function):
+    """Apply the given function only to the given time range of the data.
+    Can be used to eg. apply an error metric only to a part of the data.
+    """
+    return lambda x, y: function(x[range,:], y[range,:])
+    
 def nrmse(input_signal, target_signal):
     """ NRMSE calculation.
     

@@ -71,16 +71,7 @@ class SoftmaxFunction:
                    
     @staticmethod
     def df(x, y):
-#        [Sm,Q] = size(y);
-#        da_dn = cell(1,Q);
-#        for q=1:Q
-#            da_dn{q} = diag(y(:,q))*sum(y(:,q)) - kron(y(:,q)',y(:,q));
-#
-#        d = numx.zeros_like(y)
-#        for i in range(y.shape[1]):
-#          numx.diag(y[:,i])*sum(y[:,i]) - numx.kron(y[:,i:i+1].T, y[:,i:i+1]);
-#            
-#        raise d
+
         # TODO: In most cases we want the derivative with respect to the error
         # instead of the explicit derivative. For now I set it to 1. to not
         # break the perceptron but this should obviously be dealt with in a
