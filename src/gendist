@@ -1,0 +1,13 @@
+#!/bin/bash
+
+./cleandist
+python -V
+python ./setup.py sdist --manifest-only
+mv MANIFEST MANIFEST2
+ls Engine/examples/*py > MANIFEST1
+ls mdp/demos/*py >> MANIFEST1
+ls mdp/utils/*css >> MANIFEST1
+ls mdp/hinet/*css >> MANIFEST1
+cat MANIFEST1 MANIFEST2  > MANIFEST
+rm -rf MANIFEST1 MANIFEST2 
+python ./setup.py sdist --formats=gztar

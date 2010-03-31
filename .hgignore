@@ -3,3 +3,4 @@ syntax: glob
 *.orig
 .project
 .pydevproject
+*/docs/*
