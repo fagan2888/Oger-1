@@ -115,7 +115,7 @@ class Optimizer(object):
             # to set the axis labels
 
             pylab.figure()
-            pylab.imshow(errors_to_plot, cmap=pylab.jet(), interpolation='nearest',
+            pylab.imshow(mdp.numx.flipud(errors_to_plot), cmap=pylab.jet(), interpolation='nearest',
                          extent=extent, aspect="auto")
             pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
             pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
@@ -124,7 +124,7 @@ class Optimizer(object):
 
             if var_errors is not None:
                 pylab.figure()
-                pylab.imshow(var_errors, cmap=pylab.jet(), interpolation='nearest',
+                pylab.imshow(mdp.numx.flipud(var_errors), cmap=pylab.jet(), interpolation='nearest',
                              extent=extent, aspect="auto")
                 pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
                 pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])

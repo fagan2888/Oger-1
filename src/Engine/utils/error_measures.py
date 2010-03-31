@@ -145,3 +145,20 @@ def ce(input, target):
 
     return mdp.numx.sum(-mdp.numx.log(input[target == 1]))
 
+# TODO: if we add container object for the error metrics, we should add a field that
+# signifies if we need to minimize or maximize the measure
+def mem_capacity(input, target):
+    """Computes the memory capacity defined by Jaeger in 
+    H. Jaeger (2001): Short term memory in echo state networks. GMD Report 
+    152, German National Research Center for Information Technology, 2001
+    
+    WARNING: currently this returns the negative of the memory capacity so 
+    we can keep on using the minimization code.
+    """
+
+    score = []
+    for k in range(target.shape[1]):
+        covariance_matrix = mdp.numx.cov(mdp.numx.concatenate((input[:,k:k+1].T, target[:,k:k+1].T)))
+        score.append(covariance_matrix[0,1]**2/(covariance_matrix[0,0]*covariance_matrix[1,1]))
+    
+    return -mdp.numx.sum(score)
