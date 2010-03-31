@@ -1,6 +1,9 @@
 import mdp
 from mdp import numx
 
+# TODO: biMDP has the ability to introspect flows and nodes, we could use
+# that mechanism instead of this custom flow. This would possibly also
+# allow parallelization 
 class InspectableFlow(mdp.Flow):
     """A flow that allows to inspect the last outputs of all the nodes in the flow.
     """
