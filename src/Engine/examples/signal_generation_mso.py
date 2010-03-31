@@ -12,7 +12,7 @@ if __name__ == "__main__":
     xtrain = xtrain[0:-1]
 
     # construct individual nodes
-    reservoir = Engine.nodes.FeedbackReservoirNode(output_dim=100, input_scaling=1)    
+    reservoir = Engine.nodes.FeedbackReservoirNode(output_dim=100, input_scaling=0.1)    
     Engine.nodes.MixIn(Engine.nodes.FeedbackReservoirNode, Engine.nodes.LeakyReservoirNode)
     reservoir.leak_rate = 0.9
 
