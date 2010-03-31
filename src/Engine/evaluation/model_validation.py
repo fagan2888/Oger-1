@@ -107,6 +107,8 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
         # Only nodes that need training are copied.
         f_copy = mdp.Flow([])
         for node in flow:
+            # TODO: check if this also works for e.g. LayerNodes with trainable
+            # nodes inside
             if node.is_trainable():
                 f_copy += node.copy()
             else:

@@ -10,7 +10,12 @@ import collections
 from scipy.io import loadmat
 
 def narma30(n_samples=10, sample_len=1000):
-    ''' Return data for the 30th order NARMA task.  
+    ''' 
+    narma30(n_samples=10, sample_len=1000) -> inputs, outputs
+    Return data for the 30th order NARMA task. 
+    Parameters are:
+        - sample_len: length of the time-series in timesteps, default 1000
+        - n_samples: number of example timeseries to be generated, default 10
     '''
     system_order = 30
     inputs, outputs = [], []
@@ -24,10 +29,16 @@ def narma30(n_samples=10, sample_len=1000):
             1.5 * inputs[sample][k - 29] * inputs[sample][k] + .001
     return inputs, outputs 
 
-def analog_speech (indir='../datasets/Lyon128'):
-    ''' Return data for the isolated digit recognition task (subset of TI46), 
-        preprocessed using the Lyon Passive ear model.
+def analog_speech (indir=None):
+    ''' 
+    analog_speech(indir) -> inputs, outputs
+    Return data for the isolated digit recognition task (subset of TI46), 
+    preprocessed using the Lyon Passive ear model. Parameters are:
+        - indir: input directory for the data files
     '''
+    if indir is None:
+        raise Exception('No input directory given.')
+    
     speech_files = glob.glob(os.path.join(indir, '*.mat'))
     inputs, outputs = [], []
     if len(speech_files) > 0:
@@ -46,7 +57,9 @@ def analog_speech (indir='../datasets/Lyon128'):
     return inputs, outputs
 
 def mackey_glass(sample_len=1000, tau=17):
-    ''' Generate the Mackey Glass time-series. Parameters are:
+    '''
+    mackey_glass(sample_len=1000, tau=17) -> input
+    Generate the Mackey Glass time-series. Parameters are:
         - sample_len: length of the time-series in timesteps
         - tau: delay of the MG - system. Commonly used values are tau=17 (mild 
           chaos) and tau=30 (moderate chaos) 
@@ -74,14 +87,27 @@ def mackey_glass(sample_len=1000, tau=17):
     return [inp, ]
 
 def mso(sample_len=1000):
+    '''
+    mso(sample_len=1000) -> input
+    Generate the Multiple Sinewave Oscillator time-series, a sum of two sines
+    with incommensurable periods. Parameters are:
+        - sample_len: length of the time-series in timesteps
+         
+    '''
     x = mdp.numx.arange(0, sample_len, 1)
     x.shape += (1,)
     signal = mdp.numx.sin(0.2 * x) + mdp.numx.sin(0.311 * x) 
     return [signal, ]
 
-def timit_tiny (indir='/data/aurora/Variables/TIMIT/timittiny'):
-    ''' Return data for a small subset of the TIMIT dataset
+def timit_tiny (indir=None):
+    ''' 
+    timit_tiny(indir) -> inputs, outputs
+    Return data for a subset of the TIMIT database. Parameters are:
+        - indir: input directory for the data files
     '''
+    if indir is None:
+        raise Exception('No input directory given.')
+    
     timit_files = glob.glob(os.path.join(indir, '*.mat'))
     inputs, outputs = [], []
     if len(timit_files) > 0:

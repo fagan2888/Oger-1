@@ -17,3 +17,5 @@ del rbm_nodes
 del linear_nodes
 del nonlinear_nodes
 del utility_nodes
+
+__all__=['InspectableFlow', 'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode', 'FeedbackReservoirNode', 'MixIn', 'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'SignNode', 'PerceptronNode', 'ERBMNode', 'CRBMNode', 'FeedbackNode', 'WashoutNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'ResampleNode', 'TimeFramesNode2']

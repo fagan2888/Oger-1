@@ -4,10 +4,12 @@ def timeslice(range, function):
     """Apply the given function only to the given time range of the data.
     Can be used to eg. apply an error metric only to a part of the data.
     """
-    return lambda x, y: function(x[range,:], y[range,:])
+    return lambda x, y: function(x[range, :], y[range, :])
     
 def nrmse(input_signal, target_signal):
-    """ NRMSE calculation.
+    """ 
+    nrmse(input_signal, target_signal)-> error
+    NRMSE calculation.
     
     Calculates the normalized root mean square error (NRMSE)
     of the input signal compared to the target signal.
@@ -32,7 +34,9 @@ def nrmse(input_signal, target_signal):
     return mdp.numx.sqrt(error.mean() / var)
     
 def nmse(input_signal, target_signal):
-    """ NMSE calculation.
+    """ 
+    nmse(input_signal, target_signal)->error
+    NMSE calculation.
     
     Calculates the normalized mean square error (NMSE)
     of the input signal compared to the target signal.
@@ -56,7 +60,9 @@ def nmse(input_signal, target_signal):
     return error.mean() / var
     
 def rmse(input_signal, target_signal):
-    """ RMSE calculation.
+    """
+    rmse(input_signal, target_signal)->error 
+    RMSE calculation.
     
     Calculates the root mean square error (RMSE)
     of the input signal compared target target signal.
@@ -73,7 +79,9 @@ def rmse(input_signal, target_signal):
     return mdp.numx.sqrt(error.mean())
     
 def mse(input_signal, target_signal):
-    """ MSE calculation.
+    """ 
+    mse(input_signal, target_signal)->error
+    MSE calculation.
     
     Calculates the mean square error (MSE)
     of the input signal compared target signal.
@@ -89,7 +97,9 @@ def mse(input_signal, target_signal):
     return error.mean()
 
 def loss_01(input_signal, target_signal):
-    """ Compute zero one loss function 
+    """ 
+    loss_01(input_signal, target_signal)->error
+    Compute zero one loss function 
     
     Returns the fraction of timesteps where input_signal is unequal to target_signal
     
@@ -106,7 +116,9 @@ def loss_01(input_signal, target_signal):
     return (input_signal.flatten() != target_signal.flatten()).mean()
 
 def cosine(input_signal, target_signal):
-    ''' Compute cosine of the angle between two vectors
+    ''' 
+    cosine(input_signal, target_signal)->cosine
+    Compute cosine of the angle between two vectors
     
     This error measure measures the extent to which two vectors point in the same direction. 
     A value of 1 means complete alignment, a value of 0 means the vectors are orthogonal.
@@ -114,7 +126,9 @@ def cosine(input_signal, target_signal):
     return float(mdp.numx.dot(input_signal, target_signal)) / (mdp.numx.linalg.norm(input_signal) * mdp.numx.linalg.norm(target_signal))
 
 def ce(input, target):
-    """ Compute cross-entropy loss function
+    """ 
+    ce(input, target)-> cross-entropy
+    Compute cross-entropy loss function
 
     Returns the negative log-likelyhood of the target labels as predicted by
     the input values.
@@ -126,7 +140,7 @@ def ce(input, target):
         target : array
             the target signal
     """
-    if input.shape!=target.shape:
+    if input.shape != target.shape:
         raise RuntimeError("Input and target should have the same shape")
 
     return mdp.numx.sum(-mdp.numx.log(input[target == 1]))
