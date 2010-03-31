@@ -9,8 +9,11 @@ import os
 from scipy.io import loadmat
 
 def analog_speech (indir='../datasets/Lyon128'):
-    ''' Return data for the isolated digit recognition task (subset of TI46), 
-        preprocessed using the Lyon Passive ear model.
+    ''' 
+    analog_speech(indir) -> inputs, outputs
+    Return data for the isolated digit recognition task (subset of TI46), 
+    preprocessed using the Lyon Passive ear model. Parameters are:
+        - indir: input directory for the data files
     '''
     speech_files = glob.glob(os.path.join(indir, '*.mat'))
     inputs, outputs = [], []
@@ -30,7 +33,10 @@ def analog_speech (indir='../datasets/Lyon128'):
     return inputs, outputs
 
 def timit_tiny (indir='/data/aurora/Variables/TIMIT/timittiny'):
-    ''' Return data for a small subset of the TIMIT dataset
+    ''' 
+    timit_tiny(indir) -> inputs, outputs
+    Return data for a subset of the TIMIT database. Parameters are:
+        - indir: input directory for the data files
     '''
     timit_files = glob.glob(os.path.join(indir, '*.mat'))
     inputs, outputs = [], []

@@ -106,10 +106,10 @@ class Optimizer(object):
                         self.parameter_ranges[param_index1][-1]]
 
             # Fix the range bounds
-            xstep = (-extent[0]+extent[1])/len(self.parameter_ranges[param_index0])
-            ystep = (-extent[2]+extent[3])/len(self.parameter_ranges[param_index1])
+            xstep = (-extent[0] + extent[1]) / len(self.parameter_ranges[param_index0])
+            ystep = (-extent[2] + extent[3]) / len(self.parameter_ranges[param_index1])
             
-            extent = [extent[0]-xstep/2, extent[1]+xstep/2, extent[2]-ystep/2, extent[3]+ystep/2]
+            extent = [extent[0] - xstep / 2, extent[1] + xstep / 2, extent[2] - ystep / 2, extent[3] + ystep / 2]
             
             # Display the image, using the edge values of the parameter ranges
             # to set the axis labels
@@ -122,7 +122,7 @@ class Optimizer(object):
             pylab.suptitle('mean')
             pylab.colorbar()
 
-            if node_param_list is not None:
+            if var_errors is not None:
                 pylab.figure()
                 pylab.imshow(mdp.numx.flipud(var_errors), cmap=pylab.jet(), interpolation='nearest',
                              extent=extent, aspect="auto")

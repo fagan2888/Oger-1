@@ -2,7 +2,9 @@ import mdp
 import collections
 
 def mackey_glass(sample_len=1000, tau=17):
-    ''' Generate the Mackey Glass time-series. Parameters are:
+    '''
+    mackey_glass(sample_len=1000, tau=17) -> input
+    Generate the Mackey Glass time-series. Parameters are:
         - sample_len: length of the time-series in timesteps
         - tau: delay of the MG - system. Commonly used values are tau=17 (mild 
           chaos) and tau=30 (moderate chaos) 
@@ -30,6 +32,13 @@ def mackey_glass(sample_len=1000, tau=17):
     return [inp, ]
 
 def mso(sample_len=1000):
+    '''
+    mso(sample_len=1000) -> input
+    Generate the Multiple Sinewave Oscillator time-series, a sum of two sines
+    with incommensurable periods. Parameters are:
+        - sample_len: length of the time-series in timesteps
+         
+    '''
     x = mdp.numx.arange(0, sample_len, 1)
     x.shape += (1,)
     signal = mdp.numx.sin(0.2 * x) + mdp.numx.sin(0.311 * x) 

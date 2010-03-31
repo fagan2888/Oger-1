@@ -6,7 +6,12 @@ Created on Aug 20, 2009
 import mdp
 
 def narma30(n_samples=10, sample_len=1000):
-    ''' Return data for the 30th order NARMA task.  
+    ''' 
+    narma30(n_samples=10, sample_len=1000) -> inputs, outputs
+    Return data for the 30th order NARMA task. 
+    Parameters are:
+        - sample_len: length of the time-series in timesteps, default 1000
+        - n_samples: number of example timeseries to be generated, default 10
     '''
     system_order = 30
     inputs, outputs = [], []
@@ -33,3 +38,4 @@ def memtest(n_samples=10, sample_len=1000, n_delays=10):
         for k in range(n_delays):
             outputs[sample][:,k:k+1] = mdp.numx.concatenate((mdp.numx.zeros((k+1,1)), inputs[sample][:-k-1,:]))
     return inputs, outputs 
+

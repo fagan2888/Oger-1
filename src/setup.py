@@ -14,7 +14,7 @@ The Engine is a Python toolbox for rapidly building, training and evaluating hie
  - Reservoir node
  - Leaky reservoir node
  - Ridge regression node
- - Conditional Restricted Boltzmann Machine (CRBM) nod
+ - Conditional Restricted Boltzmann Machine (CRBM) node
 """
 
 classifiers = ["Intended Audience :: Developers",

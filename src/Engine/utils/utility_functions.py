@@ -6,6 +6,11 @@ Created on Aug 20, 2009
 import mdp
 
 def get_spectral_radius(W):
+    """
+    get_spectral_radius(W)-> spec_rad
+    Return the spectral radius (largest absolute eigenvalue) of the matrix W
+    
+    """
     return mdp.numx.amax(mdp.numx.absolute(mdp.numx.linalg.eigvals(W))) 
 
 class LinearFunction:
