@@ -1,4 +1,2 @@
 #!/bin/bash
-
-#epydoc -v --introspect-only -o docs Engine --exclude-introspect=Engine.nodes.* --exclude-introspect=Engine.datasets.* --exclude-introspect=Engine.gradient.*  --exclude-introspect=Engine.evaluation.* --exclude-introspect=Engine.utils.* --exclude-introspect=Engine.evaluation.* --exclude-introspect=[\?]+ 
-epydoc -v --introspect-only -o docs --no-imports Engine/__init__.py Engine/mdp/__init__.py
+epydoc -v --introspect-only -o docs --no-imports Engine/__init__.py  mdp/__init__.py
