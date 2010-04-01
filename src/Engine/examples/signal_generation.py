@@ -20,7 +20,7 @@ if __name__ == "__main__":
         
     # construct individual nodes
     reservoir = Engine.nodes.FeedbackReservoirNode(output_dim=100, input_scaling=1)    
-    Engine.nodes.MixIn(Engine.nodes.FeedbackReservoirNode, Engine.nodes.LeakyReservoirNode)
+    Engine.utils.mix_in(Engine.nodes.FeedbackReservoirNode, Engine.nodes.LeakyReservoirNode)
     reservoir.leak_rate = 0.5
     
     readout = Engine.nodes.RidgeRegressionNode(0.001)
