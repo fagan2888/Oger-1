@@ -3,11 +3,11 @@ This subpackage contains a number of Engine-related nodes. It contains several a
 """
 
 from flows import InspectableFlow
-from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, FeedbackReservoirNode, MixIn)
+from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, FeedbackReservoirNode)
 from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)
 from nonlinear_nodes import (SignNode, PerceptronNode)
 from rbm_nodes import (ERBMNode, CRBMNode)
-from utility_nodes import (FeedbackNode, WashoutNode, MeanAcrossTimeNode, WTANode, ShiftNode, ResampleNode, TimeFramesNode2)
+from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, ResampleNode, TimeFramesNode2)
 #from ode_nodes import (OdeNode)
 
 # clean up namespace

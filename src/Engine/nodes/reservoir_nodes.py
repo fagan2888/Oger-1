@@ -250,10 +250,3 @@ class FeedbackReservoirNode(ReservoirNode):
         self.states = super(FeedbackReservoirNode, self)._execute(x)
 
         return self.states
-    
-def MixIn(OriginalClass, mixInClass, makeLast=False):
-    if mixInClass not in OriginalClass.__bases__:
-        if makeLast:
-            OriginalClass.__bases__ += (mixInClass,)
-        else:
-            OriginalClass.__bases__ = (mixInClass,) + OriginalClass.__bases__

@@ -46,29 +46,6 @@ class FeedbackNode(mdp.Node):
         self.last_value = mdp.numx.atleast_2d(x[-1, :])
         return self.last_value
 
-# TODO: this only works on x and not y
-class WashoutNode(mdp.Node):
-    """
-         Remove initial states.
-    
-     """
-
-    def __init__(self, washout, input_dim=None, dtype='float64'):
-        super(WashoutNode, self).__init__(input_dim, input_dim, dtype)
-        self.washout = washout
-
-    def is_trainable(self):
-        return False
-
-    def is_invertible(self):
-        return False
-
-    def _get_supported_dtypes(self):
-        return ['float32', 'float64']
-
-    def _execute(self, x):
-        return x[self.washout:,:]
-
 class MeanAcrossTimeNode(mdp.Node):
     """
         Compute mean across time (2nd dimension)

@@ -4,7 +4,7 @@ This subpackage contains several utility functions. It also contains several err
 
 from utility_functions import (get_spectral_radius, LinearFunction, TanhFunction, LogisticFunction, SoftmaxFunction, SignFunction)
 from error_measures import (timeslice, nrmse, nmse, rmse, mse, loss_01, cosine, ce, mem_capacity)
-
+from mixin import (MixIn, EnableWashout)
 
 # clean up namespace
 del utility_functions
