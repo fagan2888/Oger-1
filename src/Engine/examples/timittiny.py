@@ -14,7 +14,7 @@ if __name__ == "__main__":
     washout=0
     train_frac = .9;
 
-    [x,y] = Engine.datasets.timit_tiny()
+    [x,y,samplename] = Engine.datasets.timit()
     
     n_samples = len(x);
     n_train_samples = int(round(n_samples*train_frac));
@@ -23,22 +23,12 @@ if __name__ == "__main__":
 
     inputs = x[0].shape[1]
     # construct individual nodes
-    reservoir = Engine.nodes.ReservoirNode(inputs, 100, input_scaling = 1)
+    reservoir = Engine.nodes.ReservoirNode(inputs, 500, input_scaling = 1)
     readout = Engine.nodes.RidgeRegressionNode()
-    mnnode = Engine.nodes.MeanAcrossTimeNode()
-    wtanode = Engine.nodes.WTANode();
 
     # build network with MDP framework
-    flow = mdp.Flow([reservoir, readout, mnnode], verbose=1)
-    #flow = mdp.Flow([reservoir, readout], verbose=1)
-
+    flow = mdp.Flow([reservoir, readout], verbose=1)
     flownode = mdp.hinet.FlowNode(flow)
-    
-    #pylab.subplot(nx,ny,1)
-    #pylab.imshow(x[0].T,aspect='auto', interpolation='nearest')
-    #pylab.title("Cochleogram (input to reservoir)")
-    #pylab.ylabel("Channel")
-    
     
     print "Training..."
     # train and test it
@@ -51,6 +41,7 @@ if __name__ == "__main__":
     print "Applying to trainingset..."
     for xtrain in mdp.utils.progressinfo(x[0:n_train_samples-1]):
         ytrain.append(flownode(xtrain))
+
     print "Applying to testset..."
     for xtest in mdp.utils.progressinfo(x[n_train_samples:]):
         ytest.append(flownode(xtest))
@@ -77,9 +68,9 @@ if __name__ == "__main__":
     
     
     #pylab.show()
-    ymean=[sp.argmax(sp.mean(sample, axis=0)) for sample in y[n_train_samples:]]
-    ytestmean=[sp.argmax(sp.mean(sample, axis=0)) for sample in ytest]
+    #ymean=[sp.argmax(sp.mean(sample, axis=0)) for sample in y[n_train_samples:]]
+    #ytestmean=[sp.argmax(sp.mean(sample, axis=0)) for sample in ytest]
     
     
-    print Engine.utils.mean_error(ymean, ytestmean, lambda x, y, z: x!=y)
+    #print Engine.utils.mean_error(ymean, ytestmean, lambda x, y, z: x!=y)
     print "finished"

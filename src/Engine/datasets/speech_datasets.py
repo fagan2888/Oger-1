@@ -32,22 +32,24 @@ def analog_speech (indir='../datasets/Lyon128'):
         return
     return inputs, outputs
 
-def timit_tiny (indir='/data/aurora/Variables/TIMIT/timittiny'):
-    ''' 
-    timit_tiny(indir) -> inputs, outputs
-    Return data for a subset of the TIMIT database. Parameters are:
-        - indir: input directory for the data files
-    '''
-    timit_files = glob.glob(os.path.join(indir, '*.mat'))
-    inputs, outputs = [], []
-    if len(timit_files) > 0:
-        print "Found %d files in directory %s. Loading..." % \
-        (len(timit_files), indir)
-        for timit_file in mdp.utils.progressinfo(timit_files):
-            contents = loadmat(timit_file)
-            inputs.append(contents['spec'].T)
-        outputs.append(contents['target'])
+def timit (indir='/afs/elis/group/snn/Engine_datasets/timit4python/53phonemes/train', limit=3996):
+    # this code is based on *.mat files for the TIMIT samples
+    # - a matlab script to create these files based on TIMIT database is present at ELIS UGent
+    # - the phoneme mapping can be defined in the matlab script (dataset train53 uses 53 phonemes)  
+    files= glob.glob(os.path.join(indir, '*.mat'))
+    x,y,samplename=[],[],[]
+    if len(files)>0:
+        print "Found %d training files in directory %s. Loading %d of them..." % (len(files), indir, limit)
+        counter=0
+        for g in mdp.utils.progressinfo(files):
+            if counter<limit:  
+                contents = loadmat(g,struct_as_record=False,mat_dtype=True)
+                x.append(contents['data'].T)
+                y.append(contents['targets'].T)
+                samplename.append(contents['samplename'])
+                counter=counter+1
     else:
         print "No files found in %s" % (indir)
         return
-    return inputs, outputs
+    return x,y,samplename
+

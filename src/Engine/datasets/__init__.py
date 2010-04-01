@@ -4,7 +4,7 @@ This subpackage contains several standard datasets.
 
 
 from datasets import (narma30,memtest,)
-from speech_datasets import (analog_speech, timit_tiny,)
+from speech_datasets import (analog_speech, timit,)
 from timeseries_datasets import (mackey_glass, mso, lorentz,)
 from grammars import (simple_pcfg,)
 
