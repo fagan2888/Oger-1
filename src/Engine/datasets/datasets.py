@@ -1,8 +1,3 @@
-'''
-Created on Aug 20, 2009
-
-@author: dvrstrae
-'''
 import mdp
 
 def narma30(n_samples=10, sample_len=1000):
@@ -32,10 +27,10 @@ def memtest(n_samples=10, sample_len=1000, n_delays=10):
     inputs, outputs = [], []
     for sample in range(n_samples):
         # Generate uniform noise between -0.8 and 0.8
-        inputs.append((mdp.numx.random.rand(sample_len, 1)-.5)*1.6)
+        inputs.append((mdp.numx.random.rand(sample_len, 1) - .5) * 1.6)
         inputs[sample].shape = (-1, 1)
         outputs.append(mdp.numx.zeros((sample_len, n_delays)))
         for k in range(n_delays):
-            outputs[sample][:,k:k+1] = mdp.numx.concatenate((mdp.numx.zeros((k+1,1)), inputs[sample][:-k-1,:]))
+            outputs[sample][:, k:k + 1] = mdp.numx.concatenate((mdp.numx.zeros((k + 1, 1)), inputs[sample][:-k - 1, :]))
     return inputs, outputs 
 

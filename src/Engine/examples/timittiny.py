@@ -1,8 +1,3 @@
-'''
-Created on Aug 24, 2009
-
-@author: dvrstrae
-'''
 import mdp
 import Engine
 import pylab
@@ -10,15 +5,15 @@ import scipy as sp
 
 if __name__ == "__main__":
 
-    nx, ny = 4,1
-    washout=0
+    nx, ny = 4, 1
+    washout = 0
     train_frac = .9;
 
     [x,y,samplename] = Engine.datasets.timit()
     
     n_samples = len(x);
-    n_train_samples = int(round(n_samples*train_frac));
-    n_test_samples = int(round(n_samples*(1-train_frac)));
+    n_train_samples = int(round(n_samples * train_frac));
+    n_test_samples = int(round(n_samples * (1 - train_frac)));
     
 
     inputs = x[0].shape[1]
@@ -32,14 +27,14 @@ if __name__ == "__main__":
     
     print "Training..."
     # train and test it
-    for xt,yt in mdp.utils.progressinfo(zip(x[0:n_train_samples-1], y[0:n_train_samples-1])):
-        flownode.train(xt,yt)
+    for xt, yt in mdp.utils.progressinfo(zip(x[0:n_train_samples - 1], y[0:n_train_samples - 1])):
+        flownode.train(xt, yt)
     flownode.stop_training()
 
-    ytrain,ytest=[],[];
+    ytrain, ytest = [], [];
     
     print "Applying to trainingset..."
-    for xtrain in mdp.utils.progressinfo(x[0:n_train_samples-1]):
+    for xtrain in mdp.utils.progressinfo(x[0:n_train_samples - 1]):
         ytrain.append(flownode(xtrain))
 
     print "Applying to testset..."

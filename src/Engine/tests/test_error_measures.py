@@ -1,9 +1,3 @@
-'''
-Created on Mar 12, 2010
-
-@author: dvrstrae
-'''
-
 import numpy as np
 import nose
 from Engine import utils

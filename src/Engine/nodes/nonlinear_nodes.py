@@ -1,8 +1,3 @@
-'''
-Created on Aug 24, 2009
-
-@author: dvrstrae
-'''
 import Engine
 import mdp
 from mdp import numx

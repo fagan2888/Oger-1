@@ -5,7 +5,7 @@ import cPickle
 import Engine
 
 print 'Loading data...'
-data = cPickle.load(open('/afs/elis/group/snn/mnist/mnist.p'))
+data = cPickle.load(open('../mnist/mnist.p'))
 
 n_train = 40000
 n_test = 5000

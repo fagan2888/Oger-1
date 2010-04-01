@@ -1,8 +1,3 @@
-'''
-Created on Aug 20, 2009
-
-@author: dvrstrae
-'''
 import mdp
 import scipy.signal
 
@@ -67,7 +62,7 @@ class WashoutNode(mdp.Node):
         return ['float32', 'float64']
 
     def _execute(self, x):
-        return x[self.washout:,:]
+        return x[self.washout:, :]
 
 class MeanAcrossTimeNode(mdp.Node):
     """
@@ -93,7 +88,7 @@ class MeanAcrossTimeNode(mdp.Node):
         return ['float32', 'float64']
 
     def _execute(self, x):
-        e=mdp.numx.mean(x, axis=0, dtype=self.dtype)
+        e = mdp.numx.mean(x, axis=0, dtype=self.dtype)
         return e
 
 class WTANode(mdp.Node):
@@ -120,10 +115,10 @@ class WTANode(mdp.Node):
         return ['float32', 'float64']
 
     def _execute(self, x):
-        max_indices= mdp.numx.argmax(x, axis=1)
-        r=-mdp.numx.ones_like(x)
+        max_indices = mdp.numx.argmax(x, axis=1)
+        r = -mdp.numx.ones_like(x)
         for i in range(r.shape[0]):
-            r[i,max_indices[i]] = 1
+            r[i, max_indices[i]] = 1
         return r
     
     
@@ -217,12 +212,12 @@ class TimeFramesNode2(mdp.nodes.TimeFramesNode):
         super(TimeFramesNode2, self).__init__(input_dim=input_dim, dtype=dtype, time_frames=time_frames)
 
     def _execute(self, x):
-        tf = x.shape[0] - (self.time_frames-1)
+        tf = x.shape[0] - (self.time_frames - 1)
         rows = self.input_dim
         cols = self.output_dim
         y = mdp.numx.zeros((x.shape[0], cols), dtype=self.dtype)
         for frame in range(self.time_frames):
-            y[-tf:, frame*rows:(frame+1)*rows] = x[frame:frame+tf, :]
+            y[-tf:, frame * rows:(frame + 1) * rows] = x[frame:frame + tf, :]
         return y
     
     def pseudo_inverse(self, y):
