@@ -16,7 +16,9 @@ if __name__ == "__main__":
     Engine.utils.mix_in(Engine.nodes.FeedbackReservoirNode, Engine.nodes.LeakyReservoirNode)
     reservoir.leak_rate = 0.9
 
-    readout = Engine.nodes.RidgeRegressionNode(0.)
+    readout = Engine.nodes.RidgeRegressionNode()
+    Engine.utils.enable_washout(Engine.nodes.RidgeRegressionNode, 100)
+    
     fb = Engine.nodes.FeedbackNode(n_timesteps=freerun_steps)
 
     # build network with MDP framework
