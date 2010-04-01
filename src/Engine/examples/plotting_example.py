@@ -1,8 +1,3 @@
-'''
-Created on Feb 10, 2010
-
-@author: dvrstrae
-'''
 import mdp
 import Engine
 

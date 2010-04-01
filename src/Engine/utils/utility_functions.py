@@ -1,8 +1,3 @@
-'''
-Created on Aug 20, 2009
-
-@author: dvrstrae
-'''
 import mdp
 
 def get_spectral_radius(W):

@@ -1,9 +1,3 @@
-'''
-Created on Feb 24, 2010
-
-@author: dvrstrae
-'''
-
 import Engine
 import pylab
 import mdp
@@ -41,7 +35,7 @@ if __name__ == "__main__":
     
     # Without this line, we start from the estimated last timestep, while
     # this line starts the feedback node from the actual last timestep.
-    fb.last_value = mdp.numx.atleast_2d(ytrain[-1,:]) 
+    fb.last_value = mdp.numx.atleast_2d(ytrain[-1, :]) 
 
     # Execute the flow using the feedbacknode as input
     output = flow.execute(fb)

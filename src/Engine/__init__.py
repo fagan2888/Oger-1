@@ -6,7 +6,7 @@ The Engine is a Python toolbox for rapidly building, training and evaluating hie
  - Gradient-based training of deep learning architectures
  - Interface to the Speech Processing, Recognition, and Automatic Annotation Kit (SPRAAK) 
 
- In addition, several additional MDP nodes are provided by the Engine, such as a:
+In addition, several additional MDP nodes are provided by the Engine, such as a:
  - Reservoir node
  - Leaky reservoir node
  - Ridge regression node

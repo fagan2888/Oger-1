@@ -23,7 +23,7 @@ import numpy as np
 
 if __name__ == '__main__':
     # take matlab file in as a dictionary
-    dictFile = loadmat("/afs/elis/group/snn/robotics_data/eric_robotsensors.mat", struct_as_record=True)
+    dictFile = loadmat("../datasets/eric_robotsensors.mat", struct_as_record=True)
     
     # the matlab file contains:
     # 'data_info' : holds xy position, location number, etc.
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     sensorData = np.array(dictFile.get('sensors_resampled')) 
     dataInfo = np.array(dictFile.get('data_info'))
     # 5th index contains the location number at each timestep
-    location = dataInfo[4,:]
+    location = dataInfo[4, :]
         
     resDims = 400 #dimensions in the reserv
     sfaNum = 70 #number of slow features to extract
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     inputDims = sensorData.shape[0]
     
     # define the reservoir and pass the spectrogram through it
-    resNode = Engine.nodes.LeakyReservoirNode(input_dim=inputDims, 
+    resNode = Engine.nodes.LeakyReservoirNode(input_dim=inputDims,
                   output_dim=resDims, spec_radius=specRadius, leak_rate=leakRate)
 
     # Creation of the input weight matrix according to paper
@@ -55,11 +55,11 @@ if __name__ == '__main__':
         for j in range(inputDims):
             ran = np.random.rand()
             if ran < 0.15:
-                w_in[i,j] = -0.2
+                w_in[i, j] = -0.2
             elif ran < 0.3:
-                w_in[i,j] = 0.2
+                w_in[i, j] = 0.2
             else:
-                w_in[i,j] = 0 
+                w_in[i, j] = 0 
                 
     # set the input weight matrix for reservoir                
     resNode.w_in = w_in
@@ -85,13 +85,13 @@ if __name__ == '__main__':
     # number of components to plot
     plotsNum = 20
     
-    plt.subplot(plotsNum+1, 1, 1)
+    plt.subplot(plotsNum + 1, 1, 1)
     # first subplot of the numbered location of the robot
     plt.plot(location)
     # plot the independent components
     for i in range(plotsNum):
-        plt.subplot(plotsNum+1, 1, i+2)
-        plt.plot(icaOutputLong[:,i])
+        plt.subplot(plotsNum + 1, 1, i + 2)
+        plt.plot(icaOutputLong[:, i])
     plt.show()
     
 
