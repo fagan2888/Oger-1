@@ -5,11 +5,16 @@ class RidgeRegressionNode(mdp.nodes.LinearRegressionNode):
     ridge_param parameter.
     
     Solves the following equation: (AA^T+\lambdaI)^-(1)A^TB
+    
+    It is also possible to define an equivalent noise variance: the ridge parameter
+    is set such that a regularization equal to a given added noise variance is
+    achieved. Note that setting the ridge_param has precedence to the eq_noise_var.
     """
-    def __init__(self, ridge_param=0, with_bias=True, use_pinv=False, input_dim=None, output_dim=None, dtype=None):
+    def __init__(self, ridge_param=0, eq_noise_var=0, with_bias=True, use_pinv=False, input_dim=None, output_dim=None, dtype=None):
         super(RidgeRegressionNode, self).__init__(input_dim=input_dim, output_dim=output_dim, with_bias=with_bias, use_pinv=use_pinv, dtype=dtype)
         
         self.ridge_param = ridge_param
+        self.eq_noise_var = eq_noise_var
 
     def _stop_training(self):
         try:
@@ -17,7 +22,13 @@ class RidgeRegressionNode(mdp.nodes.LinearRegressionNode):
                 invfun = mdp.utils.pinv
             else:
                 invfun = mdp.utils.inv
-            inv_xTx = invfun(self._xTx + self.ridge_param * mdp.numx.eye(self._input_dim+1))
+                
+            if self.ridge_param > 0:
+                lmda = self.ridge_param
+            else:
+                lmda = self.eq_noise_var**2 * self._tlen
+                
+            inv_xTx = invfun(self._xTx + lmda * mdp.numx.eye(self._input_dim+1))
         except mdp.numx_linalg.LinAlgError, exception:
             errstr = (str(exception) + 
                       "\n Input data may be redundant (i.e., some of the " +
