@@ -1,8 +1,3 @@
-'''
-Created on Aug 20, 2009
-
-@author: dvrstrae
-'''
 import Engine
 import mdp
 
@@ -223,9 +218,9 @@ class HebbReservoirNode(TrainableReservoirNode):
     """This node does nothing good, it is just a demo of training a reservoir.
     """
     def _post_train_update_hook(self, states, input, timestep):
-        self.w -= 0.01*mdp.utils.mult(states[timestep+1:timestep+2, :].T, states[timestep:timestep+1, :])
-        self.w_in -= 0.01*mdp.utils.mult(states[timestep+1:timestep+2, :].T, input[timestep:timestep+1, :])
-        self.w_bias -= 0.01*states[timestep + 1, :];
+        self.w -= 0.01 * mdp.utils.mult(states[timestep + 1:timestep + 2, :].T, states[timestep:timestep + 1, :])
+        self.w_in -= 0.01 * mdp.utils.mult(states[timestep + 1:timestep + 2, :].T, input[timestep:timestep + 1, :])
+        self.w_bias -= 0.01 * states[timestep + 1, :];
 
 class FeedbackReservoirNode(ReservoirNode):
     """This is a reservoir node that can be used for setups that use output 

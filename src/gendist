@@ -12,3 +12,4 @@ ls mdp/hinet/*css >> MANIFEST1
 cat MANIFEST1 MANIFEST2  > MANIFEST
 rm -rf MANIFEST1 MANIFEST2 
 python ./setup.py sdist --formats=gztar
+python ./setup.py bdist_wininst 

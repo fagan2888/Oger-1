@@ -1,8 +1,3 @@
-'''
-Created on Feb 9, 2010
-
-@author: dvrstrae
-'''
 import Engine
 import mdp
 import pylab

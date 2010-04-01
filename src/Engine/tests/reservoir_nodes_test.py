@@ -1,9 +1,3 @@
-'''
-Created on Dec 7, 2009
-
-@author: dvrstrae
-'''
-
 import mdp
 import nose
 import unittest
