@@ -8,9 +8,12 @@ class MixinTest(unittest.TestCase):
 
     def test_washout_mixin_unsup(self):
         x = mdp.numx.zeros((100,1000))        
-        Engine.utils.EnableWashout(mdp.nodes.PCANode)
         pca = mdp.nodes.PCANode()
+        Engine.utils.enable_washout(pca)
         pca.washout = 10
+
+        assert(hasattr(pca, "washout"))
+        assert(not hasattr(mdp.nodes.PCANode, "washout"))
         
         assert(pca.is_trainable())
         y = pca(x)
@@ -20,15 +23,8 @@ class MixinTest(unittest.TestCase):
     def test_washout_mixin_sup(self):
         x = mdp.numx.zeros((100,1000))        
         y = mdp.numx.zeros((100,1000))        
-        Engine.utils.EnableWashout(mdp.nodes.LinearRegressionNode, 10)
         lin = mdp.nodes.LinearRegressionNode()
+        Engine.utils.enable_washout(lin, 10)
         
         assert(lin.is_trainable())
         lin.train(x, y=y)
-
-    def test_washout_mixin_object(self):
-        pca = mdp.nodes.PCANode()
-        Engine.utils.EnableWashout(pca, 10)
-        assert(hasattr(pca, "washout"))
-        assert(not hasattr(mdp.nodes.PCANode, "washout"))
-
