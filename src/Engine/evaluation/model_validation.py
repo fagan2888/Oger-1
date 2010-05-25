@@ -88,11 +88,11 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
     
     if progress:
         print "Performing cross-validation using " + cross_validate_function.__name__
-        iter = mdp.utils.progressinfo(range(len(train_samples)), style='timer')
+        iteration = mdp.utils.progressinfo(range(len(train_samples)), style='timer')
     else:
-        iter = range(len(train_samples))
+        iteration = range(len(train_samples))
         
-    for fold in iter:
+    for fold in iteration:
         # Get the training data from the whole data set
         train_data = data_subset(data, train_samples[fold])
         # Empty list to store test errors for current fold

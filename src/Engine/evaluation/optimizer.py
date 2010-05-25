@@ -36,6 +36,9 @@ class Optimizer(object):
 
         # Construct all combinations
         self.param_space = list(itertools.product(*self.parameter_ranges))
+
+        # Initialize an N-dimensional list which will contain the probe data
+        self.probe_data = Engine.utils.empty_n_d_list(self.paramspace_dimensions)
         
 
     def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
@@ -44,8 +47,13 @@ class Optimizer(object):
             Input arguments are:
                 - data: a list of iterators which would be passed to MDP flows
                 - flow : the MDP flow to do the grid-search on
+            If any of the nodes in the flow have a member variable probe_data, the contents of this variable are also stored for each parameter
+            point in Optimizer.probe_data. This member variable is an N-dimensional list, with N the number of parameters being ranged over. 
+            Each element of this N-d list is a dictionary, indexed by the nodes in the flow, whose values are the corresponding contents 
+            of the probe_data.
         '''
         self.errors = mdp.numx.zeros(self.paramspace_dimensions)
+        self.probe_data = {}
         # Loop over all points in the parameter space
         for paramspace_index_flat, parameter_values in  mdp.utils.progressinfo(enumerate(self.param_space), style='timer', length=len(self.param_space)):
             # Set all parameters of all nodes to the correct values
@@ -63,6 +71,12 @@ class Optimizer(object):
             # After all node parameters have been set and initialized, do the cross-validation
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions) 
             self.errors[paramspace_index_full] = mdp.numx.mean(Engine.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs))
+            
+            # Collect probe data if it is present
+            for node in flow:
+                if hasattr(node, 'probe_data'):
+                    # If the key exists, append to it, otherwise insert an empty list and append to that
+                    self.probe_data.setdefault(paramspace_index_full, {})[node] = node.probe_data
 
     def plot_results(self, node_param_list=None):
         ''' Plot the results of the optimization. 
@@ -89,29 +103,11 @@ class Optimizer(object):
             pylab.show()
         elif errors_to_plot.ndim == 2:
             pylab.ion()
-            
-            # Get the index of the remaining parameter to plot using the correct 
-            # parameter ranges
-            param_index0 = self.parameters.index(parameters[1])
-            param_index1 = self.parameters.index(parameters[0])
-            
-            extent = [self.parameter_ranges[param_index0][0],
-                        self.parameter_ranges[param_index0][-1],
-                        self.parameter_ranges[param_index1][0],
-                        self.parameter_ranges[param_index1][-1]]
 
-            # Fix the range bounds
-            xstep = (-extent[0] + extent[1]) / len(self.parameter_ranges[param_index0])
-            ystep = (-extent[2] + extent[3]) / len(self.parameter_ranges[param_index1])
-            
-            extent = [extent[0] - xstep / 2, extent[1] + xstep / 2, extent[2] - ystep / 2, extent[3] + ystep / 2]
-            
-            # Display the image, using the edge values of the parameter ranges
-            # to set the axis labels
-
+            # Display the image
             pylab.figure()
             pylab.imshow(mdp.numx.flipud(errors_to_plot), cmap=pylab.jet(), interpolation='nearest',
-                         extent=extent, aspect="auto")
+                         extent=self.get_extent(), aspect="auto")
             pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
             pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
             pylab.suptitle('mean')
@@ -120,7 +116,7 @@ class Optimizer(object):
             if var_errors is not None:
                 pylab.figure()
                 pylab.imshow(mdp.numx.flipud(var_errors), cmap=pylab.jet(), interpolation='nearest',
-                             extent=extent, aspect="auto")
+                             extent=self.get_extent(parameters), aspect="auto")
                 pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
                 pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
                 pylab.suptitle('variance')
@@ -209,11 +205,26 @@ class Optimizer(object):
                 min_parameter_dict[param_d[0]] = {param_d[1] : opt_parameter_value}
 
         return (minimal_error, min_parameter_dict) 
-    
-    
-    
 
-    
+    def get_extent(self, parameters):
+        '''Compute the correct boundaries of the parameter ranges for 
+            a 2D plot
+        '''
+        param_index0 = self.parameters.index(parameters[1])
+        param_index1 = self.parameters.index(parameters[0])
+        
+        extent = [self.parameter_ranges[param_index0][0],
+                    self.parameter_ranges[param_index0][-1],
+                    self.parameter_ranges[param_index1][0],
+                    self.parameter_ranges[param_index1][-1]]
+
+        # Fix the range bounds
+        xstep = (-extent[0] + extent[1]) / len(self.parameter_ranges[param_index0])
+        ystep = (-extent[2] + extent[3]) / len(self.parameter_ranges[param_index1])
+        
+        return [extent[0] - xstep / 2, extent[1] + xstep / 2, extent[2] - ystep / 2, extent[3] + ystep / 2]
+
+        
 class ParameterSettingNode(mdp.Node):
     
     def __init__(self, flow, loss_function, cross_validation, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
