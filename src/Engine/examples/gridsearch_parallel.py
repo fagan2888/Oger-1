@@ -30,7 +30,7 @@ if __name__ == '__main__':
 #    opt.scheduler = mdp.parallel.ThreadScheduler(n_threads=4, verbose=True)
 #    opt.scheduler = mdp.parallel.pp_support.LocalPPScheduler(ncpus=2, max_queue_length=0, verbose=True)
 
-    job_server = pp.Server(0, ppservers=("clsnn101:60000",))
+    job_server = pp.Server(0, ppservers=("clsnn001:60000",))
     opt.scheduler = mdp.parallel.pp_support.PPScheduler(ppserver=job_server, verbose=True)
     
     # Do the grid search

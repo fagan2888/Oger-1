@@ -8,6 +8,17 @@ def get_spectral_radius(W):
     """
     return mdp.numx.amax(mdp.numx.absolute(mdp.numx.linalg.eigvals(W))) 
 
+def empty_n_d_list(dims):
+    ''' Create an n-dimensional list (n = len(dims)), of sizes given by the tuple dims
+        E.g. Engine.utils.empty_n_d_list((3,1,2)) returns
+        [[[[], []]], [[[], []]], [[[], []]]]
+    '''
+    if len(dims) > 1:
+        return [empty_n_d_list(dims[1:]) for _ in range(dims[0])]
+    else:
+        return [[] for _ in range(dims[0])]
+                                                        
+
 class LinearFunction:
     """
     Container class for the linear function.
