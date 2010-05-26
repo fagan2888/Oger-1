@@ -19,6 +19,9 @@ def enable_washout(original, washout=0):
 
     if not hasattr(original, "_train"):
         raise Exception('Object should have a _train method.')
+    
+    if hasattr(original, "washout"):
+        raise Exception('Washout already enabled.')
 
     # helper washout class
     class Washout:
