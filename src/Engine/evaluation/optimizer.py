@@ -78,17 +78,23 @@ class Optimizer(object):
                     # If the key exists, append to it, otherwise insert an empty list and append to that
                     self.probe_data.setdefault(paramspace_index_full, {})[node] = node.probe_data
 
-    def plot_results(self, node_param_list=None):
+    def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None):
         ''' Plot the results of the optimization. 
         
             Works for 1D and 2D linear sweeps, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
             node_param_list is an optional argument. It is a list of (node, param_string) tuples.
             Before plotting, the mean will be taken over all these node.param_string combinations,
             which is useful to plot/reduce multi-dimensional parameter sweeps.
+            The optional arguments vmin and vmax can be used to truncate the errors between lower and upper bounds before plotting.
+            The optional argument cmap is passed as a matplotlib colormap when plotting 2D images.
         '''
 
         errors_to_plot, var_errors, parameters = self.mean_and_var(node_param_list)
-             
+        if vmin != None:
+            errors_to_plot[errors_to_plot < vmin] = vmin
+        if vmax != None:
+            errors_to_plot[errors_to_plot > vmax] = vmax
+ 
         # If we have ranged over only one parameter
         if errors_to_plot.ndim == 1:
             # Average errors over folds
@@ -107,7 +113,7 @@ class Optimizer(object):
             # Display the image
             pylab.figure()
             pylab.imshow(mdp.numx.flipud(errors_to_plot), cmap=pylab.jet(), interpolation='nearest',
-                         extent=self.get_extent(), aspect="auto")
+                         extent=self.get_extent(parameters), aspect="auto")
             pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
             pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
             pylab.suptitle('mean')
@@ -115,8 +121,8 @@ class Optimizer(object):
 
             if var_errors is not None:
                 pylab.figure()
-                pylab.imshow(mdp.numx.flipud(var_errors), cmap=pylab.jet(), interpolation='nearest',
-                             extent=self.get_extent(parameters), aspect="auto")
+                pylab.imshow(mdp.numx.flipud(errors_to_plot), cmap=cmap, interpolation='nearest',
+                             extent=self.get_extent(parameters), aspect="auto", vmin=vmin, vmax=vmax)
                 pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
                 pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
                 pylab.suptitle('variance')

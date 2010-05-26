@@ -53,7 +53,7 @@ def n_fold_random(n_samples, n_folds):
     # Create random permutation of number of samples
     randperm = mdp.numx.random.permutation(n_samples)
     train_indices, test_indices = [], []
-    foldsize = mdp.numx.ceil(float(n_samples) / n_folds)
+    foldsize = mdp.numx.floor(float(n_samples) / n_folds)
     
     for fold in range(n_folds):
         # Select the sample indices used for testing
