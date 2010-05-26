@@ -213,7 +213,7 @@ class GradientPerceptronNode(GradientExtensionNode, Engine.nodes.PerceptronNode)
 
     def _calculate_gradient(self, y):
         x = self._last_x
-        dy = self.transfer_func.df(x, self._last_y) * y
+        dy = self.transfer_func.df(self._execute(x), self._last_y) * y
         dw = mult(x.T, dy)
         self._gradient_vector = numx.concatenate((dw.ravel(), dy.sum(axis=0)))
         dx = mult(self.w, dy.T).T
@@ -239,7 +239,7 @@ class GradientRBMNode(GradientExtensionNode, Engine.nodes.ERBMNode):
 
     def _calculate_gradient(self, y):
         x = self._last_x
-        dy = Engine.utils.LogisticFunction.df(x, self._last_y) * y
+        dy = Engine.utils.LogisticFunction.df(self._execute(x), self._last_y) * y
         dw = mult(x.T, dy)
         self._gradient_vector = numx.concatenate((dw.ravel(), dy.sum(axis=0)))
         dx = mult(self.w, dy.T).T
