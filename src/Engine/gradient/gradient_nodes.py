@@ -11,6 +11,25 @@ import Engine
 from mdp import numx
 from mdp.utils import mult
 
+def traverseHinet(item):
+    # TODO: could be implemented with a generetor
+    
+    previous = []
+    
+    if isinstance(item, mdp.Flow):
+        for child in item:
+            previous += traverseHinet(child)            
+    elif isinstance(item, mdp.hinet.Layer):
+        for child in item:
+            previous += traverseHinet(child)        
+    elif isinstance(item, mdp.hinet.FlowNode):
+        for child in item.flow:
+            previous += traverseHinet(child)      
+    else:
+        previous += [item, ]
+        
+    return previous
+
 class GradientExtensionNode(mdp.ExtensionNode):
     """Base class for gradient based MDP nodes.
 
@@ -66,16 +85,16 @@ class GradientExtensionNode(mdp.ExtensionNode):
         self._set_params(x)
 
     def _params(self):
-        raise NotImplemented()
+        pass
 
     def _set_params(self, x):
-        raise NotImplemented()
+        pass
 
     def _calculate_gradient(self, x):
-        raise NotImplemented()
+        return x
 
     def _params_size(self):
-        raise NotImplemented()
+        raise 0
 
 class BackpropNode(mdp.Node):
     """Node that handles backpropagation through a flow.
@@ -149,7 +168,7 @@ class BackpropNode(mdp.Node):
             loss = self.loss_func(y, t)
         else:
             loss = None
-
+        
         delta = self.derror(y, t)
 
         self.gflow.inverse(delta)
@@ -165,8 +184,9 @@ class BackpropNode(mdp.Node):
 
         gradient = numx.array([])
 
-        for n in self.gflow:
-            gradient = numx.concatenate((gradient, n.gradient()))
+        for n in traverseHinet(self.gflow):
+            if hasattr(n, '_param_size') and n._param_size() > 0: 
+                gradient = numx.concatenate((gradient, n.gradient()))
 
         return gradient
 
@@ -175,8 +195,9 @@ class BackpropNode(mdp.Node):
 
         params = numx.array([])
 
-        for n in self.gflow:
-            params = numx.concatenate((params, n.params()))
+        for n in traverseHinet(self.gflow):
+            if hasattr(n, '_param_size') and n._param_size() > 0: 
+                params = numx.concatenate((params, n.params()))
 
         return params
 
@@ -185,10 +206,11 @@ class BackpropNode(mdp.Node):
         # Number of parameters we distributed so far.
         counter = 0
 
-        for n in self.gflow:
-            length = n._param_size()
-            n.set_params(params[counter:counter + length])
-            counter += length
+        for n in traverseHinet(self.gflow):
+            if hasattr(n, '_param_size') and n._param_size() > 0: 
+                length = n._param_size()
+                n.set_params(params[counter:counter + length])
+                counter += length
 
     def _execute(self, x):
         return self.gflow.execute(x)
@@ -251,4 +273,4 @@ class GradientRBMNode(GradientExtensionNode, Engine.nodes.ERBMNode):
     def inverse(self, y):
         """Calls _gradient_inverse instead of the default _inverse."""
         return self._calculate_gradient(y)
-
+    
