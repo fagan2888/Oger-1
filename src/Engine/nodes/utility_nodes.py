@@ -15,8 +15,8 @@ class FeedbackNode(mdp.Node):
     
     Note that this node keeps state and can thus NOT be used in parallel using threads.
     """ 
-    def __init__(self, n_timesteps=1, input_dim=None, output_dim=None, dtype=None):
-        super(FeedbackNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
+    def __init__(self, n_timesteps=1, input_dim=None, dtype=None):
+        super(FeedbackNode, self).__init__(input_dim=input_dim, output_dim=input_dim, dtype=dtype)
         
         self.n_timesteps = n_timesteps
         self.last_value = None
@@ -28,13 +28,10 @@ class FeedbackNode(mdp.Node):
     def is_trainable(self):
         return False
 
-    def _set_input_dim(self, n):
-        self._input_dim = n
-        self._output_dim = n
-        
     def __iter__(self):
         while self.current_timestep < self.n_timesteps:
             self.current_timestep += 1
+            
             yield self.last_value
                 
     def _execute(self, x):
