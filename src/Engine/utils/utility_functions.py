@@ -1,4 +1,5 @@
 import mdp
+import itertools
 
 def get_spectral_radius(W):
     """
@@ -17,6 +18,20 @@ def empty_n_d_list(dims):
         return [empty_n_d_list(dims[1:]) for _ in range(dims[0])]
     else:
         return [[] for _ in range(dims[0])]
+
+class ConcatenatingIterator(object):
+    ''' Return an iterator which concatenates at every timestep its separate inputs to one large vector.
+        It is useful for cases where you need to combine a FeedbackNode (which is an iterator) with some external input 
+        (which is usually a Numpy array). However, it can be used to arbitrarily combine iterators and numpy arrays (or 
+        other iterables).
+        For a usage example, see feedback_and_external_input.py under the /examples directory.
+    '''
+    def __init__(self, *args):
+        self.iterator_x = itertools.izip(*args)
+
+    def __iter__(self):
+        while True:
+            yield mdp.numx.atleast_2d(mdp.numx.hstack(map(mdp.numx.atleast_2d, self.iterator_x.next())))
                                                         
 
 class LinearFunction:

@@ -1,18 +1,24 @@
 import mdp
 import collections
 
-def mackey_glass(sample_len=1000, tau=17):
+def mackey_glass(sample_len=1000, tau=17, seed=None):
     '''
     mackey_glass(sample_len=1000, tau=17) -> input
     Generate the Mackey Glass time-series. Parameters are:
-        - sample_len: length of the time-series in timesteps
+        - sample_len: length of the time-series in timesteps. Default is 1000.
         - tau: delay of the MG - system. Commonly used values are tau=17 (mild 
-          chaos) and tau=30 (moderate chaos) 
+          chaos) and tau=30 (moderate chaos). Default is 17.
+        - seed: to seed the random generator, can be used to generate the same
+          timeseries at each invocation.
     '''
     delta_t = 10
     history_len = tau * delta_t 
     # Initial conditions for the history of the system
     timeseries = 1.2
+    
+    if seed is not None:
+        mdp.numx.random.seed(seed)
+
     history = collections.deque(1.2 * mdp.numx.ones(history_len) + 0.2 * \
                                 (mdp.numx.random.rand(history_len) - 0.5))
     # Preallocate the array for the time-series
@@ -44,7 +50,7 @@ def mso(sample_len=1000):
     signal = mdp.numx.sin(0.2 * x) + mdp.numx.sin(0.311 * x) 
     return [signal, ]
 
-def lorentz(sample_len=1000, sigma=10, rho=28, beta=8/3, step=0.01):
+def lorentz(sample_len=1000, sigma=10, rho=28, beta=8 / 3, step=0.01):
     """This function generates a Lorentz time series of length sample_len,
     with standard parameters sigma, rho and beta. 
     """
@@ -58,13 +64,13 @@ def lorentz(sample_len=1000, sigma=10, rho=28, beta=8/3, step=0.01):
     y[0] = -0.01;
     z[0] = 9;
 
-    for t in range(sample_len-1):
-        x[t+1] = x[t] + sigma*(y[t]-x[t])*step
-        y[t+1] = y[t] + (x[t]*(rho-z[t]) - y[t])*step
-        z[t+1] = z[t] + (x[t]*y[t] - beta*z[t])*step
+    for t in range(sample_len - 1):
+        x[t + 1] = x[t] + sigma * (y[t] - x[t]) * step
+        y[t + 1] = y[t] + (x[t] * (rho - z[t]) - y[t]) * step
+        z[t + 1] = z[t] + (x[t] * y[t] - beta * z[t]) * step
 
     x.shape += (1,)
     y.shape += (1,)
     z.shape += (1,)
 
-    return [mdp.numx.concatenate((x,y,z),axis=1),]
+    return [mdp.numx.concatenate((x, y, z), axis=1), ]
