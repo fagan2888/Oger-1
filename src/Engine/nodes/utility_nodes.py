@@ -36,7 +36,7 @@ class FeedbackNode(mdp.Node):
                 
     def _execute(self, x):
         self.last_value = mdp.numx.atleast_2d(x[-1, :])
-        return self.last_value
+        return x
 
 class MeanAcrossTimeNode(mdp.Node):
     """
