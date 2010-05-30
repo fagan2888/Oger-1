@@ -8,6 +8,7 @@ from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)
 from nonlinear_nodes import (SignNode, PerceptronNode)
 from rbm_nodes import (ERBMNode, CRBMNode)
 from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, ResampleNode, TimeFramesNode2)
+from spiking_nodes import (SpikingIFReservoirNode)
 #from ode_nodes import (OdeNode)
 
 # clean up namespace
@@ -17,5 +18,6 @@ del rbm_nodes
 del linear_nodes
 del nonlinear_nodes
 del utility_nodes
+del spiking_nodes
 
-__all__=['InspectableFlow', 'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode', 'FeedbackReservoirNode', 'MixIn', 'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'SignNode', 'PerceptronNode', 'ERBMNode', 'CRBMNode', 'FeedbackNode', 'WashoutNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'ResampleNode', 'TimeFramesNode2']
+__all__=['InspectableFlow', 'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode', 'FeedbackReservoirNode', 'MixIn', 'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'SignNode', 'PerceptronNode', 'ERBMNode', 'CRBMNode', 'FeedbackNode', 'WashoutNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'ResampleNode', 'TimeFramesNode2', 'SpikingIFReservoirNode']
