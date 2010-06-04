@@ -81,9 +81,10 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
     '''
     test_error = []
     # Get the number of samples 
-    n_samples = len(data[1])
+    n_samples = len(data[0])
     # Get the indices of the training and testing samples for each fold by calling the 
     # cross_validate_function hook
+    
     train_samples, test_samples = cross_validate_function(n_samples, *args, **kwargs)
     
     if progress:
@@ -114,7 +115,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
         
         # test on all test samples
         for index in test_samples[fold]:
-            test_data = data_subset(data, index)
+            test_data = data_subset(data, [index])
             
             # If the last node is a feedback node: 
             if isinstance(flow[-1], Engine.nodes.FeedbackNode):
@@ -131,7 +132,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
                 # TODO: the feedback node gets initiated with the last *estimated* timestep,
                 # not the last training example. Fixing this will improve performance!
             
-            fold_error.append(error_measure(f_copy(test_data[0]), test_data[-1][-1]))
+            fold_error.append(error_measure(f_copy(test_data[-1][0][0]), test_data[-1][0][-1]))
         test_error.append(mdp.numx.mean(fold_error))
 
     return test_error

@@ -25,7 +25,7 @@ classifiers = ["Intended Audience :: Developers",
                "Topic :: Scientific/Engineering :: Mathematics"]
 
 
-setup(name = 'Engine', version = '0.1',
+setup(name = 'Engine', version = '0.2',
       author = "Philemon Brakel, Martin Fiers, Fiontann O'Donnell, Benjamin Schrauwen and David Verstraeten",
       author_email = 'pbpop3@gmail.com, mfiers@intec.ugent.be, fodonnel@elis.ugent.be, benjamin.schrauwen@elis.ugent.be, david.verstraeten@elis.ugent.be',
       maintainer = "Philemon Brakel, Martin Fiers, Fiontann O'Donnell, Benjamin Schrauwen and David Verstraeten",

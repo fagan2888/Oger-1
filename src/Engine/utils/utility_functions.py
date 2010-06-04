@@ -24,14 +24,32 @@ class ConcatenatingIterator(object):
         It is useful for cases where you need to combine a FeedbackNode (which is an iterator) with some external input 
         (which is usually a Numpy array). However, it can be used to arbitrarily combine iterators and numpy arrays (or 
         other iterables).
-        For a usage example, see feedback_and_external_input.py under the /examples directory.
+        For a usage example, see tunable_sinewave.py under the /examples directory.
     '''
-    def __init__(self, *args):
-        self.iterator_x = itertools.izip(*args)
+    def __init__(self, x, y=None):
+        # If all inputs are arrays, we don't need to iterate over them, we can just return an array
+        if mdp.numx.all([type(x_i) == mdp.numx.ndarray for x_i in x]):
+            self.iterator_x = [x].__iter__()
+        else:
+            self.iterator_x = itertools.izip(*[iterable.__iter__() for iterable in x])
+        
+        # If all inputs are arrays, we can just concatenate them
+        if y is not None:
+            if mdp.numx.all([type(x_i) == mdp.numx.ndarray for x_i in x]) and type(y) == mdp.numx.ndarray:
+                self.iterator_y = [y].__iter__()
+            else:
+                self.iterator_y = y.__iter__() 
+        else:
+            self.iterator_y = None    
 
     def __iter__(self):
         while True:
-            yield mdp.numx.atleast_2d(mdp.numx.hstack(map(mdp.numx.atleast_2d, self.iterator_x.next())))
+            x = mdp.numx.atleast_2d(mdp.numx.hstack(map(mdp.numx.atleast_2d, self.iterator_x.next())))
+            
+            if self.iterator_y is not None:
+                yield (x, mdp.numx.atleast_2d(self.iterator_y.next()))
+            else:
+                yield x 
                                                         
 
 class LinearFunction:

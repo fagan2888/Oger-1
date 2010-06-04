@@ -20,4 +20,4 @@ del nonlinear_nodes
 del utility_nodes
 del spiking_nodes
 
-__all__=['InspectableFlow', 'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode', 'FeedbackReservoirNode', 'MixIn', 'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'SignNode', 'PerceptronNode', 'ERBMNode', 'CRBMNode', 'FeedbackNode', 'WashoutNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'ResampleNode', 'TimeFramesNode2', 'SpikingIFReservoirNode']
+__all__=['InspectableFlow', 'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode', 'FeedbackReservoirNode', 'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'SignNode', 'PerceptronNode', 'ERBMNode', 'CRBMNode', 'FeedbackNode', 'WashoutNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'ResampleNode', 'TimeFramesNode2', 'SpikingIFReservoirNode']

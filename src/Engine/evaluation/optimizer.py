@@ -7,7 +7,7 @@ class Optimizer(object):
     ''' Class to perform optimization of the parameters of a flow using cross-validation.
         Supports grid-searching of a parameter space.
     '''
-    def __init__(self, optimization_dict, loss_function, **kwargs):
+    def __init__(self, optimization_dict, loss_function):
         ''' Construct an Optimizer object.
             optimization_dict: a dictionary of dictionaries. 
                 In the top-level dictionary, every key is a node, and the corresponding item is again a dictionary 
@@ -69,7 +69,7 @@ class Optimizer(object):
                     node.initialize()
            
             # After all node parameters have been set and initialized, do the cross-validation
-            paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions) 
+            paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions)
             self.errors[paramspace_index_full] = mdp.numx.mean(Engine.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs))
             
             # Collect probe data if it is present
@@ -78,15 +78,16 @@ class Optimizer(object):
                     # If the key exists, append to it, otherwise insert an empty list and append to that
                     self.probe_data.setdefault(paramspace_index_full, {})[node] = node.probe_data
 
-    def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None):
+    def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None, log_x=False):
         ''' Plot the results of the optimization. 
-        
+            
             Works for 1D and 2D linear sweeps, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
-            node_param_list is an optional argument. It is a list of (node, param_string) tuples.
-            Before plotting, the mean will be taken over all these node.param_string combinations,
+            Arguments:
+            - node_param_list: a list of (node, param_string) tuples. Before plotting, the mean will be taken over all these node.param_string combinations,
             which is useful to plot/reduce multi-dimensional parameter sweeps.
-            The optional arguments vmin and vmax can be used to truncate the errors between lower and upper bounds before plotting.
-            The optional argument cmap is passed as a matplotlib colormap when plotting 2D images.
+            - vmin/vmax: can be used to truncate the errors between lower and upper bounds before plotting.
+            - cmap: passed as a matplotlib colormap when plotting 2D images.
+            - log_x: boolean to indicate if a 1D plot should use a log scale for the x-axis.
         '''
 
         errors_to_plot, var_errors, parameters = self.mean_and_var(node_param_list)
@@ -103,7 +104,14 @@ class Optimizer(object):
             # Get the index of the remaining parameter to plot using the correct 
             # parameter ranges
             param_index = self.parameters.index(parameters[0])
-            pylab.errorbar(self.parameter_ranges[param_index], errors_to_plot, var_errors)
+            if var_errors is not None:
+                pylab.errorbar(self.parameter_ranges[param_index], errors_to_plot, var_errors)
+            else:
+                if log_x: 
+                    pylab.semilogx(self.parameter_ranges[param_index], errors_to_plot)
+                else:
+                    pylab.plot(self.parameter_ranges[param_index], errors_to_plot)
+                    
             pylab.xlabel(str(parameters[0][0]) + '.' + parameters[0][1])
             pylab.ylabel(self.loss_function.__name__)
             pylab.show()
