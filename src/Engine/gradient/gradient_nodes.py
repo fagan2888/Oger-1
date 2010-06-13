@@ -70,7 +70,7 @@ class GradientExtensionNode(mdp.ExtensionNode):
     def get_current_train_phase(self):
         """Make sure that a node which is trainable, is made untrainable
         so that we can run execute on a possible untrained node."""
-        return -1
+        return - 1
 
     def gradient(self):
         """Return the gradient that was found after the last backpropagation sweep."""
@@ -104,7 +104,15 @@ class BackpropNode(mdp.Node):
     methods for optimization of the parameters of all the nodes in the flow.
     """
 
-    def __init__(self, gflow, gtrainer, loss_func=None, derror=None, dtype='float64'):
+    def _stop_train_dummy(self):
+        pass
+    
+    def _get_train_seq(self):
+        train_list = [(self._train, self._stop_train_dummy)] * (self._n_epochs)
+        train_list.append((self._train, self._stop_training))
+        return train_list
+
+    def __init__(self, gflow, gtrainer, loss_func=None, derror=None, n_epochs=1, dtype='float64'):
         """Create a BackpropNode that encapsulates a flow of gradient nodes.
 
         Arguments:
@@ -116,7 +124,6 @@ class BackpropNode(mdp.Node):
                 outputs.  By default this will taken to be 'y - t' where y is the
                 output and t the desired value.
         """
-
 
         self.gflow = gflow
         self.gtrainer = gtrainer
@@ -130,18 +137,24 @@ class BackpropNode(mdp.Node):
 
         input_dim = gflow[0].get_input_dim()
         output_dim = gflow[-1].get_output_dim()
+        
+        self._n_epochs = n_epochs
 
         super(BackpropNode, self).__init__(input_dim, output_dim, dtype)
 
     @mdp.with_extension('gradient')
-    def _train(self, x, **kwargs):
+    def _train(self, x, *args, **kwargs):
         """Update the parameters according to the input 'x' and target output 't'."""
-
+        
         # Extract target values and delete them so they don't interfere with
         # the train method call below.
         # TODO: Perhaps the use of target values should be optional to allow
         # for unsupervised algorithms etc.
-        t = kwargs.get('t')
+        print "Training!"
+        if (len(args) > 0): 
+            t = args[0]
+        else:
+            t = kwargs.get('t')
 
         # Generate objective function for the current data.
         def func(params):

@@ -62,7 +62,7 @@ class GradientReservoirNode(Engine.gradient.GradientExtensionNode, Engine.nodes.
 
 if __name__ == "__main__":
 
-    x = Engine.datasets.mso(sample_len=1000)
+    x = Engine.datasets.mso(sample_len=10)
     x = mdp.numx.concatenate((x[0], x[0]), axis=1)
     y = x[1:, :]
     x = x[0:-1, :]
@@ -78,24 +78,21 @@ if __name__ == "__main__":
     
     #fbnode = ConcatFeedbackNode(input_dim=20, n_timesteps=999)
     #fbnode.input = x
-    fbnode = Engine.nodes.FeedbackNode(n_timesteps=x.shape[0])
+    fbnode = Engine.nodes.FeedbackNode(input_dim=20, n_timesteps=x.shape[0])
     fbnode.last_value = mdp.numx.zeros((1, 20)) 
 
     layer = mdp.hinet.Layer([mdp.hinet.FlowNode(reservoir1 + readout1 + fbnode), mdp.hinet.FlowNode(reservoir2 + readout2)])
 
     flow = layer + MultNode(2, 10)
 
-    bpnode = Engine.gradient.BackpropNode(flow, Engine.gradient.GradientDescentTrainer() , loss_func=Engine.utils.mse)
+    bpnode = Engine.gradient.BackpropNode(flow, Engine.gradient.GradientDescentTrainer() , loss_func=Engine.utils.mse, n_epochs=5)
     bpflow = mdp.Flow([bpnode, ])
     
     reservoir1.states = mdp.numx.zeros((1, 100))
     reservoir2.states = mdp.numx.zeros((1, 100))
     
-    for epoch in range(100):
-        print "epoch", epoch
-         
-        fbnode.reset()
-        bpflow.train([Engine.utils.ConcatenatingIterator([fbnode, x], y)])
+    #fbnode.reset()
+    bpflow.train([Engine.utils.ConcatenatingIterator([fbnode, x], y)])
         
 #        for i, data in enumerate(fbnode):
 #            bpnode.train(x = data + mdp.numx.random.randn(data.shape[0], data.shape[1])*0.01, t = y[i, :])
