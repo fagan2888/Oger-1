@@ -43,10 +43,12 @@ def optimize_parameters(original, gridsearch_parameters=None, cross_validate_fun
             return self.ts
                 
         def _collect_data(self, x, y):
+            print 'Collecting data'
             self._x_list.append(x)
             self._y_list.append(y)
               
         def _optimize(self):
+            print 'Optimizing'
             self.ts = [(self._train, self._stop_training)]
             
             print 'Node ' + str(self) + ' performing self-optimization...'   
