@@ -1,6 +1,5 @@
 import Engine
 import pylab
-import mdp
 
 if __name__ == "__main__":
 

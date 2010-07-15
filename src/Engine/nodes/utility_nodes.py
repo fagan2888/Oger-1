@@ -62,7 +62,7 @@ class MeanAcrossTimeNode(mdp.Node):
         return ['float32', 'float64']
 
     def _execute(self, x):
-        e = mdp.numx.mean(x, axis=0, dtype=self.dtype)
+        e = mdp.numx.atleast_2d(mdp.numx.mean(x, axis=0, dtype=self.dtype))
         return e
 
 class WTANode(mdp.Node):

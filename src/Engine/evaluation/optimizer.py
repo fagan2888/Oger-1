@@ -41,12 +41,14 @@ class Optimizer(object):
         self.probe_data = Engine.utils.empty_n_d_list(self.paramspace_dimensions)
         
 
-    def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
+    def grid_search (self, data, flow, cross_validate_function, progress=True, *args, **kwargs):
         ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
             for each value in the parameter space.
             Input arguments are:
                 - data: a list of iterators which would be passed to MDP flows
                 - flow : the MDP flow to do the grid-search on
+                - cross-validate_function: the function to use for cross-validation
+                - progressinfo (default: True): show a progress bar
             If any of the nodes in the flow have a member variable probe_data, the contents of this variable are also stored for each parameter
             point in Optimizer.probe_data. This member variable is an N-dimensional list, with N the number of parameters being ranged over. 
             Each element of this N-d list is a dictionary, indexed by the nodes in the flow, whose values are the corresponding contents 
@@ -54,8 +56,14 @@ class Optimizer(object):
         '''
         self.errors = mdp.numx.zeros(self.paramspace_dimensions)
         self.probe_data = {}
+        
+        if progress:
+            iteration = mdp.utils.progressinfo(enumerate(self.param_space), style='timer', length=len(self.param_space))
+        else:
+            iteration = enumerate(self.param_space)
+            
         # Loop over all points in the parameter space
-        for paramspace_index_flat, parameter_values in  mdp.utils.progressinfo(enumerate(self.param_space), style='timer', length=len(self.param_space)):
+        for paramspace_index_flat, parameter_values in iteration:
             # Set all parameters of all nodes to the correct values
             node_set = set()
             for parameter_index, node_parameter in enumerate(self.parameters):

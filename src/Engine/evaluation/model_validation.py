@@ -153,9 +153,8 @@ def data_subset(data, data_indices):
             subset.append(data[node].__getitem__(data_indices))
         else:
             tmp_data = []
-            for data_index in data_indices:
-                tmp_data.append(data[node][data_index])
+            if not data[node] == []:
+                for data_index in data_indices:
+                    tmp_data.append(data[node][data_index])
             subset.append(tmp_data)
-        #else:
-        #r    subset.append([data[node].__getitem__(data_indices)])
     return subset
