@@ -9,7 +9,7 @@ if __name__ == "__main__":
     timesteps = 10000
     washout = 30
 
-    nx = 4
+    nx = 3
     ny = 1
 
     [x, y] = Engine.datasets.narma30(sample_len=1000)
@@ -51,7 +51,4 @@ if __name__ == "__main__":
     pylab.plot(testout, 'r')
     pylab.plot(y[9], 'b')
     
-    pylab.subplot(nx, ny, 4)
-    pylab.plot(flow.inspect(reservoir))
-    pylab.show()
 

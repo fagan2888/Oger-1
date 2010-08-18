@@ -160,7 +160,7 @@ class LeakyReservoirNode(ReservoirNode):
     """Reservoir node with leaky integrator neurons (a first-order low-pass filter added to the output of a standard neuron). 
     """
 
-    def __init__(self, leak_rate=1.0, **kwargs):
+    def __init__(self, leak_rate=1.0, *args, **kwargs):
         """Initializes and constructs a random reservoir with leaky-integrator neurons.
            Parameters are:
                 - input_dim: input dimensionality
@@ -179,7 +179,7 @@ class LeakyReservoirNode(ReservoirNode):
             If w, w_in or w_bias were given as a numpy array or a function, these
             will be used as initialization instead.               
         """
-        super(LeakyReservoirNode, self).__init__(**kwargs)
+        super(LeakyReservoirNode, self).__init__(*args, **kwargs)
        
         # Leak rate, if 1 it is a standard neuron, lower values give slower dynamics 
         self.leak_rate = leak_rate

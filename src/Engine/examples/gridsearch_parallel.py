@@ -1,7 +1,10 @@
 import mdp
 import Engine
 import mdp.parallel.pp_support
-import pp
+try:
+    import pp
+except:
+    print 'The module pp (Parallel Python) was not found. This script relies on Parallel Python for its execution. Please install this package or check your installation'
 
 if __name__ == '__main__':
     ''' Example of doing a grid-search
@@ -25,12 +28,12 @@ if __name__ == '__main__':
     # Instantiate an optimizer
     opt = Engine.evaluation.Optimizer(gridsearch_parameters, Engine.utils.nrmse)
     
-    mdp.activate_extension("parallel")
+    #mdp.activate_extension("parallel")
 #    opt.scheduler = mdp.parallel.ProcessScheduler(n_processes=4, verbose=True)
 #    opt.scheduler = mdp.parallel.ThreadScheduler(n_threads=4, verbose=True)
 #    opt.scheduler = mdp.parallel.pp_support.LocalPPScheduler(ncpus=2, max_queue_length=0, verbose=True)
 
-    job_server = pp.Server(0, ppservers=("clsnn001:60000",))
+    job_server = pp.Server(0, ppservers=("clsnn020:60000",))
     opt.scheduler = mdp.parallel.pp_support.PPScheduler(ppserver=job_server, verbose=True)
     
     # Do the grid search

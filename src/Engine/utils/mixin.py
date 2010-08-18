@@ -43,12 +43,10 @@ def optimize_parameters(original, gridsearch_parameters=None, cross_validate_fun
             return self.ts
                 
         def _collect_data(self, x, y):
-            print 'Collecting data'
             self._x_list.append(x)
             self._y_list.append(y)
               
         def _optimize(self):
-            print 'Optimizing'
             self.ts = [(self._train, self._stop_training)]
             
             print 'Node ' + str(self) + ' performing self-optimization...'   
@@ -63,6 +61,7 @@ def optimize_parameters(original, gridsearch_parameters=None, cross_validate_fun
             # Set the obtained optimal parameter values in the node
             for param in opt_parameter_dict[self]:
                 self.__setattr__(param, opt_parameter_dict[self][param])
+                print 'Found optimal value for parameter ' + param + ' : ' + str(opt_parameter_dict[self][param])
                 
             self.ts = [(self._collect_data, self._optimize), (self._train, self._stop_training)]
         

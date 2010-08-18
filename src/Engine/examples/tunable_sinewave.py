@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # seconds per simulation timestep
     dt = .01
 
-    freqtrain = mdp.numx.vstack([mdp.numx.hstack((mdp.numx.atleast_2d(mdp.numx.arange(3, 1, -.002)), mdp.numx.atleast_2d(mdp.numx.arange(1, 3, .002)))).T] * 2)
+    freqtrain = mdp.numx.vstack([mdp.numx.hstack((mdp.numx.atleast_2d(mdp.numx.arange(2, 1, -.002)), mdp.numx.atleast_2d(mdp.numx.arange(1, 2, .002)))).T] * 2)
     freqtest = mdp.numx.atleast_2d(mdp.numx.sin(mdp.numx.arange(mdp.numx.pi / 2, 6, .002))).T + 2
        
     x = sinewaves(freqtrain, dt)

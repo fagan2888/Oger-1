@@ -3,8 +3,84 @@ try:
     from pyNN.pcsim import *
     from pypcsim import *
 except ImportError:
-    pass
+    print "PCSim was not found. The Engine will work fine, but you will not be able to use the PyNN spiking nodes."
+    
+try:
+    import brian
+except ImportError:
+    print "Brian was not found. The Engine will work fine, but you will not be able to use the Brian spiking nodes."
 
+import pylab
+import scipy
+
+class BrianIFReservoirNode(mdp.Node):
+    def __init__(self, input_dim, output_dim, dtype):
+        super(BrianIFReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
+        self.taum = 20 * brian.ms
+        self.taue = 5 * brian.ms 
+        self.taui = 10 * brian.ms
+        self.Vt = 15 * brian.mV
+        self.Vr = 0 * brian.mV
+        self.frac_e = .75
+        
+        self.eqs = brian.Equations('''
+              dV/dt  = (I-V+ge-gi)/self.taum : volt
+              dge/dt = -ge/self.taue    : volt 
+              dgi/dt = -gi/self.taui    : volt
+              I: volt
+              ''')
+        self.G = brian.NeuronGroup(N=output_dim, model=self.eqs, threshold=self.Vt, reset=self.Vr)
+        print scipy.floor(output_dim * self.frac_e)
+        self.Ge = self.G.subgroup(int(scipy.floor(output_dim * self.frac_e))) # Excitatory neurons 
+        self.Gi = self.G.subgroup(int(scipy.floor(output_dim * (1 - self.frac_e))))
+        
+        self.internal_conn = brian.Connection(self.G, self.G)
+        self.we = 5 * scipy.random.rand(len(self.Ge), len(self.G)) * brian.nS
+        self.wi = .2 * scipy.random.rand(len(self.Ge), len(self.G)) * brian.nS
+        self.Ce = brian.Connection(self.Ge, self.G, 'ge', sparseness=0.1, weight=self.we) 
+        self.Ci = brian.Connection(self.Gi, self.G, 'gi', sparseness=0.05, weight=self.wi)
+        
+        #self.internal_conn.connect(self.G, self.G, self.w_res)
+        
+        self.Mv = brian.StateMonitor(self.G, 'V', record=True, timestep=10)
+        self.Ms = brian.SpikeMonitor(self.G, record=True)
+        self.w_in = 80 * (scipy.random.rand(self.output_dim, self.input_dim)) 
+        #self.clock = brian.get_default_clock()
+        #self.clock.dt = 0.1 * brian.ms
+        
+    def is_trainable(self):
+        return False
+    
+    def is_invertible(self):
+        return False
+    
+    def _get_supported_dtypes(self):
+        return ['float32', 'float64']
+    
+    def _execute(self, x):
+        #self.G.I = brian.TimedArray(10000 * x * brian.mV, dt=1 * brian.ms)
+        self.G.I = brian.TimedArray(100 * scipy.dot(x, self.w_in.T) * brian.mV, dt=1 * brian.ms)
+        self.network = brian.Network(self.G, self.Mv, self.Ms)
+        self.network.reinit()
+        self.network.run((x.shape[0] + 1) * brian.ms)
+        pylab.subplot(411)
+        pylab.cla()
+        pylab.imshow(x.T, aspect='auto',)
+        pylab.subplot(412)
+        pylab.cla() 
+        pylab.plot(self.Mv.times, self.Mv[30])
+        pylab.subplot(413)
+        pylab.cla()
+        brian.raster_plot(self.Ms)
+        pylab.subplot(414)
+        pylab.cla()
+        retval = self.Mv.values[:, 0:x.shape[0]].T
+        pylab.plot(retval)
+        pylab.draw()
+        return retval
+
+
+        
 class SpikingIFReservoirNode(mdp.Node):
     """
     An example PyNN reservoir node.

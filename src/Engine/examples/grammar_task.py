@@ -68,7 +68,14 @@ if __name__ == "__main__":
 
     # Open file with true probabilities.
     trueprobs_file = os.getcwd() + '/../datasets/trueprobs_simple_pcfg.txt.gz'
-    fin = gzip.open(trueprobs_file)
+    
+    try:
+        fin = gzip.open(trueprobs_file)
+    except:
+        print '''The dataset for this task was not found. Please download it from http://organic.elis.ugent.be/organic/engine 
+        and put it in ''' + trueprobs_file
+        exit()
+        
     dat = fin.readlines()
     fin.close()
 

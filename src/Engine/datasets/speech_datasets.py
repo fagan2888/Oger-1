@@ -27,24 +27,24 @@ def analog_speech (indir='../datasets/Lyon128'):
         return
     return inputs, outputs
 
-def timit (indir='/afs/elis/group/snn/Engine_datasets/timit4python/53phonemes/train', limit=3996):
+def timit (indir='/afs/elis/group/snn/Engine_datasets/timit4python/53phonemes/train', limit=3696):
     # this code is based on *.mat files for the TIMIT samples
     # - a matlab script to create these files based on TIMIT database is present at ELIS UGent
     # - the phoneme mapping can be defined in the matlab script (dataset train53 uses 53 phonemes)  
-    files= glob.glob(os.path.join(indir, '*.mat'))
-    x,y,samplename=[],[],[]
-    if len(files)>0:
+    files = glob.glob(os.path.join(indir, '*.mat'))
+    x, y, samplename = [], [], []
+    if len(files) > 0:
         print "Found %d training files in directory %s. Loading %d of them..." % (len(files), indir, limit)
-        counter=0
+        counter = 0
         for g in mdp.utils.progressinfo(files):
-            if counter<limit:  
-                contents = loadmat(g,struct_as_record=False,mat_dtype=True)
+            if counter < limit:  
+                contents = loadmat(g, struct_as_record=False, mat_dtype=True)
                 x.append(contents['data'].T)
                 y.append(contents['targets'].T)
                 samplename.append(contents['samplename'])
-                counter=counter+1
+                counter = counter + 1
     else:
         print "No files found in %s" % (indir)
         return
-    return x,y,samplename
+    return x, y, samplename
 

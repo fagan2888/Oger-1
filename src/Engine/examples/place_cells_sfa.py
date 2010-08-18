@@ -23,7 +23,12 @@ import numpy as np
 
 if __name__ == '__main__':
     # take matlab file in as a dictionary
-    dictFile = loadmat("../datasets/eric_robotsensors.mat", struct_as_record=True)
+    try:
+        dictFile = loadmat("../datasets/eric_robotsensors.mat", struct_as_record=True)
+    except:
+        print '''The dataset for this task was not found. Please download it from http://organic.elis.ugent.be/organic/engine 
+        and put it in ../datasets/''' 
+        exit()
     
     # the matlab file contains:
     # 'data_info' : holds xy position, location number, etc.
@@ -46,7 +51,7 @@ if __name__ == '__main__':
     
     # define the reservoir and pass the spectrogram through it
     resNode = Engine.nodes.LeakyReservoirNode(input_dim=inputDims,
-                  output_dim=resDims, spec_radius=specRadius, leak_rate=leakRate)
+                  output_dim=resDims, spectral_radius=specRadius, leak_rate=leakRate)
 
     # Creation of the input weight matrix according to paper
     # -0.2,0.2 and 0 with probabilities of 0.15,0.15 and 0.7 respectively 

@@ -2,8 +2,12 @@ import Engine
 import mdp
 import pylab
 import scipy as sp
-from NeuroTools import stgen
-
+try:
+    from NeuroTools import stgen
+except:
+    print "The Neurotools package was not found, but is required for this example. Please install it first or check your installation."
+    exit()
+    
 if __name__ == "__main__":
 
     n_subplots_x, n_subplots_y = 2, 1
@@ -28,7 +32,6 @@ if __name__ == "__main__":
             'v_thresh'   : 20.0, # (mV)
             'cm'         : 0.5}  # (nF)
     
-    # Function to convert inputs to spike trains
     RateScale = 1e6
     Tstep = 10.0
     

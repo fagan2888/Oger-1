@@ -9,7 +9,13 @@ if __name__ == "__main__":
     washout = 0
     train_frac = .9;
 
-    [x,y,samplename] = Engine.datasets.timit()
+    try:
+        [x, y, samplename] = Engine.datasets.timit()
+    except:
+        print '''The dataset for this task was not found. Please download it from http://organic.elis.ugent.be/organic/engine 
+        and put it in ../datasets/''' 
+        exit()
+    
     
     n_samples = len(x);
     n_train_samples = int(round(n_samples * train_frac));
@@ -18,7 +24,7 @@ if __name__ == "__main__":
 
     inputs = x[0].shape[1]
     # construct individual nodes
-    reservoir = Engine.nodes.ReservoirNode(inputs, 500, input_scaling = 1)
+    reservoir = Engine.nodes.ReservoirNode(inputs, 500, input_scaling=1)
     readout = Engine.nodes.RidgeRegressionNode()
 
     # build network with MDP framework

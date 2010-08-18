@@ -36,7 +36,7 @@ setup(name = 'Engine', version = '0.2',
       description = short_description,
       long_description = long_description,
       classifiers = classifiers,
-      packages = ['Engine', 'Engine.datasets', 'Engine.evaluation', 'Engine.gradient', 'Engine.utils', 'Engine.nodes',
+      packages = ['Engine', 'Engine.datasets', 'Engine.evaluation', 'Engine.gradient', 'Engine.utils', 'Engine.nodes', 'Engine.parallel',
                   'mdp', 'mdp.nodes', 'mdp.utils', 'mdp.hinet', 'mdp.test', 'mdp.demo', 'mdp.graph', 'mdp.contrib', 'mdp.parallel'],
       package_data={'mdp': ['hinet/*.css', 'utils/*.css'], 'Engine': ['examples/*.py']},
       )
