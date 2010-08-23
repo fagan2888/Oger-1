@@ -153,6 +153,9 @@ class ReservoirNode(mdp.Node):
         return states[1:, :]
     
     def _post_update_hook(self, states, input, timestep):
+        """ Hook which gets executed after the state update equation for every timestep. Do not use this to change the state of the 
+            reservoir (e.g. to train internal weights) if you want to use parallellization - use the TrainableReservoirNode in that case.
+        """
         pass
     
  
@@ -231,7 +234,7 @@ class FeedbackReservoirNode(ReservoirNode):
     def __init__(self, reset_states=True, **kwargs):
         super(FeedbackReservoirNode, self).__init__(**kwargs)
         self.reset_states = reset_states
-        self.states = None
+        self.states = mdp.numx.zeros((1, self.output_dim))
         
     def _execute(self, x):        
         # Set the initial state of the reservoir

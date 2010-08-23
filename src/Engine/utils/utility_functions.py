@@ -49,6 +49,7 @@ class ConcatenatingIterator(object):
             if self.iterator_y is not None:
                 yield (x, mdp.numx.atleast_2d(self.iterator_y.next()))
             else:
+                print x
                 yield x 
                                                         
 
