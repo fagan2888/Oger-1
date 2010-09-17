@@ -18,5 +18,7 @@ import nodes
 import datasets
 import gradient
 import evaluation
+print 'Warning: importing parallel subpackage - still in development!'
+import parallel
 
-__all__=['utils', 'nodes', 'datasets', 'gradient', 'evaluation']
+__all__ = ['utils', 'nodes', 'datasets', 'gradient', 'evaluation', 'parallel']

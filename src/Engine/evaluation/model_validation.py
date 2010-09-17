@@ -81,7 +81,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
     '''
     test_error = []
     # Get the number of samples 
-    n_samples = len(data[0])
+    n_samples = mdp.numx.amax(map(len, data))
     # Get the indices of the training and testing samples for each fold by calling the 
     # cross_validate_function hook
     
