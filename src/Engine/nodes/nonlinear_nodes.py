@@ -3,17 +3,16 @@ import mdp
 from mdp import numx
 from mdp.utils import mult
 
-# TODO: is this node ever used?
 # TODO: could we turn this in a generic "function" node?
-class SignNode(mdp.Node):
+class ThresholdNode(mdp.Node):
     """
-    Compute the sign function of the input.
-    This simple node computes the sign function of its input
+    Compute a threshold function of the input.
     """
     
-    def __init__(self, input_dim=None, output_dim=None, dtype='float64'):
+    def __init__(self, input_dim=None, output_dim=None, threshold=0, dtype='float64'):
         
-        super(SignNode, self).__init__(input_dim, output_dim, dtype)
+        super(ThresholdNode, self).__init__(input_dim, output_dim, dtype)
+        self.threshold = threshold
         
     def is_trainable(self):
         return False
@@ -25,7 +24,8 @@ class SignNode(mdp.Node):
         return ['float32', 'float64']
 
     def _execute(self, x):
-        return numx.sign(x)
+        #print self.threshold
+        return (x > self.threshold) - 1 * (x < self.threshold) 
 
 
 # TODO what about the mdp.PerceptronClassifier??
