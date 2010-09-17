@@ -248,24 +248,3 @@ class FeedbackReservoirNode(ReservoirNode):
         self.states = super(FeedbackReservoirNode, self)._execute(x)
 
         return self.states
-
-class GPUReservoirNode(ReservoirNode):
-    def _execute(self, x):
-        """ Executes simulation with input vector x on the GPU
-        """
-        steps = x.shape[0]
-        
-        # Pre-allocate the state vector, adding the initial state
-        states = mdp.numx.concatenate((self.initial_state, mdp.numx.zeros((steps, self.output_dim))))
-        
-        cm.CUDA
-        
-        nonlinear_function_pointer = self.nonlin_func.f
-        # Loop over the input data and compute the reservoir states
-        for n in range(steps):
-            states[n + 1, :] = nonlinear_function_pointer(mdp.numx.dot(self.w, states[n, :]) + mdp.numx.dot(self.w_in, x[n, :]) + self.w_bias)
-            self._post_update_hook(states, x, n)    
-
-        # Return the whole state matrix except the initial state
-        return states[1:, :]
-    
