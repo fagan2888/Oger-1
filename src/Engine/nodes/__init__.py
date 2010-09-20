@@ -5,7 +5,7 @@ This subpackage contains a number of Engine-related nodes. It contains several a
 from flows import InspectableFlow
 from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, FeedbackReservoirNode)
 from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)
-from nonlinear_nodes import (SignNode, ThresholdNode, PerceptronNode)
+from nonlinear_nodes import (ThresholdNode, PerceptronNode)
 from rbm_nodes import (ERBMNode, CRBMNode)
 from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, ResampleNode, TimeFramesNode2)
 from spiking_nodes import (BrianIFReservoirNode, SpikingIFReservoirNode)
