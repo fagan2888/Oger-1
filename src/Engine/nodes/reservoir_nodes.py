@@ -190,6 +190,45 @@ class LeakyReservoirNode(ReservoirNode):
     def _post_update_hook(self, states, input, timestep):
         states[timestep + 1, :] = (1 - self.leak_rate) * states[timestep, :] + self.leak_rate * states[timestep + 1, :]
 
+#class BandpassReservoirNode(ReservoirNode):
+#    """Reservoir node with bandpass neurons (an Nth-order band-pass filter added to the output of a standard neuron). 
+#    """
+#
+#    def __init__(self, b=[1], a=[0] * args, **kwargs):
+#        """Initializes and constructs a random reservoir with band-pass neurons.
+#           Parameters are:
+#                - input_dim: input dimensionality
+#                - output_dim: output_dimensionality, i.e. reservoir size
+#                - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
+#                - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
+#                - input_scaling: scaling of the input weight matrix, default: 1
+#                - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
+#                - b: array of coefficients for the numerator of the IIR filter
+#                - a: array of coefficients for the denominator of the IIR filter
+#            
+#            Weight matrices are either generated randomly or passed at construction time.
+#            if w, w_in or w_bias are not given in the constructor, they are created randomly:
+#                - input matrix : input_scaling * uniform weights in [-1, 1]
+#                - bias matrix :  bias_scaling * uniform weights in [-1, 1]
+#                - reservoir matrix: gaussian weights rescaled to the desired spectral radius
+#            If w, w_in or w_bias were given as a numpy array or a function, these
+#            will be used as initialization instead.               
+#        """
+#        super(BandpassReservoirNode, self).__init__(*args, **kwargs)
+#       
+#        # Leak rate, if 1 it is a standard neuron, lower values give slower dynamics 
+#        self.a = a
+#        self.b = b
+#        self.input_buffer = mdp.numx.zeros_like(b)
+#        self.output_buffer = mdp.numx.zeros_like(a)
+#        
+#    def _post_update_hook(self, states, input, timestep):
+#        states[timestep + 1, :] = self.b * self.input_buffer + self.a * self.output_buffer
+#        self.output_buffer.pop(0)
+#        self.output_buffer.append(states[timestep + 1, :])
+#        self.input_buffer.pop(0)
+#        self.input_buffer.append(states[timestep, :])
+
 class TrainableReservoirNode(ReservoirNode):
     """A reservoir node that allows on-line training of the internal connections. Use
     this node for this purpose instead of implementing the _post_update_hook in the
