@@ -3,7 +3,9 @@ import pylab
 import mdp
 
 if __name__ == "__main__":
-
+    """ This useless example demonstrates how you can train/adapt reservoir weights during training. In this case 
+        Hebbian learning is done.
+    """
     inputs = 1
     timesteps = 10000
     washout = 30

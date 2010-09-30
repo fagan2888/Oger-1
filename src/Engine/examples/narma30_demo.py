@@ -2,7 +2,8 @@ import Engine
 import pylab
 
 if __name__ == "__main__":
-
+    """ This example demonstrates a very simple reservoir+readout setup on the 30th order NARMA task.
+    """
     inputs = 1
     timesteps = 10000
     washout = 30

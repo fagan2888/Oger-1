@@ -28,15 +28,11 @@ if __name__ == '__main__':
     # Instantiate an optimizer
     opt = Engine.evaluation.Optimizer(gridsearch_parameters, Engine.utils.nrmse)
     
-    #mdp.activate_extension("parallel")
-#    opt.scheduler = mdp.parallel.ProcessScheduler(n_processes=4, verbose=True)
-#    opt.scheduler = mdp.parallel.ThreadScheduler(n_threads=4, verbose=True)
-#    opt.scheduler = mdp.parallel.pp_support.LocalPPScheduler(ncpus=2, max_queue_length=0, verbose=True)
+    mdp.activate_extension("parallel")
+    opt.scheduler = mdp.parallel.ThreadScheduler(n_threads=2, verbose=True)
 
-    job_server = pp.Server(0, ppservers=("clsnn020:60000",))
-    opt.scheduler = mdp.parallel.pp_support.PPScheduler(ppserver=job_server, verbose=True)
-    
     # Do the grid search
+    mdp.activate_extension("parallel")
     opt.grid_search(data, flow, cross_validate_function=Engine.evaluation.n_fold_random, n_folds=5)
 
     # Get the minimal error

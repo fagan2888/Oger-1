@@ -4,7 +4,9 @@ import mdp
 import time
 
 if __name__ == "__main__":
-
+    """ This example shows parallelization of the samples in a dataset. In this case parallellization is done using
+        threads, but it can also be done over a computer cluster by providing a different scheduler. See the website for more information.
+    """
     inputs = 1
     timesteps = 10000
     washout = 30
@@ -33,10 +35,9 @@ if __name__ == "__main__":
     scheduler.shutdown()
 
     #apply the trained flow to the training data and test data
-    trainout = flow(x[0])
-    testout = flow(x[9])
-
-    print "NRMSE: " + str(Engine.utils.nrmse(y[9], testout))
+    outputs = flow.execute(x, scheduler=scheduler)
+    
+    print "NRMSE: " + str(Engine.utils.nrmse(y[9], outputs[-1000:, :]))
 
     #plot the input
     pylab.subplot(nx, ny, 1)
@@ -44,11 +45,11 @@ if __name__ == "__main__":
     
     #plot everything
     pylab.subplot(nx, ny, 2)
-    pylab.plot(trainout, 'r')
+    pylab.plot(outputs[1:1000], 'r')
     pylab.plot(y[0], 'b')
 
     pylab.subplot(nx, ny, 3)
-    pylab.plot(testout, 'r')
+    pylab.plot(outputs[-1000:, :], 'r')
     pylab.plot(y[9], 'b')
-    
+    pylab.show()
 

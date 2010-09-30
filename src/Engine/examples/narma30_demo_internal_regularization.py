@@ -3,7 +3,9 @@ import pylab
 import mdp
 
 if __name__ == "__main__":
-
+    """ This example shows how to perform internal optimization of one or multiple parameters of a node during training. 
+        This can be used to e.g. optimize the ridge parameter of the ridge regression node as is done here.
+    """
     inputs = 1
     timesteps = 10000
     washout = 30

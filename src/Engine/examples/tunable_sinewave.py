@@ -12,8 +12,8 @@ if __name__ == "__main__":
     # seconds per simulation timestep
     dt = .01
 
-    freqtrain = mdp.numx.vstack([mdp.numx.hstack((mdp.numx.atleast_2d(mdp.numx.arange(2, 1, -.002)), mdp.numx.atleast_2d(mdp.numx.arange(1, 2, .002)))).T] * 2)
-    freqtest = mdp.numx.atleast_2d(mdp.numx.sin(mdp.numx.arange(mdp.numx.pi / 2, 6, .002))).T + 2
+    freqtrain = mdp.numx.vstack([mdp.numx.hstack((mdp.numx.atleast_2d(mdp.numx.arange(1, 0, -.002)), mdp.numx.atleast_2d(mdp.numx.arange(0, 1, .002)))).T] * 4)
+    freqtest = mdp.numx.atleast_2d(mdp.numx.sin(mdp.numx.arange(mdp.numx.pi / 2, 6, .002))).T / 2 + .5
        
     x = sinewaves(freqtrain, dt)
     xtest = sinewaves(freqtest, dt)
@@ -24,11 +24,11 @@ if __name__ == "__main__":
     freerun_steps = xtest.shape[0]
 
     # construct individual nodes
-    reservoir = Engine.nodes.FeedbackReservoirNode(output_dim=N, input_dim=2, input_scaling=2)
+    reservoir = Engine.nodes.FeedbackReservoirNode(output_dim=N, input_dim=2, input_scaling=1)
     Engine.utils.mix_in(Engine.nodes.FeedbackReservoirNode, Engine.nodes.LeakyReservoirNode)
-    reservoir.leak_rate = 0.1    
+    reservoir.leak_rate = 1    
     
-    readout = Engine.nodes.RidgeRegressionNode(0.01)
+    readout = Engine.nodes.RidgeRegressionNode(0.1)
     
     fb = Engine.nodes.FeedbackNode(n_timesteps=freerun_steps)
     

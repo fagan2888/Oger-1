@@ -2,7 +2,8 @@ import mdp
 import Engine
 
 if __name__ == '__main__':
-
+    """ This example demonstrates the use of the plotting functions of the Optimizer class.
+    """
     [inputs, outputs] = Engine.datasets.narma30()
     data = [inputs, zip(inputs, outputs)]
 
