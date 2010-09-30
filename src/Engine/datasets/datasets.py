@@ -45,8 +45,11 @@ def narma30(n_samples=10, sample_len=1000):
     return inputs, outputs 
 
 def memtest(n_samples=10, sample_len=1000, n_delays=10):
-    ''' Generates a series of input timeseries and delayed versions as outputs. 
-    Delay is given in number of timesteps.  
+    ''' 
+    memtest(n_samples=10, sample_len=1000, n_delays=10) -> inputs, outputs
+    Generates a series of input timeseries and delayed versions as outputs. 
+    Delay is given in number of timesteps. Can be used to empirically measure the 
+    memory capacity of a system.
     '''
     inputs, outputs = [], []
     for sample in range(n_samples):
