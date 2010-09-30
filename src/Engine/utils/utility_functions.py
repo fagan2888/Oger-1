@@ -1,5 +1,9 @@
 import mdp
 import itertools
+import scipy
+from pylab import *
+
+## Utility functions
 
 def get_spectral_radius(W):
     """
@@ -18,6 +22,47 @@ def empty_n_d_list(dims):
         return [empty_n_d_list(dims[1:]) for _ in range(dims[0])]
     else:
         return [[] for _ in range(dims[0])]
+
+def mfreqz(b, a=1):
+    figure(1)
+    w, h = scipy.signal.freqz(b, a)
+    h_dB = 20 * log10 (abs(h))
+    subplot(211)
+    plot(w / max(w), h_dB)
+    ylim(-150, 5)
+    ylabel('Magnitude (db)')
+    xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+    title(r'Frequency response')
+    subplot(212)
+    h_Phase = unwrap(arctan2(imag(h), real(h)))
+    plot(w / max(w), h_Phase)
+    ylabel('Phase (radians)')
+    xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+    title(r'Phase response')
+    subplots_adjust(hspace=0.5)
+
+def butter_coefficients(order, low_cutoff_freqs, high_cutoff_freqs, plot_freq_response=False):
+    ''' 
+    butter_coefficients(order, low_cutoff_freqs, high_cutoff_freqs, plot_freq_response) -> (b)
+    Return filter coefficients for a bank of butterworth FIR-filters of a given order and cutoff-frequencies.
+    
+    '''
+    b_list = []
+    a_list = []
+    if high_cutoff_freqs.shape != low_cutoff_freqs.shape:
+        print 'Vectors should have the same length!'
+    
+    for low, high in zip(low_cutoff_freqs, high_cutoff_freqs):
+        b, a = scipy.signal.iirfilter(order, [low, high], btype='bandpass')
+        b_list.append(b)
+        a_list.append(a)
+        if plot_freq_response:
+            mfreqz(b, a)
+    if plot_freq_response:
+        show()
+    return b_list, a_list
+
+## Utility classes
 
 class ConcatenatingIterator(object):
     ''' Return an iterator which concatenates at every timestep its separate inputs to one large vector.
@@ -49,7 +94,6 @@ class ConcatenatingIterator(object):
             if self.iterator_y is not None:
                 yield (x, mdp.numx.atleast_2d(self.iterator_y.next()))
             else:
-                print x
                 yield x 
                                                         
 

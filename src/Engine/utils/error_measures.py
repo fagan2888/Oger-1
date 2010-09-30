@@ -1,7 +1,9 @@
 import mdp
 
 def timeslice(range, function):
-    """Apply the given function only to the given time range of the data.
+    """
+    timeslice(range, function) -> function
+    Apply the given function only to the given time range of the data.
     Can be used to eg. apply an error metric only to a part of the data.
     """
     return lambda x, y: function(x[range, :], y[range, :])
@@ -158,7 +160,7 @@ def mem_capacity(input, target):
 
     score = []
     for k in range(target.shape[1]):
-        covariance_matrix = mdp.numx.cov(mdp.numx.concatenate((input[:,k:k+1].T, target[:,k:k+1].T)))
-        score.append(covariance_matrix[0,1]**2/(covariance_matrix[0,0]*covariance_matrix[1,1]))
+        covariance_matrix = mdp.numx.cov(mdp.numx.concatenate((input[:, k:k + 1].T, target[:, k:k + 1].T)))
+        score.append(covariance_matrix[0, 1] ** 2 / (covariance_matrix[0, 0] * covariance_matrix[1, 1]))
     
-    return -mdp.numx.sum(score)
+    return - mdp.numx.sum(score)

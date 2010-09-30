@@ -1,5 +1,7 @@
 import Engine
 import mdp
+import scipy.signal
+import collections
 
 # TODO: MDP parallelization assumes that nodes are state-less when executing! The current ReservoirNode
 # does not adhere to this and therefor are not parallelizable. A solution is to make the state local. 
@@ -144,6 +146,7 @@ class ReservoirNode(mdp.Node):
         states = mdp.numx.concatenate((self.initial_state, mdp.numx.zeros((steps, self.output_dim))))
         
         nonlinear_function_pointer = self.nonlin_func.f
+        
         # Loop over the input data and compute the reservoir states
         for n in range(steps):
             states[n + 1, :] = nonlinear_function_pointer(mdp.numx.dot(self.w, states[n, :]) + mdp.numx.dot(self.w_in, x[n, :]) + self.w_bias)
@@ -190,45 +193,44 @@ class LeakyReservoirNode(ReservoirNode):
     def _post_update_hook(self, states, input, timestep):
         states[timestep + 1, :] = (1 - self.leak_rate) * states[timestep, :] + self.leak_rate * states[timestep + 1, :]
 
-#class BandpassReservoirNode(ReservoirNode):
-#    """Reservoir node with bandpass neurons (an Nth-order band-pass filter added to the output of a standard neuron). 
-#    """
-#
-#    def __init__(self, b=[1], a=[0] * args, **kwargs):
-#        """Initializes and constructs a random reservoir with band-pass neurons.
-#           Parameters are:
-#                - input_dim: input dimensionality
-#                - output_dim: output_dimensionality, i.e. reservoir size
-#                - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
-#                - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
-#                - input_scaling: scaling of the input weight matrix, default: 1
-#                - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
-#                - b: array of coefficients for the numerator of the IIR filter
-#                - a: array of coefficients for the denominator of the IIR filter
-#            
-#            Weight matrices are either generated randomly or passed at construction time.
-#            if w, w_in or w_bias are not given in the constructor, they are created randomly:
-#                - input matrix : input_scaling * uniform weights in [-1, 1]
-#                - bias matrix :  bias_scaling * uniform weights in [-1, 1]
-#                - reservoir matrix: gaussian weights rescaled to the desired spectral radius
-#            If w, w_in or w_bias were given as a numpy array or a function, these
-#            will be used as initialization instead.               
-#        """
-#        super(BandpassReservoirNode, self).__init__(*args, **kwargs)
-#       
-#        # Leak rate, if 1 it is a standard neuron, lower values give slower dynamics 
-#        self.a = a
-#        self.b = b
-#        self.input_buffer = mdp.numx.zeros_like(b)
-#        self.output_buffer = mdp.numx.zeros_like(a)
-#        
-#    def _post_update_hook(self, states, input, timestep):
-#        states[timestep + 1, :] = self.b * self.input_buffer + self.a * self.output_buffer
-#        self.output_buffer.pop(0)
-#        self.output_buffer.append(states[timestep + 1, :])
-#        self.input_buffer.pop(0)
-#        self.input_buffer.append(states[timestep, :])
+class BandpassReservoirNode(ReservoirNode):
+    """Reservoir node with bandpass neurons (an Nth-order band-pass filter added to the output of a standard neuron). 
+    """ 
+    def __init__(self, b=mdp.numx.array([[1]]), a=mdp.numx.array([[0]]), *args, **kwargs):
+        """Initializes and constructs a random reservoir with band-pass neurons.
+           Parameters are:
+                - input_dim: input dimensionality
+                - output_dim: output_dimensionality, i.e. reservoir size
+                - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
+                - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
+                - input_scaling: scaling of the input weight matrix, default: 1
+                - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
+                - b: array of coefficients for the numerator of the IIR filter
+                - a: array of coefficients for the denominator of the IIR filter
+            
+            Weight matrices are either generated randomly or passed at construction time.
+            if w, w_in or w_bias are not given in the constructor, they are created randomly:
+                - input matrix : input_scaling * uniform weights in [-1, 1]
+                - bias matrix :  bias_scaling * uniform weights in [-1, 1]
+                - reservoir matrix: gaussian weights rescaled to the desired spectral radius
+            If w, w_in or w_bias were given as a numpy array or a function, these
+            will be used as initialization instead.               
+        """
+        self.a = a
+        self.b = b
+        super(BandpassReservoirNode, self).__init__(*args, **kwargs)
+        self.input_buffer = collections.deque([mdp.numx.zeros(self.output_dim)] * self.b.shape[1], maxlen=self.b.shape[1])
+        self.output_buffer = collections.deque([mdp.numx.zeros(self.output_dim)] * self.a.shape[1], maxlen=self.a.shape[1])
 
+    def _post_update_hook(self, states, input, timestep):
+        self.input_buffer.appendleft(states[timestep + 1, :])
+        t1 = mdp.numx.sum(self.b * mdp.numx.array(self.input_buffer).T, axis=1)
+        t2 = mdp.numx.sum(self.a * mdp.numx.array(self.output_buffer).T, axis=1)
+        states[timestep + 1, :] = t1 - t2
+        self.output_buffer.appendleft(states[timestep, :])
+        
+        
+        
 class TrainableReservoirNode(ReservoirNode):
     """A reservoir node that allows on-line training of the internal connections. Use
     this node for this purpose instead of implementing the _post_update_hook in the

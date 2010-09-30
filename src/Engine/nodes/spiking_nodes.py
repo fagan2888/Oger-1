@@ -2,13 +2,13 @@ import mdp
 try:
     from pyNN.pcsim import *
     from pypcsim import *
-except ImportError:
-    print "PCSim was not found. The Engine will work fine, but you will not be able to use the PyNN spiking nodes."
+except:
+    pass
     
 try:
     import brian
 except ImportError:
-    print "Brian was not found. The Engine will work fine, but you will not be able to use the Brian spiking nodes."
+    pass
 
 import pylab
 import scipy

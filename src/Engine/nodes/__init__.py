@@ -3,7 +3,7 @@ This subpackage contains a number of Engine-related nodes. It contains several a
 """
 
 from flows import InspectableFlow
-from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, FeedbackReservoirNode)
+from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, FeedbackReservoirNode, BandpassReservoirNode)
 from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)
 from nonlinear_nodes import (ThresholdNode, PerceptronNode)
 from rbm_nodes import (ERBMNode, CRBMNode)
