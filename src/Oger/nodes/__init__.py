@@ -3,7 +3,7 @@ This subpackage contains a number of Oger-related nodes. It contains several add
 """
 
 from flows import InspectableFlow
-from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, FeedbackReservoirNode, BandpassReservoirNode)
+from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, FeedbackReservoirNode, BandpassReservoirNode, GPUReservoirNode)
 from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)
 from nonlinear_nodes import (ThresholdNode, PerceptronNode)
 from rbm_nodes import (ERBMNode, CRBMNode)

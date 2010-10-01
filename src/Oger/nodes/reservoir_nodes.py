@@ -2,6 +2,10 @@ import Oger
 import mdp
 import scipy.signal
 import collections
+try:
+    import cudamat as cm
+except:
+    pass
 
 # TODO: MDP parallelization assumes that nodes are state-less when executing! The current ReservoirNode
 # does not adhere to this and therefor are not parallelizable. A solution is to make the state local. 
@@ -289,3 +293,104 @@ class FeedbackReservoirNode(ReservoirNode):
         self.states = super(FeedbackReservoirNode, self)._execute(x)
 
         return self.states
+
+def get_specrad(Ac):
+        """Get spectral radius of A using the power method."""
+    
+        m_size = Ac.shape[0]
+    
+        x = np.random.normal(0, 1, (m_size, 1))
+    
+        x = x / np.linalg.norm(x)
+        x = cm.CUDAMatrix(x)
+    
+        y = cm.empty((m_size, 1))
+        diff = 200
+        eps = 1e-3
+        b = 1e10
+        c = 1e9
+        r = 1e9
+        max_its = 1e6
+    
+        n_its = 0
+    
+        while diff > eps and n_its < max_its:
+            cm.dot(Ac, x, target=y)
+            norm = y.euclid_norm()
+            y.divide(norm, target=x)
+            a = cm.dot(y.T, x).asarray()
+            c = cm.dot(x.T, x).asarray()
+            diff = np.abs(a - b)
+            b = float(a)
+            n_its += 1
+    
+        specrad = float(a / c)
+        print 'Spectral radius:', specrad, 'Number of iterations:', n_its
+        return float(a / c)
+
+
+class GPUReservoirNode(mdp.Node):
+    def __init__(self, input_dim, output_dim, spectral_radius=.9, leak_rate=1,
+                                             input_scaling=1, bias_scaling=0):
+        super(GPUReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim,)
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.leak_rate = leak_rate
+        w = mdp.numx.random.normal(0, 1, (output_dim, output_dim))
+        w_in = mdp.numx.random.uniform(-1, 1, (output_dim, input_dim)) * input_scaling
+        if output_dim < 1500:
+            l = mdp.numx.linalg.eigvals(w)
+            r = mdp.numx.amax(mdp.numx.absolute(l))
+            w = w * (spectral_radius / r)
+            self.w = cm.CUDAMatrix(w)
+        else:
+            self.w = cm.CUDAMatrix(w)
+            r = get_specrad(self.w)
+            self.w.mult(spectral_radius / r)
+        bias = mdp.numx.random.normal(0, 1, (output_dim, 1)) * bias_scaling
+        self.w_in = cm.CUDAMatrix(w_in)
+        self.bias = cm.CUDAMatrix(bias)
+        self.current_state = cm.empty((self.output_dim, 1))
+        self.new_state = cm.empty((self.output_dim, 1))
+
+
+    def _execute(self, x):
+        n = x.shape[0]
+        # Do everything in transpose because row indexing is very expensive.
+        x_T = x.transpose()
+        self.states = cm.empty((self.output_dim, n + 1))
+
+        self.states.set_col_slice(0, 1, cm.CUDAMatrix(mdp.numx.zeros((self.output_dim, 1))))
+        temp = cm.empty((self.output_dim, 1))
+        bias = self.bias
+
+        for i in range(n):
+
+            self.current_state = self.states.get_col_slice(i, i + 1)
+            self.new_state = self.states.get_col_slice(i + 1, i + 2)
+
+            cm.dot(self.w, self.current_state, self.new_state)
+            self.new_state.add_dot(self.w_in, x_T.get_col_slice(i, i + 1))
+
+            # I should either make this trainable or leave it out.
+            #self.new_state.add(bias)
+
+            self.new_state.apply_tanh()
+
+            # Add leakrate
+            #self.new_state.mult(self.leak_rate)
+            #self.new_state.add_mult(self.current_state, 1 - self.leak_rate)
+
+            # Note that the states are shifted in time and that the first state
+            # is zero.
+            states_out = self.states.get_col_slice(0, n)
+
+        return states_out.transpose()
+
+    def update(self, input, previous):
+        new_state = cm.empty(previous.shape)
+        cm.dot(self.w, previous, new_state)
+        new_state.add_dot(self.w_in, input)
+        #new_state.add(self.bias)
+        new_state.apply_tanh()
+        return new_state

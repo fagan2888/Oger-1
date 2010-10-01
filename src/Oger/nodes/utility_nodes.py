@@ -102,8 +102,7 @@ class ShiftNode(mdp.Node):
     This is useful for architectures in which data from different time steps is
     needed. The values that are left over are set to zero.
 
-    Negative shift values cause a shift to the left and positive ones to the
-    right.
+    Negative shift values cause a shift back in time and positive ones forward in time.
     """
 
     def __init__(self, input_dim=None, output_dim=None, n_shifts=1,
