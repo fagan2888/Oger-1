@@ -329,10 +329,10 @@ def get_specrad(Ac):
         return float(a / c)
 
 
-class GPUReservoirNode(mdp.Node):
+class CUDAReservoirNode(mdp.Node):
     def __init__(self, input_dim, output_dim, spectral_radius=.9, leak_rate=1,
                                              input_scaling=1, bias_scaling=0):
-        super(GPUReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim,)
+        super(CUDAReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim,)
         self.input_dim = input_dim
         self.output_dim = output_dim
         self.leak_rate = leak_rate
@@ -386,11 +386,3 @@ class GPUReservoirNode(mdp.Node):
             states_out = self.states.get_col_slice(0, n)
 
         return states_out.transpose()
-
-    def update(self, input, previous):
-        new_state = cm.empty(previous.shape)
-        cm.dot(self.w, previous, new_state)
-        new_state.add_dot(self.w_in, input)
-        #new_state.add(self.bias)
-        new_state.apply_tanh()
-        return new_state
