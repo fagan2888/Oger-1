@@ -3,7 +3,7 @@
 import pylab
 import mdp
 import numpy as np
-import Engine
+import Oger
 
 # Some recycled functions for data creation.
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # The context is concatenated to the input as if it where one signal.
     v = np.concatenate((u, x), 1)
 
-    crbmnode = Engine.nodes.CRBMNode(hidden_dim=100, visible_dim=20, context_dim=N * 20, gaussian=True)
+    crbmnode = Oger.nodes.CRBMNode(hidden_dim=100, visible_dim=20, context_dim=N * 20, gaussian=True)
 
     t, d = u.shape
     print 'Training for %d epochs...' % epochs

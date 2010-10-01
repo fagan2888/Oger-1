@@ -3,7 +3,7 @@
 import pylab
 import mdp
 import numpy as np
-import Engine
+import Oger
 
 # Some recycled functions for data creation.
 
@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     v = u
 
-    rbmnode = Engine.nodes.ERBMNode(hidden_dim=100, visible_dim=20, gaussian=True)
+    rbmnode = Oger.nodes.ERBMNode(hidden_dim=100, visible_dim=20, gaussian=True)
 
     t, d = u.shape
     print 'Training for %d epochs...' % epochs

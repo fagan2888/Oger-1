@@ -1,2 +1,2 @@
 #!/bin/bash
-epydoc -v --introspect-only -o docs --no-imports Engine/__init__.py  mdp/__init__.py
+epydoc -v --introspect-only -o docs --no-imports Oger/__init__.py  mdp/__init__.py
