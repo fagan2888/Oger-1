@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package exampleengineclient;
+package exampleogerclient;
 
 import java.util.ArrayList;
 import java.util.Properties;
@@ -20,14 +20,14 @@ public class Main {
 
     // jython_site_packages_path is the path you have Pyro installed in
     public static PythonInterpreter preparePythonInterpreter(String pyro_path) {
-        System.out.println("initializing engine access via jython/pyro");
+        System.out.println("initializing oger access via jython/pyro");
         Properties p = System.getProperties();
         p.put("python.path", pyro_path);
         PythonInterpreter.initialize(p, null, new String[]{});
         PythonInterpreter interp = new PythonInterpreter();
         interp.exec("import Pyro.core");
-        interp.exec("engine_access = Pyro.core.getProxyForURI(\"PYROLOC://localhost:7766/engine_access\")");
-        System.out.println("engine access initialized");
+        interp.exec("oger_access = Pyro.core.getProxyForURI(\"PYROLOC://localhost:7766/oger_access\")");
+        System.out.println("oger access initialized");
         return interp;
     }
 
@@ -40,7 +40,7 @@ public class Main {
         }
         interp.set("xx", xx);
         interp.set("yy", yy);
-        interp.exec("engine_access.pylab_plot([float(d) for d in xx], [float(d) for d in yy])");
+        interp.exec("oger_access.pylab_plot([float(d) for d in xx], [float(d) for d in yy])");
     }
 
     public static double[][] pyObjToDblMat(PyObject po) {
@@ -81,8 +81,8 @@ public class Main {
 
     public static void testNarmaExample(PythonInterpreter interp) {
 
-        System.out.println("fetch narma data from engine and convert it into java native types");
-        interp.exec("narma_data = engine_access.get_narma_data()");
+        System.out.println("fetch narma data from oger and convert it into java native types");
+        interp.exec("narma_data = oger_access.get_narma_data()");
 //        interp.exec("print \"len(narma_data):\" + str(len(narma_data))");
 //        interp.exec("print \"len(narma_data[0]):\" + str(len(narma_data[0]))");
 //        interp.exec("print \"len(narma_data[1]):\" + str(len(narma_data[1]))");
@@ -115,7 +115,7 @@ public class Main {
 
         System.out.println("make narma flow");
         interp.set("inputs", 1);
-        interp.exec("engine_access.make_narma_flow(inputs)");
+        interp.exec("oger_access.make_narma_flow(inputs)");
 
         System.out.println("call narma flow training with the java native data");
         PyArray xpa = javaArrayListOfDblMatToPyArray(x);
@@ -133,7 +133,7 @@ public class Main {
 //        interp.exec("print narma_data[1]");
 //        interp.exec("print yy");
 
-        interp.exec("engine_access.train_narma_flow(xx, yy)");
+        interp.exec("oger_access.train_narma_flow(xx, yy)");
         System.out.println("success :-)");
     }
 
@@ -146,7 +146,7 @@ public class Main {
         // pylab plot test
         // testPyLabPlotting(interp);
 
-        // engine narma test
+        // oger narma test
         testNarmaExample(interp);
 
     }

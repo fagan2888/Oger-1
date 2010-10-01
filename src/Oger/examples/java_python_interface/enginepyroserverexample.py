@@ -4,7 +4,7 @@
 __author__="uli"
 __date__ ="$29.09.2010 14:11:48$"
 
-import Engine
+import Oger
 import Pyro.core
 import pylab
 import mdp
@@ -32,7 +32,7 @@ def list_of_numpy_arrays_to_list_of_native_array(numpy_array_list):
 def lonatlona(lona):
     return list_of_numpy_arrays_to_list_of_native_array(lona)
 
-class EngineAccess(Pyro.core.ObjBase):
+class OgerAccess(Pyro.core.ObjBase):
     def __init__(self):
         Pyro.core.ObjBase.__init__(self)
 
@@ -65,7 +65,7 @@ class EngineAccess(Pyro.core.ObjBase):
 def main():
     Pyro.core.initServer()
     daemon = Pyro.core.Daemon()
-    uri = daemon.connect(EngineAccess(), "engine_access")
+    uri = daemon.connect(OgerAccess(), "oger_access")
     print "port: ", daemon.port
     print "uri:  ", uri
     daemon.requestLoop()
