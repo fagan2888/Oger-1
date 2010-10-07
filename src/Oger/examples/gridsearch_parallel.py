@@ -28,7 +28,7 @@ if __name__ == '__main__':
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
     
-    mdp.activate_extension("parallel")
+    #mdp.activate_extension("parallel")
     opt.scheduler = mdp.parallel.ThreadScheduler(n_threads=2, verbose=True)
 
     # Do the grid search

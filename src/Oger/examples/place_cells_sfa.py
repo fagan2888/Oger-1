@@ -26,7 +26,7 @@ if __name__ == '__main__':
     try:
         dictFile = loadmat("../datasets/eric_robotsensors.mat", struct_as_record=True)
     except:
-        print '''The dataset for this task was not found. Please download it from http://organic.elis.ugent.be/organic/oger 
+        print '''The dataset for this task was not found. Please download it from http://organic.elis.ugent.be/oger 
         and put it in ../datasets/''' 
         exit()
     

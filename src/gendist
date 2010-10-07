@@ -4,7 +4,7 @@
 python -V
 python ./setup.py sdist --manifest-only
 mv MANIFEST MANIFEST2
-echo -ne 'nCOPYING\nCOPYRIGHT\nINSTALL\n' > MANIFEST1
+echo -ne 'nCOPYING\nCOPYING.LESSER\nREADME\nINSTALL\n' > MANIFEST1
 ls Oger/examples/*py >> MANIFEST1
 sed -i .bak -e '/feedback_and_external_input/d' -e '/fbflow/d' -e '/hierarchical_esn/d' -e '/narma30_demo_continuous/d' -e '/narma30_demo_network/d' MANIFEST1
 rm MANIFEST1.bak

@@ -12,7 +12,7 @@ if __name__ == "__main__":
     try:
         [x, y, samplename] = Oger.datasets.timit()
     except:
-        print '''The dataset for this task was not found. Please download it from http://organic.elis.ugent.be/organic/oger
+        print '''The dataset for this task was not found. Please download it from http://organic.elis.ugent.be/oger
         and put it in ../datasets/''' 
         exit()
     
