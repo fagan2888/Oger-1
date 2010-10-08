@@ -195,3 +195,37 @@ class TimeFramesNode2(mdp.nodes.TimeFramesNode):
     
     def pseudo_inverse(self, y):
         pass
+        
+        
+class FeedbackShiftNode(mdp.Node):
+    """ Shift node that can be applied when using generators. 
+    The node works as a delay line with the number of timesteps the lengths of the delay line.
+    """
+
+    def __init__(self, input_dim=None, output_dim=None, n_shifts=1,
+                 dtype='float64'):
+        super(MyShiftNode, self).__init__(input_dim, output_dim, dtype)
+        self.n_shifts = n_shifts
+        self.y = None
+    def is_trainable(self):
+        False
+
+    def _execute(self, x):
+        n = x.shape
+        assert(n > 1)
+
+        ns = self.n_shifts
+        
+        if self.y == None:
+            self.y = np.zeros((self.n_shifts,self._input_dim))
+
+        self.y = np.vstack([self.y,x.copy()])
+
+        returny = self.y[:x.shape[0],:].copy()
+        self.y = self.y[x.shape[0]:,:]
+        return returny
+
+    def _set_input_dim(self, n):
+        self._input_dim = n
+        self._output_dim = n
+        
