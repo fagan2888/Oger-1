@@ -12,7 +12,13 @@ import mdp
 import Oger
 import pylab
 import scipy.io
- 
+
+# imports for generating data
+from PIL import Image, ImageDraw, ImageFont
+import random, os
+from scipy.misc import fromimage
+from numpy.numarray.numerictypes import Float64
+
 class SubtractNode(mdp.Node):
     '''
         Subtracts last input_dim/2 dimensions of data from first input_dim/2 dimensions of data
@@ -117,14 +123,112 @@ def ConstructSpatialProcessingLayer(lrf_size = 6, lrf_shift = 1, input_features 
     
     return (train_flow,test_flow)
 
+def generateData(chars = "/\|><:'=+- ", nItems = 100, rotationRange = 0, symbolHeight = 12, widthLow = 7, widthHigh = 12, verticalShift = 1, 
+                 contrast = 0.5, noiseP1 = 0.02, noiseP2 = 0.005, addNoise = 1):
+    '''
+        Generates an image - a sequence of printed characters with added noise and spatial transformations
+            
+            chars - characters that will be used to generate the image
+            nItems - length of the character sequence
+            rotationRange - amount of random rotation to add
+            symbolHeight - height of the generate image
+            widthLow - minimum width of a generate character
+            widthHigh - maximum width of a generated character
+            verticalShift - amount of random vertical shift to add (+-)
+            contrast - contrast enhancement (0 = none, 1 = binary image)
+            addNoise - 1, if noise should be added
+            noiseP1 - probability of darkening a white pixel
+            noiseP2 - probability of brightening a dark pixel            
+    '''
+
+    nChars = len(chars)             # number of classes
+    
+    outstr = ""
+    outw = []
+    classIds = []
+    totlen = 0
+       
+    # generate random string and widths of the individual symbols
+    for i in range(nItems):
+        outw.append(random.randint(widthLow,widthHigh))
+        totlen = totlen + outw[-1]
+        clsId = random.randint(0,nChars-1)
+        outstr += chars[clsId]
+        classIds.append(clsId)
+    
+    #print totlen
+    
+    imFinal = Image.new('L', (totlen,symbolHeight), 0x00000000)            # the final image with black background
+    
+    try:
+        font = ImageFont.truetype("cour.ttf", 12)
+    except:
+        font = ImageFont.load_default()                             # fallback to the default font
+    
+    pos = 0                # marks position in the final image at which the current symbol will be written
+    
+    for i in range(nItems):
+        # Draw a character on a separate image
+        sz = font.getsize(outstr[i])
+        imChar = Image.new('L', sz)
+        draw = ImageDraw.Draw(imChar)
+        draw.text((0,0), outstr[i], font=font, fill=255)
+        
+        # Resize
+        imChar = imChar.resize((outw[i], symbolHeight))
+        
+        # Rotate
+        if rotationRange <> 0:
+            imChar = imChar.rotate(random.randint(-rotationRange,rotationRange))
+        
+        # Add vertical shift
+        if verticalShift <> 0:
+            ttt = [1, 0, 0, 0, 1, random.randint(-verticalShift,verticalShift)]
+            imChar = imChar.transform(imChar.size, 0, ttt)        # vertical shift
+            
+        # Contrast sharpening
+        if contrast <> 0:
+            data = imChar.load()
+            for x in range(imChar.size[0]):
+                for y in range(imChar.size[1]):
+                    c = data[x,y]
+                    if (c <> 0):
+                        data[x,y] = (255-c)*contrast+c
+        
+        # Add salt&pepper noise
+        if addNoise <> 0:        
+            data = imChar.load()
+            for x in range(imChar.size[0]):
+                for y in range(imChar.size[1]):
+                    c = data[x,y]
+                    if (c <> 0 and random.random() < noiseP1):
+                        mult = random.random()*0.4
+                        data[x,y] = c*mult                          # darken white pixels
+                    else:
+                        if (random.random() < noiseP2):
+                            mult = random.randint(64,255)
+                            data[x,y] = mult                        # whiten dark pixel
+        
+                
+        # Write the character to the final image
+        imFinal.paste(imChar, (pos,0))
+        pos = pos + outw[i]
+
+        del draw, imChar
+
+    del font
+
+    return fromimage(imFinal, 1).astype('float64')
 
 
 if __name__ == '__main__':
-    data = scipy.io.loadmat('../datasets/vytenis_printedChars.mat')    # Printed chars with noise data
-    u = data['data']                                            # Training data
-    visdata = data['data'][:,0:300]                             # Data for visualization
+    #data = scipy.io.loadmat('../datasets/vytenis_printedChars.mat')    # Printed chars with noise data
+    #data = data['data']
+    data = generateData(nItems=2000)
+    u = data                                            # Training data
+    visdata = data[:,0:300]                             # Data for visualization
     
-    res_size = 20                                               # Size of the reservoir
+    res_size = 30                                               # Size of the reservoir
     
     # Create two flows: one for training and one for testing
     (trainf, testf) = ConstructSpatialProcessingLayer(lrf_size = 5, lrf_shift = 1, input_features = 1, input_size = 12, reservoir_size = res_size, out_features = 10)
@@ -135,7 +239,7 @@ if __name__ == '__main__':
     
     # Plot data and 5 spatialy slowest features 
     pylab.subplot(6,1,1)
-    pylab.imshow(visdata,aspect='auto')
+    pylab.imshow(visdata,aspect='auto',interpolation='nearest')
     for i in range(5):
         pylab.subplot(6,1,i+2)
         pylab.imshow(out[:,res_size-5+i::res_size].T,aspect='auto',interpolation='nearest')

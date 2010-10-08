@@ -7,13 +7,13 @@ def sinewaves(freqs, dt):
     return(mdp.numx.atleast_2d(mdp.numx.sin(2 * mdp.numx.pi * freqs * t * dt)))
     
 if __name__ == "__main__":
-    N = 200
+    N = 30
     
     # seconds per simulation timestep
     dt = .01
 
-    freqtrain = mdp.numx.vstack([mdp.numx.hstack((mdp.numx.atleast_2d(mdp.numx.arange(1, 0, -.002)), mdp.numx.atleast_2d(mdp.numx.arange(0, 1, .002)))).T] * 4)
-    freqtest = mdp.numx.atleast_2d(mdp.numx.sin(mdp.numx.arange(mdp.numx.pi / 2, 6, .002))).T / 2 + .5
+    freqtrain = mdp.numx.vstack([mdp.numx.hstack((mdp.numx.atleast_2d(mdp.numx.arange(.75, 0.5, -.001)), mdp.numx.atleast_2d(mdp.numx.arange(0.5, .75, .001)))).T] * 8)
+    freqtest = mdp.numx.atleast_2d(mdp.numx.sin(mdp.numx.arange(mdp.numx.pi / 2, 6, .001))).T/8 + 6./8  
        
     x = sinewaves(freqtrain, dt)
     xtest = sinewaves(freqtest, dt)
@@ -24,9 +24,9 @@ if __name__ == "__main__":
     freerun_steps = xtest.shape[0]
 
     # construct individual nodes
-    reservoir = Oger.nodes.FeedbackReservoirNode(output_dim=N, input_dim=2, input_scaling=1)
+    reservoir = Oger.nodes.FeedbackReservoirNode(output_dim=N, input_dim=2, input_scaling=.7)
     Oger.utils.mix_in(Oger.nodes.FeedbackReservoirNode, Oger.nodes.LeakyReservoirNode)
-    reservoir.leak_rate = 1    
+    reservoir.leak_rate = .8    
     
     readout = Oger.nodes.RidgeRegressionNode(0.1)
     

@@ -104,13 +104,13 @@ class BackpropNode(mdp.Node):
     methods for optimization of the parameters of all the nodes in the flow.
     """
 
-    def _stop_train_dummy(self):
-        pass
-    
-    def _get_train_seq(self):
-        train_list = [(self._train, self._stop_train_dummy)] * (self._n_epochs)
-        train_list.append((self._train, self._stop_training))
-        return train_list
+#    def _stop_train_dummy(self):
+#        pass
+#    
+#    def _get_train_seq(self):
+#        train_list = [(self._train, self._stop_train_dummy)] * (self._n_epochs)
+#        train_list.append((self._train, self._stop_training))
+#        return train_list
 
     def __init__(self, gflow, gtrainer, loss_func=None, derror=None, n_epochs=1, dtype='float64'):
         """Create a BackpropNode that encapsulates a flow of gradient nodes.
@@ -150,7 +150,6 @@ class BackpropNode(mdp.Node):
         # the train method call below.
         # TODO: Perhaps the use of target values should be optional to allow
         # for unsupervised algorithms etc.
-        print "Training!"
         if (len(args) > 0): 
             t = args[0]
         else:

@@ -8,7 +8,7 @@ if __name__ == "__main__":
     n_subplots_x, n_subplots_y = 2, 1
     train_frac = .9
 
-    [inputs, outputs] = Oger.datasets.analog_speech(indir="../datasets/Lyon_128")
+    [inputs, outputs] = Oger.datasets.analog_speech(indir="../datasets/Lyon_decimation_128")
     
     n_samples = len(inputs)
     n_train_samples = int(round(n_samples * train_frac))
