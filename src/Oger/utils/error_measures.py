@@ -1,4 +1,5 @@
 import mdp
+import numpy as np
 
 def timeslice(range, function):
     """
@@ -144,8 +145,28 @@ def ce(input, target):
     """
     if input.shape != target.shape:
         raise RuntimeError("Input and target should have the same shape")
+    
+    if target.shape[1]>1:
+        error = mdp.numx.sum(-mdp.numx.log(input[target == 1]))
+        
+        if mdp.numx.isnan(error):
+            inp = input[target == 1]
+            inp[inp==0] = float(finfo(input.dtype).tiny)
+            error = - mdp.numx.sum(mdp.numx.log(inp))
+    else:
+        error = - mdp.numx.sum(mdp.numx.log(input[target==1]))
+        error -= mdp.numx.sum(mdp.numx.log(1 - input[target==0]))
+        
+        if mdp.numx.isnan(error):
+            inp = input[target==1]
+            inp[inp==0] = float(finfo(input.dtype).tiny)
+            error = - mdp.numx.sum(mdp.numx.log(inp))
+            inp = 1 - input[target==0]
+            inp[inp==0] = float(finfo(input.dtype).tiny)
+            error -= mdp.numx.sum(mdp.numx.log(inp))
+    
+    return error
 
-    return mdp.numx.sum(-mdp.numx.log(input[target == 1]))
 
 # TODO: if we add container object for the error metrics, we should add a field that
 # signifies if we need to minimize or maximize the measure
@@ -164,3 +185,93 @@ def mem_capacity(input, target):
         score.append(covariance_matrix[0, 1] ** 2 / (covariance_matrix[0, 0] * covariance_matrix[1, 1]))
     
     return - mdp.numx.sum(score)
+
+
+def threshold_before_error(input, target, error_measure, thresh=None):
+    """
+    First applies a threshold to input and target and then determines the error using the error_measure function.
+    The threshold is estimated as the mean of the target maximum and minimum unless a threshold 'thresh' is specified
+    
+    Useful for classification error estimation. Example:
+        error_measure = lambda x,y: Oger.utils.threshold_before_error(x, y, Oger.utils.loss_01)
+    """
+    if thresh == None:
+        thresh = (max(target) + min(target)) / 2
+    return error_measure(input>thresh, target>thresh)
+    
+
+def ber(input, target):
+    """ 
+    ber(input, target)->error
+    Compute Balanced Error Rate 
+    
+    Returns the average of the fraction of timesteps where input_signal is unequal to target_signal for each class
+    Only compatible with 2 classes (TODO multiclass)
+    
+    Parameters:
+    -----------
+        input : array
+            the input signal
+        target : array
+            the target signal
+    """
+    if input.shape != target.shape:
+        raise RuntimeError("Input and target signal should have the same shape")
+    (tp, fp, tn, fn) = _conf_table(input, target)
+    
+    return _ber(tp, fp, tn, fn)
+
+
+def f_score(input, target, beta=1.0):
+    """ 
+    f_score(input, target, beta=1)->error
+    Compute 1 minus F-beta score, for beta=1 it computes the 1 minus F1 score 
+    
+    Parameters:
+    -----------
+        input : array
+            the input signal
+        target : array
+            the target signal
+    """
+    if input.shape != target.shape:
+        raise RuntimeError("Input and target signal should have the same shape")
+    (tp, fp, tn, fn) = _conf_table(input, target)
+    
+    return _f_beta(tp, fp, tn, fn, beta)
+
+
+def _conf_table(input, target):
+    '''
+    Helper function to determine the number of:
+        True Positives
+        False Positives
+        True Negatives
+        False Negatives
+    '''
+    if input.shape != target.shape:
+        raise RuntimeError("Input and target_signal should have the same shape")
+    
+    tp = np.sum(np.logical_and(input.flatten()>0, target.flatten()>0))
+    fp = np.sum(np.logical_and(input.flatten()>0, target.flatten()<=0))
+    tn = np.sum(np.logical_and(input.flatten()<=0, target.flatten()<=0))
+    fn = np.sum(np.logical_and(input.flatten()<=0, target.flatten()>0))
+    return np.array([tp, fp, tn, fn])
+
+
+def _ber(tp,fp,tn,fn):
+    '''
+    Helper function to determine the BER score
+    Useful for direct estimation of the BER if the conf_table is known
+    '''
+    return 1.0 / 2 * (fp / (0.0 + tn + fp) + fn / (0.0 + fn + tp))
+
+
+def _f_beta(tp, fp, tn, fn, beta=1.0):
+    '''
+    Helper function to determine the 1 minus F-beta score
+    By default beta is 1 wich results in the F1 score
+    Useful for direct estimation of the F-score if the conf_table is known
+    '''
+    return 1.0 - (1.0 + beta**2) * tp / ((1.0 + beta**2) * tp + beta**2 * fn + fp)
+

@@ -229,3 +229,37 @@ class FeedbackShiftNode(mdp.Node):
         self._input_dim = n
         self._output_dim = n
         
+
+class RescaleZMUSNode(mdp.Node):
+    '''
+    Rescales the output with the mean and standard deviation seen during training
+    
+    If 'use_var' is set, the variance is used instead of the standard deviation
+    
+    Currently for 1 input only!!
+    '''
+    def __init__(self, use_var=False, input_dim =1, dtype = None):
+        super(RescaleZMUSNode,self).__init__(input_dim=input_dim, dtype=dtype)
+        self._mean = 0
+        self._std = 0
+        self._len = 0
+        self._use_var = use_var
+    
+    def is_trainable(self):
+        return True
+    
+    def _train(self,x):
+        self._mean += mdp.numx.mean(x) * len(x)
+        self._std += mdp.numx.sum(x**2) - mdp.numx.sum(x)**2
+        self._len += len(x)
+        
+    def _stop_training(self):
+        self._mean /= self._len
+        self._std /= self._len
+        if self._use_var:
+            self._std = mdp.numx.sqrt(self._std)
+    
+    def _execute(self, x):
+        return (x-self._mean) / self._std
+    
+    

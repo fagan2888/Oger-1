@@ -286,3 +286,23 @@ class GradientRBMNode(GradientExtensionNode, Oger.nodes.ERBMNode):
         """Calls _gradient_inverse instead of the default _inverse."""
         return self._calculate_gradient(y)
     
+
+class LogisticRegressionNode(BackpropNode):
+    '''
+    Creates a perceptron node that is trained using a logistic regression algorithm.
+    Currently only supports 1 output
+    
+    Examples of gradient training methods (gtrainer):
+        Oger.gradient.CGTrainer(), 
+        Oger.gradient.BFGSTrainer(),
+        Oger.gradient.GradientDescentTrainer(epochs=30000),
+        Oger.gradient.RPROPTrainer(epochs=30000), 
+        Oger.gradient.LBFGSBTrainer(weight_bounds=(-10, 10))
+    
+    Warning: Unbalanced datasets and non-'zero-mean-unit-variance' data may cause suboptimal or faulty weights
+    '''
+    
+    def __init__(self, gtrainer, input_dim=None, output_dim=1, dtype='float64'):
+        self.perceptron = Oger.nodes.PerceptronNode(transfer_func=Oger.utils.LogisticFunction, input_dim=input_dim, output_dim=output_dim, dtype=dtype)
+        loss_func= Oger.utils.ce
+        super(LogisticRegressionNode, self).__init__(gflow=mdp.Flow([self.perceptron, ]), gtrainer=gtrainer, loss_func=loss_func, n_epochs=1, dtype='float64')

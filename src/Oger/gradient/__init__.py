@@ -18,7 +18,7 @@ The 'models' package contains some pre-defined architectures that use the
 gradient package for training.
 """
 
-from gradient_nodes import (GradientExtensionNode, BackpropNode, GradientPerceptronNode, GradientRBMNode)
+from gradient_nodes import (GradientExtensionNode, BackpropNode, GradientPerceptronNode, GradientRBMNode, LogisticRegressionNode)
 from trainers import (CGTrainer, BFGSTrainer, RPROPTrainer, GradientDescentTrainer, LBFGSBTrainer)
 from models import (MLPNode, AutoencoderNode)
 
@@ -26,5 +26,5 @@ del gradient_nodes
 del trainers
 del models
 
-__all__ = ['GradientExtensionNode', 'BackpropNode', 'GradientPerceptronNode', 'GradientRBMNode',
+__all__ = ['GradientExtensionNode', 'BackpropNode', 'GradientPerceptronNode', 'GradientRBMNode', 'LogisticRegressionNode',
           'CGTrainer', 'BFGSTrainer', 'RPROPTrainer', 'GradientDescentTrainer', 'LBFGSBTrainer', 'MLPNode,', 'AutoencoderNode']

@@ -38,46 +38,51 @@ def optimize_parameters(original, gridsearch_parameters=None, cross_validate_fun
     
     class SelfOptimizingNode():
         def _get_train_seq(self):
-            if self.ts is None:
-                self.ts = [(self._collect_data, self._optimize), (self._train, self._stop_training)]
-            return self.ts
-                
-        def _collect_data(self, x, y):
-            self._x_list.append(x)
-            self._y_list.append(y)
+            if self._po_is_optimizing:
+                return self._po_orig_get_train_seq()
+            else:
+                return [(self._po_collect_data, self._po_optimize)]
+            
+        def _po_collect_data(self, x, y):
+            self._po_x_list.append(x)
+            self._po_y_list.append(y)
               
-        def _optimize(self):
-            self.ts = [(self._train, self._stop_training)]
+        def _po_optimize(self):
+            self._po_is_optimizing = True
             
             print 'Node ' + str(self) + ' performing self-optimization...'   
-            opt = Oger.evaluation.Optimizer(self._gridsearch_parameters, self._error_measure)
+            opt = Oger.evaluation.Optimizer(self._po_gridsearch_parameters, self._po_error_measure)
                            
-            data = [zip(self._x_list, self._y_list)]
+            data = [zip(self._po_x_list, self._po_y_list)]
             
             # Do a grid search using the given crossvalidation function and gridsearch parameters
-            opt.grid_search(data, flow=mdp.Flow([self, ]), cross_validate_function=self._cross_validate_function, *self._args, **self._kwargs)
+            opt.grid_search(data, flow=mdp.Flow([self, ]), cross_validate_function=self._po_cross_validate_function, *self._po_args, **self._po_kwargs)
             _, opt_parameter_dict = opt.get_minimal_error()
             
             # Set the obtained optimal parameter values in the node
             for param in opt_parameter_dict[self]:
                 self.__setattr__(param, opt_parameter_dict[self][param])
                 print 'Found optimal value for parameter ' + param + ' : ' + str(opt_parameter_dict[self][param])
+            
+            flow = mdp.Flow([self])
+            flow.train(data)
                 
-            self.ts = [(self._collect_data, self._optimize), (self._train, self._stop_training)]
+            self._po_is_optimizing = False
         
     
-    setattr(original, "_collect_data", SelfOptimizingNode._collect_data)
-    setattr(original, "_optimize", SelfOptimizingNode._optimize)
+    setattr(original, "_po_collect_data", SelfOptimizingNode._po_collect_data)
+    setattr(original, "_po_optimize", SelfOptimizingNode._po_optimize)
+    setattr(original, "_po_orig_get_train_seq", original._get_train_seq)
     setattr(original, "_get_train_seq", SelfOptimizingNode._get_train_seq)
-    setattr(original, "_gridsearch_parameters", gridsearch_parameters)
-    setattr(original, "_cross_validate_function", staticmethod(cross_validate_function))
-    setattr(original, "_error_measure", staticmethod(error_measure))
-    setattr(original, "_args", args)
-    setattr(original, "_kwargs", kwargs)
-    setattr(original, "ts", None)
+    setattr(original, "_po_gridsearch_parameters", gridsearch_parameters)
+    setattr(original, "_po_cross_validate_function", staticmethod(cross_validate_function))
+    setattr(original, "_po_error_measure", staticmethod(error_measure))
+    setattr(original, "_po_args", args)
+    setattr(original, "_po_kwargs", kwargs)
+    setattr(original, "_po_is_optimizing", False)
 
-    setattr(original, "_x_list", [])
-    setattr(original, "_y_list", [])
+    setattr(original, "_po_x_list", [])
+    setattr(original, "_po_y_list", [])
     
     # add to base classes
     original.__bases__ += (SelfOptimizingNode,)
