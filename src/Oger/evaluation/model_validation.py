@@ -50,6 +50,10 @@ def n_fold_random(n_samples, n_folds):
         - train_indices contains the indices of the dataset used for training
         - test_indices contains the indices of the dataset used for testing
     '''
+    
+    if n_folds < 2:
+        raise RuntimeError('The number of folds should be > 1.')
+    
     # Create random permutation of number of samples
     randperm = mdp.numx.random.permutation(n_samples)
     train_indices, test_indices = [], []

@@ -124,16 +124,18 @@ class IRLSLogisticRegressionNode (_LogisticRegressionBaseNode):
         if mdp.numx.rank(self._y)==1:
             self._y = self._y.reshape((len(self._y),1))
             
-        # initialize vector with weights
+        # initialize vector with random weights
         w = mdp.numx.rand(self._x.shape[1]) - 0.5
         
         for i in range(self._maxiterations):
             w_old = w
             yn = Oger.utils.LogisticFunction.f(dot(self._x, w)).reshape(self._y.shape)
             nyn = 1-yn
+            # Avoid log(0)
             epsilon = numpy.float(numpy.finfo(self._x.dtype).tiny)
             yn[yn==0] = epsilon
             nyn[nyn==0] = epsilon
+            
             z = dot(self._x, w).reshape(self._y.shape) - (yn - self._y) / yn / nyn
             R = dot(yn * (1 - yn), mdp.numx.ones((1,self._x.shape[1]))).T
             w = dot(dot(inv(dot(self._x.T * R, self._x) + self.regul_param * numpy.eye(self._x.shape[1])),self._x.T) * R, z)

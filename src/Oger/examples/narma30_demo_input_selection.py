@@ -3,31 +3,38 @@ import pylab
 import mdp
 
 if __name__ == "__main__":
-    """ This example shows how to perform internal optimization of one or multiple parameters of a node during training. 
-        This can be used to e.g. optimize the ridge parameter of the ridge regression node as is done here.
+    """ This example shows how to use several reservoirs in a layer and to perform forward input/reservoir selection 
+    using a RidgeRegressionNode and the built-in select_features mix-in.
     """
     inputs = 1
     timesteps = 10000
     washout = 30
 
-    nx = 4
+    nx = 3
     ny = 1
 
     [x, y] = Oger.datasets.narma30(sample_len=1000)
 
-    # construct individual nodes
-    reservoir = Oger.nodes.ReservoirNode(inputs, 100, input_scaling=0.05)
+    # make a set of reservoirs
+    reservoirs = []
+    for i in range(25):
+        reservoirs.append(Oger.nodes.ReservoirNode(inputs, 10, input_scaling=0.05))
+    Res = mdp.hinet.SameInputLayer(reservoirs)
+    
     readout = Oger.nodes.RidgeRegressionNode()
     
+    # Find optimal ridge parameter
     gridsearch_params = {readout:{'ridge_param':mdp.numx.power(10., mdp.numx.arange(-15, 0, .5))}}
     cross_validate_function = Oger.evaluation.n_fold_random
     error_measure = Oger.utils.nrmse
     n_folds = 5
     Oger.utils.optimize_parameters(Oger.nodes.RidgeRegressionNode, gridsearch_parameters=gridsearch_params, cross_validate_function=cross_validate_function, error_measure=error_measure, n_folds=n_folds)
     
+    # Select a set of reservoirs as input for the RidgeRegressionNode
+    Oger.utils.select_inputs(Oger.nodes.RidgeRegressionNode, n_inputs=len(reservoirs))
     
     # build network with MDP framework
-    flow = Oger.nodes.InspectableFlow([reservoir, readout], verbose=1)
+    flow = Oger.nodes.InspectableFlow([Res, readout], verbose=1)
     
     data = [[], zip(x[0:-1], y[0:-1])]
     
@@ -52,8 +59,6 @@ if __name__ == "__main__":
     pylab.subplot(nx, ny, 3)
     pylab.plot(testout, 'r')
     pylab.plot(y[-1], 'b')
-    
-    pylab.subplot(nx, ny, 4)
-    pylab.plot(flow.inspect(reservoir))
+
     pylab.show()
     

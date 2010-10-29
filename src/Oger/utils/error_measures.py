@@ -95,7 +95,8 @@ def mse(input_signal, target_signal):
             the input_signal signal
         targetsignal : array
             the target_signal signal
-    """            
+    """   
+    
     error = (target_signal.flatten() - input_signal.flatten()) ** 2
     return error.mean()
 
@@ -215,8 +216,6 @@ def ber(input, target):
         target : array
             the target signal
     """
-    if input.shape != target.shape:
-        raise RuntimeError("Input and target signal should have the same shape")
     (tp, fp, tn, fn) = _conf_table(input, target)
     
     return _ber(tp, fp, tn, fn)
@@ -234,8 +233,6 @@ def f_score(input, target, beta=1.0):
         target : array
             the target signal
     """
-    if input.shape != target.shape:
-        raise RuntimeError("Input and target signal should have the same shape")
     (tp, fp, tn, fn) = _conf_table(input, target)
     
     return _f_beta(tp, fp, tn, fn, beta)

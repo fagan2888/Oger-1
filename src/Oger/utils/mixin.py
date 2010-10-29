@@ -1,5 +1,6 @@
 import Oger
 import mdp
+import numpy
 
 def _pickle_method(method):
     func_name = method.im_func.__name__
@@ -38,54 +39,206 @@ def optimize_parameters(original, gridsearch_parameters=None, cross_validate_fun
     
     class SelfOptimizingNode():
         def _get_train_seq(self):
-            if self._po_is_optimizing:
-                return self._po_orig_get_train_seq()
+            if self._op_is_optimizing:
+                return self._op_orig_get_train_seq()
             else:
-                return [(self._po_collect_data, self._po_optimize)]
+                return [(self._op_collect_data, self._op_optimize)]
             
-        def _po_collect_data(self, x, y):
-            self._po_x_list.append(x)
-            self._po_y_list.append(y)
+        def _op_collect_data(self, x, y):
+            self._op_x_list.append(x)
+            self._op_y_list.append(y)
               
-        def _po_optimize(self):
-            self._po_is_optimizing = True
+        def _op_optimize(self):
+            self._op_is_optimizing = True
             
-            print 'Node ' + str(self) + ' performing self-optimization...'   
-            opt = Oger.evaluation.Optimizer(self._po_gridsearch_parameters, self._po_error_measure)
+            print 'Node ' + str(self) + ' performing self-optimization...'  
+            
+            # Correct the dictionary key if a copy was made
+            if not self in self._op_gridsearch_parameters: 
+                if len(self._op_gridsearch_parameters.values()) == 1:
+                    self._op_gridsearch_parameters = {self: self._op_gridsearch_parameters.values()[0]}
+                else:
+                    raise NotImplementedError('There is more than one key in the gridsearch parameter dictionary. Can not correct the dictionary if a copy was made.')
+            
+            opt = Oger.evaluation.Optimizer(self._op_gridsearch_parameters, loss_function=self._op_error_measure)
                            
-            data = [zip(self._po_x_list, self._po_y_list)]
+            data = [zip(self._op_x_list, self._op_y_list)]
             
-            # Do a grid search using the given crossvalidation function and gridsearch parameters
-            opt.grid_search(data, flow=mdp.Flow([self, ]), cross_validate_function=self._po_cross_validate_function, *self._po_args, **self._po_kwargs)
-            _, opt_parameter_dict = opt.get_minimal_error()
+           # Do a grid search using the given crossvalidation function and gridsearch parameters
+            opt.grid_search(data, flow=mdp.Flow([self, ]), cross_validate_function=self._op_cross_validate_function, *self._op_args, **self._op_kwargs)
+            self._op_minimal_error, opt_parameter_dict = opt.get_minimal_error()
             
             # Set the obtained optimal parameter values in the node
             for param in opt_parameter_dict[self]:
                 self.__setattr__(param, opt_parameter_dict[self][param])
                 print 'Found optimal value for parameter ' + param + ' : ' + str(opt_parameter_dict[self][param])
             
+            # Train the node using the optimal parameters
             flow = mdp.Flow([self])
             flow.train(data)
-                
-            self._po_is_optimizing = False
+            
+            # Empty the list to save memory. Compatible with copies made in other mixins.
+            for i in range(len(self._op_x_list)):
+                self._op_x_list.pop()
+                self._op_y_list.pop()               
+            self._op_is_optimizing = False
         
     
-    setattr(original, "_po_collect_data", SelfOptimizingNode._po_collect_data)
-    setattr(original, "_po_optimize", SelfOptimizingNode._po_optimize)
-    setattr(original, "_po_orig_get_train_seq", original._get_train_seq)
+    setattr(original, "_op_collect_data", SelfOptimizingNode._op_collect_data)
+    setattr(original, "_op_optimize", SelfOptimizingNode._op_optimize)
+    setattr(original, "_op_orig_get_train_seq", original._get_train_seq)
     setattr(original, "_get_train_seq", SelfOptimizingNode._get_train_seq)
-    setattr(original, "_po_gridsearch_parameters", gridsearch_parameters)
-    setattr(original, "_po_cross_validate_function", staticmethod(cross_validate_function))
-    setattr(original, "_po_error_measure", staticmethod(error_measure))
-    setattr(original, "_po_args", args)
-    setattr(original, "_po_kwargs", kwargs)
-    setattr(original, "_po_is_optimizing", False)
+    setattr(original, "_op_gridsearch_parameters", gridsearch_parameters)
+    setattr(original, "_op_cross_validate_function", staticmethod(cross_validate_function))
+    setattr(original, "_op_error_measure", staticmethod(error_measure))
+    setattr(original, "_op_args", args)
+    setattr(original, "_op_kwargs", kwargs)
+    setattr(original, "_op_is_optimizing", False)
+    setattr(original, "_op_minimal_error", None)
 
-    setattr(original, "_po_x_list", [])
-    setattr(original, "_po_y_list", [])
+    setattr(original, "_op_x_list", [])
+    setattr(original, "_op_y_list", [])
     
     # add to base classes
     original.__bases__ += (SelfOptimizingNode,)
+
+
+def select_inputs(original, n_inputs=1, error_measure=None):
+    ''' Turn the class original into a input selection node.
+    It selects the inputs using a forward input/feature selection algorithm.
+    
+    Arguments are:
+    - original: the node class to change into a self-optimizing node
+    - n_inputs: the number of inputs (one input can consist of several signals)
+    - error_measure: the loss function based on which the optimal parameters are chosen
+                     (is not necessary when optimize_parameters is used)
+    
+    Cross-validation is not implemented yet, but Oger.utils.optimize_parameters is supported which contains cross-validation...
+    First mixin using optimize_parameters and then select_features
+    '''
+    
+    class FeatureSelectionNode():
+        def _get_train_seq(self):
+            if self._si_selecting_inputs:
+                return self._si_orig_get_train_seq()
+            else:
+                return [(self._si_collect_data, self._si_fwd_input_selection)]
+        
+        def _si_collect_data(self, x, y):
+            self._si_x_list.append(x)
+            self._si_y_list.append(y)
+              
+        def _si_fwd_input_selection(self):
+            self._si_selecting_inputs = True
+            
+            print 'Node ' + str(self) + ' performing feature selection...'
+            
+            # Rank the features
+            n_chans = self._si_x_list[0].shape[1] / self._si_n_inputs             
+            self._input_dim = n_chans
+            errors = numpy.zeros((self._si_n_inputs,))
+            for i in range(self._si_n_inputs):
+                print '\nTesting performance of input', i, '...'
+                inps = i * n_chans + numpy.arange(n_chans)
+                x = self._si_remove_data(self._si_x_list, inps)
+                node = self.copy()
+                flow = mdp.Flow([node, ])
+                flow.train([zip(x, self._si_y_list)])
+                # Check if optimize parameters was used
+                if hasattr(self, '_op_minimal_error'):
+                    errors[i] = node._op_minimal_error
+                else:
+                    errors[i] = self._si_error_measure(flow(x), concatenate(tuple(self._si_y_list)))
+                node = None
+                
+            error_indices = self._si_sort_error(errors)
+            
+            # Add features to the feature set if the error decreases
+            self._si_error = errors[error_indices[0]]
+            selected_inputs = error_indices[0] * n_chans + numpy.arange(n_chans)
+            for i in range(1,len(error_indices)):
+                print '\nTesting combination', i, 'of', len(error_indices), '...'
+                inps = numpy.concatenate((selected_inputs, error_indices[i] * n_chans + numpy.arange(n_chans)))
+                node = self.copy()
+                node._input_dim = len(inps)
+                flow = mdp.Flow([node, ])#, self.scheduler) 
+                x = self._si_remove_data(self._si_x_list, inps)
+                flow.train([zip(x,self._si_y_list)])
+                # Check if optimize parameters was used
+                if hasattr(self, '_op_minimal_error'):
+                    error = node._op_minimal_error
+                else:
+                    error = self._si_error_measure(flow(x), concatenate(tuple(self._si_y_list)))
+                node = None    
+                # Add to list if error decreases    
+                if error < self._si_error:
+                    self._si_error = error
+                    selected_inputs = inps
+            
+            # Train the node using the optimal inputs
+            print '\nPerform final training...'
+            x = self._si_remove_data(self._si_x_list, selected_inputs)
+            self._input_dim = len(selected_inputs)
+            flow = mdp.Flow([self])#, self.scheduler) 
+            flow.train([zip(x, self._si_y_list)])
+            
+            print '\nFeature selection selected', len(selected_inputs)/n_chans, \
+                'input(s) and achieved an error of', self._si_error, '.\n'
+            
+            # Free memory and set parameters for execution
+            self.si_selected_inputs = selected_inputs
+            self._input_dim = self._si_n_inputs * n_chans
+            for i in range(len(self._si_x_list)):
+                self._si_x_list.pop()
+                self._si_y_list.pop()               
+            self._si_selecting_inputs = False
+        
+        # Helper function to make datasets
+        def _si_remove_data(self,x_list,indices):
+            x = []
+            for l in x_list:
+                x.append(l[:,indices])
+            return x
+        
+        # Helper function to the next best feature   
+        def _si_sort_error(self,errors):
+            to_big = numpy.float(numpy.finfo(errors[0]).max)
+            errors_copy = errors.copy()
+            errors_copy[numpy.isnan(errors_copy)] = to_big # ignore nans
+            error_indices=[]
+            for e in range(len(errors)):
+                i = numpy.argmin(errors_copy)
+                if errors_copy[i] == to_big:
+                    break
+                error_indices.append(i)
+                errors_copy[i] = to_big
+            return error_indices
+        
+        def _execute(self, x):
+            if self.si_selected_inputs != None:
+                return self._si_orig_execute(x[:,self.si_selected_inputs])
+            else:
+                return self._si_orig_execute(x)   
+    
+    setattr(original, "_si_collect_data", FeatureSelectionNode._si_collect_data)
+    setattr(original, "_si_fwd_input_selection", FeatureSelectionNode._si_fwd_input_selection)
+    setattr(original, "_si_orig_get_train_seq", original._get_train_seq)
+    setattr(original, "_get_train_seq", FeatureSelectionNode._get_train_seq)
+    setattr(original, "_si_selecting_inputs", False)
+    setattr(original, "_si_orig_execute", original._execute)
+    setattr(original, "_execute", FeatureSelectionNode._execute)
+    setattr(original, "_si_n_inputs", n_inputs)
+    setattr(original, "_si_error_measure", staticmethod(error_measure))
+    setattr(original, "_si_error", None)
+    
+    setattr(original, "_si_remove_data", FeatureSelectionNode._si_remove_data)
+    setattr(original, "_si_sort_error", FeatureSelectionNode._si_sort_error)
+    setattr(original, "_si_x_list", [])
+    setattr(original, "_si_y_list", [])
+    setattr(original, "si_selected_inputs", None)
+    
+    # add to base classes
+    original.__bases__ += (FeatureSelectionNode,)
 
     
     

@@ -4,7 +4,7 @@ This subpackage contains several utility functions. It also contains several err
 
 from utility_functions import (get_spectral_radius, empty_n_d_list, butter_coefficients, mfreqz, ConcatenatingIterator, LinearFunction, TanhFunction, LogisticFunction, SoftmaxFunction, SignFunction)
 from error_measures import (timeslice, nrmse, nmse, rmse, mse, loss_01, cosine, ce, mem_capacity, threshold_before_error, ber, f_score)
-from mixin import (mix_in, optimize_parameters, enable_washout)
+from mixin import (mix_in, optimize_parameters, select_inputs, enable_washout)
 from spiking_utilities import (poisson_gen, spikes_to_states, inputs_to_spikes, exp_kernel)
 
 # clean up namespace
@@ -14,4 +14,5 @@ del mixin
 del spiking_utilities
 __all__ = ['get_spectral_radius', 'empty_n_d_list', 'butter_coefficients', 'ConcatenatingIterator', 'LinearFunction', 'TanhFunction', 'LogisticFunction', 'SoftmaxFunction', 'SignFunction', 
            'nrmse', 'nmse', 'rmse', 'mse', 'loss_01', 'cosine', 'ce', 'mem_capacity', 'threshold_before_error', 'ber', 'f_score',
-           'mix_in', 'optimize_parameters', 'enable_washout', 'poisson_gen', 'spikes_to_states', 'inputs_to_spikes', 'exp_kernel']
+           'mix_in', 'optimize_parameters', 'select_inputs', 'enable_washout', 
+           'poisson_gen', 'spikes_to_states', 'inputs_to_spikes', 'exp_kernel']
