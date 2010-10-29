@@ -157,7 +157,7 @@ def select_inputs(original, n_inputs=1, error_measure=None):
             self._si_error = errors[error_indices[0]]
             selected_inputs = error_indices[0] * n_chans + numpy.arange(n_chans)
             for i in range(1,len(error_indices)):
-                print '\nTesting combination', i, 'of', len(error_indices), '...'
+                print '\nTesting combination', i, 'of', len(error_indices)-1, '...'
                 inps = numpy.concatenate((selected_inputs, error_indices[i] * n_chans + numpy.arange(n_chans)))
                 node = self.copy()
                 node._input_dim = len(inps)
