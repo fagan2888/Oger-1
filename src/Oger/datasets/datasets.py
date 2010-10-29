@@ -1,4 +1,7 @@
 import mdp
+import glob
+import os.path
+import cPickle as pickle
 
 def narma10(n_samples=10, sample_len=1000):
     ''' 
@@ -61,3 +64,26 @@ def memtest(n_samples=10, sample_len=1000, n_delays=10):
             outputs[sample][:, k:k + 1] = mdp.numx.concatenate((mdp.numx.zeros((k + 1, 1)), inputs[sample][:-k - 1, :]))
     return inputs, outputs 
 
+
+def pickled_data(file_or_folder = None):
+    '''
+    Loads data from a pickle file or folder containing pickle files
+    
+    Data must be saved in tuples of the form '(x,y)' and the filename must end with '.pickle'
+    '''
+    if os.path.isdir(file_or_folder):
+        files = glob.glob(os.path.join(file_or_folder, '*.pickle'))
+    else:
+        files = [file_or_folder]
+    
+    X, Y = [], []
+    for f in files:
+        x, y = pickle.load(open(f))
+        if isinstance(x, mdp.numx.ndarray):
+            X.append(x)
+            Y.append(y)
+        else:
+            X.extend(x)
+            Y.extend(y)
+    
+    return X,Y
