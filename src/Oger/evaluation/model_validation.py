@@ -59,6 +59,9 @@ def n_fold_random(n_samples, n_folds):
     train_indices, test_indices = [], []
     foldsize = mdp.numx.floor(float(n_samples) / n_folds)
     
+    if n_folds <= 1:
+        raise Exception('Number of folds should be larger than one.')
+    
     for fold in range(n_folds):
         # Select the sample indices used for testing
         test_indices.append(randperm[fold * foldsize:foldsize * (fold + 1)])
