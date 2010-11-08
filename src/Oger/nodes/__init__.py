@@ -5,7 +5,7 @@ This subpackage contains a number of Oger-related nodes. It contains several add
 from flows import InspectableFlow
 from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, FeedbackReservoirNode, BandpassReservoirNode, CUDAReservoirNode)
 from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)
-from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressionNode)
+from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressionNode, LogisticRegressionNode)
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
 from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, FeedbackShiftNode, ResampleNode, TimeFramesNode2, RescaleZMUSNode)
 from spiking_nodes import (BrianIFReservoirNode, SpikingIFReservoirNode)
@@ -21,7 +21,7 @@ del utility_nodes
 del spiking_nodes
 
 __all__ = ['InspectableFlow', 'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode', 'FeedbackReservoirNode', 
-           'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 
+           'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
            'ERBMNode', 'CRBMNode', 'CUDACRBMNode', 'CUDAReservoirNode', 'CUDATRMNode', 
            'FeedbackNode', 'WashoutNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZMUSNode',
            'TimeFramesNode2', 'SpikingIFReservoirNode']

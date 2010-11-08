@@ -60,7 +60,10 @@ class LBFGSBTrainer:
     See the documentation of scipy.optimize.fmin_l_bfgs_b for more details. 
     """
     def __init__(self, weight_bounds=(-1,1)):
-        self.weight_bounds = weight_bounds
+        if numx.rank(weight_bounds) == 0:
+            self.weight_bounds = (-weight_bounds, weight_bounds)
+        else:
+            self.weight_bounds = weight_bounds
         
     def train(self, func, x0):
         """Optimize parameters to minimze loss.
@@ -115,7 +118,7 @@ class GradientDescentTrainer:
             self.dparams = self.momentum * self.dparams - self.learning_rate * gradient
             # TODO: how do we make sure that we do not decay the bias terms?
             updated_params += self.dparams - self.decay * updated_params
-    
+            
         return updated_params
 
 class RPROPTrainer:

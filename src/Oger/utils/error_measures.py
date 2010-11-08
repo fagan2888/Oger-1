@@ -147,12 +147,12 @@ def ce(input, target):
     if input.shape != target.shape:
         raise RuntimeError("Input and target should have the same shape")
     
-    if target.shape[1]>1:
+    if np.rank(target)>1 and target.shape[1]>1:
         error = mdp.numx.sum(-mdp.numx.log(input[target == 1]))
         
         if mdp.numx.isnan(error):
             inp = input[target == 1]
-            inp[inp==0] = float(finfo(input.dtype).tiny)
+            inp[inp==0] = float(np.finfo(input.dtype).tiny)
             error = - mdp.numx.sum(mdp.numx.log(inp))
     else:
         error = - mdp.numx.sum(mdp.numx.log(input[target==1]))
@@ -160,10 +160,10 @@ def ce(input, target):
         
         if mdp.numx.isnan(error):
             inp = input[target==1]
-            inp[inp==0] = float(finfo(input.dtype).tiny)
+            inp[inp==0] = float(np.finfo(input.dtype).tiny)
             error = - mdp.numx.sum(mdp.numx.log(inp))
             inp = 1 - input[target==0]
-            inp[inp==0] = float(finfo(input.dtype).tiny)
+            inp[inp==0] = float(np.finfo(input.dtype).tiny)
             error -= mdp.numx.sum(mdp.numx.log(inp))
     
     return error
@@ -188,7 +188,7 @@ def mem_capacity(input, target):
     return - mdp.numx.sum(score)
 
 
-def threshold_before_error(input, target, error_measure, thresh=None):
+def threshold_before_error(input, target, error_measure=loss_01, thresh=None):
     """
     First applies a threshold to input and target and then determines the error using the error_measure function.
     The threshold is estimated as the mean of the target maximum and minimum unless a threshold 'thresh' is specified
