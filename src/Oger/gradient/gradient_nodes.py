@@ -133,14 +133,18 @@ class BackpropNode(mdp.Node):
         self.derror = derror
 
         if self.derror is None:
-            self.derror = lambda x, t: x - t
-
+            #self.derror = lambda x, t: x - t
+            self.derror = self.derror_linear
+            
         input_dim = gflow[0].get_input_dim()
         output_dim = gflow[-1].get_output_dim()
         
         self._n_epochs = n_epochs
 
         super(BackpropNode, self).__init__(input_dim, output_dim, dtype)
+
+    def derror_linear(self, x, t):
+        return x-t
 
     @mdp.with_extension('gradient')
     def _train(self, x, *args, **kwargs):
