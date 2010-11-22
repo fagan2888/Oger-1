@@ -153,16 +153,16 @@ def ce(input, target):
         if mdp.numx.isnan(error):
             inp = input[target == 1]
             inp[inp==0] = float(np.finfo(input.dtype).tiny)
-            error = - mdp.numx.sum(mdp.numx.log(inp))
+            error = -mdp.numx.sum(mdp.numx.log(inp))
     else:
-        error = - mdp.numx.sum(mdp.numx.log(input[target==1]))
-        error -= mdp.numx.sum(mdp.numx.log(1 - input[target==0]))
+        error = -mdp.numx.sum(mdp.numx.log(input[target == 1]))
+        error -= mdp.numx.sum(mdp.numx.log(1 - input[target == 0]))
         
         if mdp.numx.isnan(error):
-            inp = input[target==1]
+            inp = input[target == 1]
             inp[inp==0] = float(np.finfo(input.dtype).tiny)
-            error = - mdp.numx.sum(mdp.numx.log(inp))
-            inp = 1 - input[target==0]
+            error = -mdp.numx.sum(mdp.numx.log(inp))
+            inp = 1 - input[target == 0]
             inp[inp==0] = float(np.finfo(input.dtype).tiny)
             error -= mdp.numx.sum(mdp.numx.log(inp))
     
@@ -198,7 +198,7 @@ def threshold_before_error(input, target, error_measure=loss_01, thresh=None):
     """
     if thresh == None:
         thresh = (max(target) + min(target)) / 2
-    return error_measure(input>thresh, target>thresh)
+    return error_measure(input > thresh, target > thresh)
     
 
 def ber(input, target):
@@ -249,19 +249,24 @@ def _conf_table(input, target):
     if input.shape != target.shape:
         raise RuntimeError("Input and target_signal should have the same shape")
     
-    tp = np.sum(np.logical_and(input.flatten()>0, target.flatten()>0))
-    fp = np.sum(np.logical_and(input.flatten()>0, target.flatten()<=0))
-    tn = np.sum(np.logical_and(input.flatten()<=0, target.flatten()<=0))
-    fn = np.sum(np.logical_and(input.flatten()<=0, target.flatten()>0))
+    tp = np.sum(np.logical_and(input.flatten() > 0, target.flatten() > 0))
+    fp = np.sum(np.logical_and(input.flatten() > 0, target.flatten() <= 0))
+    tn = np.sum(np.logical_and(input.flatten() <= 0, target.flatten() <= 0))
+    fn = np.sum(np.logical_and(input.flatten() <= 0, target.flatten() > 0))
     return np.array([tp, fp, tn, fn])
 
 
-def _ber(tp,fp,tn,fn):
+def _ber(tp, fp, tn, fn):
     '''
     Helper function to determine the BER score
     Useful for direct estimation of the BER if the conf_table is known
     '''
-    return 1.0 / 2 * (fp / (0.0 + tn + fp) + fn / (0.0 + fn + tp))
+    if (tn + fp == 0):
+        return (fn / (0.0 + fn + tp))
+    elif (fn + tp == 0):
+        return (fp / (0.0 + tn + fp))
+    else:
+        return 1.0 / 2 * (fp / (0.0 + tn + fp) + fn / (0.0 + fn + tp))
 
 
 def _f_beta(tp, fp, tn, fn, beta=1.0):
@@ -270,5 +275,5 @@ def _f_beta(tp, fp, tn, fn, beta=1.0):
     By default beta is 1 wich results in the F1 score
     Useful for direct estimation of the F-score if the conf_table is known
     '''
-    return 1.0 - (1.0 + beta**2) * tp / ((1.0 + beta**2) * tp + beta**2 * fn + fp)
+    return 1.0 - (1.0 + beta ** 2) * tp / ((1.0 + beta ** 2) * tp + beta ** 2 * fn + fp)
 

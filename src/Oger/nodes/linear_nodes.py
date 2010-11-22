@@ -15,7 +15,8 @@ class RidgeRegressionNode(mdp.nodes.LinearRegressionNode):
         
         self.ridge_param = ridge_param
         self.eq_noise_var = eq_noise_var
-
+        self.with_bias = with_bias
+        
     def _stop_training(self):
         try:
             if self.use_pinv:
@@ -26,12 +27,12 @@ class RidgeRegressionNode(mdp.nodes.LinearRegressionNode):
             if self.ridge_param > 0:
                 lmda = self.ridge_param
             else:
-                lmda = self.eq_noise_var**2 * self._tlen
+                lmda = self.eq_noise_var ** 2 * self._tlen
                 
-            inv_xTx = invfun(self._xTx + lmda * mdp.numx.eye(self._input_dim+1))
+            inv_xTx = invfun(self._xTx + lmda * mdp.numx.eye(self._input_dim + self.with_bias))
         except mdp.numx_linalg.LinAlgError, exception:
             errstr = (str(exception) + 
-                      "\n Input data may be redundant (i.e., some of the " +
+                      "\n Input data may be redundant (i.e., some of the " + 
                       "variables may be linearly dependent).")
             raise mdp.NodeException(errstr)
         

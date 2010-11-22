@@ -86,7 +86,7 @@ class Optimizer(object):
                     # If the key exists, append to it, otherwise insert an empty list and append to that
                     self.probe_data.setdefault(paramspace_index_full, {})[node] = node.probe_data
 
-    def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None, log_x=False):
+    def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None, log_x=False, axes=pylab.axes(), title=''):
         ''' Plot the results of the optimization. 
             
             Works for 1D and 2D linear sweeps, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
@@ -96,6 +96,8 @@ class Optimizer(object):
             - vmin/vmax: can be used to truncate the errors between lower and upper bounds before plotting.
             - cmap: passed as a matplotlib colormap when plotting 2D images.
             - log_x: boolean to indicate if a 1D plot should use a log scale for the x-axis.
+            - axes: optional Axes object to use for plotting
+            - title: optional title for the plot
         '''
 
         errors_to_plot, var_errors, parameters = self.mean_and_var(node_param_list)
@@ -104,35 +106,30 @@ class Optimizer(object):
         if vmax != None:
             errors_to_plot[errors_to_plot > vmax] = vmax
  
+        pylab.ion()
         # If we have ranged over only one parameter
         if errors_to_plot.ndim == 1:
-            # Average errors over folds
-            pylab.ion()
-            pylab.figure()
             # Get the index of the remaining parameter to plot using the correct 
             # parameter ranges
             param_index = self.parameters.index(parameters[0])
             if var_errors is not None:
-                pylab.errorbar(self.parameter_ranges[param_index], errors_to_plot, var_errors)
+                pylab.errorbar(self.parameter_ranges[param_index], errors_to_plot, var_errors, axes=axes)
             else:
                 if log_x: 
-                    pylab.semilogx(self.parameter_ranges[param_index], errors_to_plot)
+                    pylab.semilogx(self.parameter_ranges[param_index], errors_to_plot, axes=axes)
                 else:
-                    pylab.plot(self.parameter_ranges[param_index], errors_to_plot)
+                    pylab.plot(self.parameter_ranges[param_index], errors_to_plot, axes=axes)
                     
             pylab.xlabel(str(parameters[0][0]) + '.' + parameters[0][1])
             pylab.ylabel(self.loss_function.__name__)
+            pylab.title(title)
             pylab.show()
         elif errors_to_plot.ndim == 2:
-            pylab.ion()
-
-            # Display the image
-            pylab.figure()
             pylab.imshow(mdp.numx.flipud(errors_to_plot), cmap=pylab.jet(), interpolation='nearest',
-                         extent=self.get_extent(parameters), aspect="auto")
+             extent=self.get_extent(parameters), aspect="auto", axes=axes)
             pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
             pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
-            pylab.suptitle('mean')
+            pylab.suptitle(title)
             pylab.colorbar()
 
             if var_errors is not None:
@@ -245,6 +242,12 @@ class Optimizer(object):
         ystep = (-extent[2] + extent[3]) / len(self.parameter_ranges[param_index1])
         
         return [extent[0] - xstep / 2, extent[1] + xstep / 2, extent[2] - ystep / 2, extent[3] + ystep / 2]
+    
+    def save(self, fname):
+        import pickle 
+        fhandle = open(fname, 'w') 
+        pickle.dump(self, fhandle)
+        fhandle.close()
 
         
 class ParameterSettingNode(mdp.Node):
@@ -282,6 +285,7 @@ class ParameterSettingNode(mdp.Node):
     def is_trainable(self):
         return False
 
+    
 @mdp.extension_method("parallel", Optimizer)
 def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
     ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
