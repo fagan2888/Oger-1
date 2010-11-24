@@ -86,7 +86,7 @@ class Optimizer(object):
                     # If the key exists, append to it, otherwise insert an empty list and append to that
                     self.probe_data.setdefault(paramspace_index_full, {})[node] = node.probe_data
 
-    def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None, log_x=False, axes=pylab.axes(), title=''):
+    def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None, log_x=False, axes=None, title=''):
         ''' Plot the results of the optimization. 
             
             Works for 1D and 2D linear sweeps, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
@@ -99,6 +99,9 @@ class Optimizer(object):
             - axes: optional Axes object to use for plotting
             - title: optional title for the plot
         '''
+
+        if axes is None:
+            axes = pylab.axes()
 
         errors_to_plot, var_errors, parameters = self.mean_and_var(node_param_list)
         if vmin != None:
