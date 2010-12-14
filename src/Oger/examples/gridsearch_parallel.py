@@ -1,10 +1,6 @@
 import mdp
 import Oger
 import mdp.parallel.pp_support
-try:
-    import pp
-except:
-    print 'The module pp (Parallel Python) was not found. This script relies on Parallel Python for its execution. Please install this package or check your installation'
 
 if __name__ == '__main__':
     ''' Example of doing a grid-search
@@ -29,7 +25,7 @@ if __name__ == '__main__':
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
     
     #mdp.activate_extension("parallel")
-    opt.scheduler = mdp.parallel.ThreadScheduler(n_threads=2, verbose=True)
+    opt.scheduler = mdp.parallel.ProcessScheduler(n_processes=2, verbose=True)
 
     # Do the grid search
     mdp.activate_extension("parallel")
