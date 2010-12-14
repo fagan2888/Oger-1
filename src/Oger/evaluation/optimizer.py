@@ -2,6 +2,7 @@ import Oger
 import mdp
 import pylab
 import itertools
+import scipy.stats
 
 class Optimizer(object):
     ''' Class to perform optimization of the parameters of a flow using cross-validation.
@@ -86,7 +87,7 @@ class Optimizer(object):
                     # If the key exists, append to it, otherwise insert an empty list and append to that
                     self.probe_data.setdefault(paramspace_index_full, {})[node] = node.probe_data
 
-    def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None, log_x=False, axes=None, title=''):
+    def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None, log_x=False, axes=None, title=None, plot_variance=True):
         ''' Plot the results of the optimization. 
             
             Works for 1D and 2D linear sweeps, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
@@ -98,6 +99,7 @@ class Optimizer(object):
             - log_x: boolean to indicate if a 1D plot should use a log scale for the x-axis.
             - axes: optional Axes object to use for plotting
             - title: optional title for the plot
+            - plot_variance: should variance be plotted in case of taking the mean over certain parameters. Default True. 
         '''
 
         if axes is None:
@@ -115,7 +117,7 @@ class Optimizer(object):
             # Get the index of the remaining parameter to plot using the correct 
             # parameter ranges
             param_index = self.parameters.index(parameters[0])
-            if var_errors is not None:
+            if var_errors is not None and plot_variance:
                 pylab.errorbar(self.parameter_ranges[param_index], errors_to_plot, var_errors, axes=axes)
             else:
                 if log_x: 
@@ -125,17 +127,19 @@ class Optimizer(object):
                     
             pylab.xlabel(str(parameters[0][0]) + '.' + parameters[0][1])
             pylab.ylabel(self.loss_function.__name__)
-            pylab.title(title)
+            if title is not None:
+                pylab.title(title)
             pylab.show()
         elif errors_to_plot.ndim == 2:
             pylab.imshow(mdp.numx.flipud(errors_to_plot), cmap=pylab.jet(), interpolation='nearest',
              extent=self.get_extent(parameters), aspect="auto", axes=axes)
             pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
             pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
-            pylab.suptitle(title)
+            if title is not None:
+                pylab.suptitle(title)
             pylab.colorbar()
 
-            if var_errors is not None:
+            if var_errors is not None and plot_variance:
                 pylab.figure()
                 pylab.imshow(mdp.numx.flipud(errors_to_plot), cmap=cmap, interpolation='nearest',
                              extent=self.get_extent(parameters), aspect="auto", vmin=vmin, vmax=vmax)
@@ -180,13 +184,13 @@ class Optimizer(object):
             axis = parameters.index((node, param_string))
             
             # Finally, return the mean and variance
-            mean_errors = mdp.numx.mean(errors, axis)
+            mean_errors = scipy.stats.nanmean(errors, axis)
             
             # In case we take the mean over only one dimension, we can return
             # the variance as well
             if len(node_param_list) == 1:
                 # Use ddof = 1 to mimic matlab var
-                var = mdp.numx.var(errors, axis, ddof=1)
+                var = scipy.stats.nanstd(errors, axis, bias=True) ** 2
             else:
                 var = None
             
@@ -317,7 +321,7 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
                 
             params[node_index][node_parameter[1]] = parameter_values[parameter_index]
         
-        data_parallel.append([[params, data]])
+        data_parallel.append([params, data])
 
     parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs), ])
 
