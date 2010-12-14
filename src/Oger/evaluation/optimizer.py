@@ -1,6 +1,5 @@
 import Oger
 import mdp
-import pylab
 import itertools
 import scipy.stats
 
@@ -102,6 +101,12 @@ class Optimizer(object):
             - plot_variance: should variance be plotted in case of taking the mean over certain parameters. Default True. 
         '''
 
+        try:
+            import pylab
+        except ImportError:
+            print "It looks like matplotlib isn't installed. Plotting is impossible."
+            return
+        
         if axes is None:
             axes = pylab.axes()
 

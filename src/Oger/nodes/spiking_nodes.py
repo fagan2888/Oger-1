@@ -10,7 +10,6 @@ try:
 except ImportError:
     pass
 
-import pylab
 import scipy
 
 class BrianIFReservoirNode(mdp.Node):
@@ -63,23 +62,8 @@ class BrianIFReservoirNode(mdp.Node):
         self.network = brian.Network(self.G, self.Mv, self.Ms)
         self.network.reinit()
         self.network.run((x.shape[0] + 1) * brian.ms)
-        pylab.subplot(411)
-        pylab.cla()
-        pylab.imshow(x.T, aspect='auto',)
-        pylab.subplot(412)
-        pylab.cla() 
-        pylab.plot(self.Mv.times, self.Mv[30])
-        pylab.subplot(413)
-        pylab.cla()
-        brian.raster_plot(self.Ms)
-        pylab.subplot(414)
-        pylab.cla()
         retval = self.Mv.values[:, 0:x.shape[0]].T
-        pylab.plot(retval)
-        pylab.draw()
         return retval
-
-
         
 class SpikingIFReservoirNode(mdp.Node):
     """

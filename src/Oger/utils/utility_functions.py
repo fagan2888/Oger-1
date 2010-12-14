@@ -1,7 +1,6 @@
 import mdp
 import itertools
 import scipy
-from pylab import *
 
 ## Utility functions
 
@@ -24,22 +23,23 @@ def empty_n_d_list(dims):
         return [[] for _ in range(dims[0])]
 
 def mfreqz(b, a=1):
-    figure(1)
+    import pylab
+    pylab.figure(1)
     w, h = scipy.signal.freqz(b, a)
     h_dB = 20 * log10 (abs(h))
-    subplot(211)
-    plot(w / max(w), h_dB)
-    ylim(-150, 5)
-    ylabel('Magnitude (db)')
-    xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
-    title(r'Frequency response')
-    subplot(212)
+    pylab.subplot(211)
+    pylab.plot(w / max(w), h_dB)
+    pylab.ylim(-150, 5)
+    pylab.ylabel('Magnitude (db)')
+    pylab.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+    pylab.title(r'Frequency response')
+    pylab.subplot(212)
     h_Phase = unwrap(arctan2(imag(h), real(h)))
-    plot(w / max(w), h_Phase)
-    ylabel('Phase (radians)')
-    xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
-    title(r'Phase response')
-    subplots_adjust(hspace=0.5)
+    pylab.plot(w / max(w), h_Phase)
+    pylab.ylabel('Phase (radians)')
+    pylab.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
+    pylab.title(r'Phase response')
+    pylab.subplots_adjust(hspace=0.5)
 
 def butter_coefficients(order, low_cutoff_freqs, high_cutoff_freqs, plot_freq_response=False):
     ''' 
