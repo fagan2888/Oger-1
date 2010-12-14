@@ -90,7 +90,7 @@ class ReservoirNode(mdp.Node):
         # Initialize input weight matrix
         if self.w_in_initial is None:
             # Initialize it to uniform random values using input_scaling
-            self.w_in = self.input_scaling * (mdp.numx.random.rand(self.output_dim, self.input_dim) * 2 - 1)
+            self.w_in = self.input_scaling * (mdp.numx.random.randint(0, 2, (self.output_dim, self.input_dim)) * 2 - 1)
         else:
             if callable(self.w_in_initial):
                 self.w_in = self.w_in_initial() # If it is a function, call it
