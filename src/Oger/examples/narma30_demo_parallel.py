@@ -23,11 +23,11 @@ if __name__ == "__main__":
     # build network with MDP framework
     flow = mdp.parallel.ParallelFlow([reservoir, readout], verbose=1)
     
-    scheduler = mdp.parallel.ThreadScheduler(n_threads=2, verbose=True)
-#    scheduler = mdp.parallel.ProcessScheduler(n_processes=2, verbose=True)
+    #scheduler = mdp.parallel.ThreadScheduler(n_threads=2, verbose=True)
+    scheduler = mdp.parallel.ProcessScheduler(n_processes=2, verbose=True)
 #    scheduler = mdp.parallel.pp_support.LocalPPScheduler(ncpus=2, max_queue_length=0, verbose=True)
 
-    data = [x[0:-1], zip(x[0:-1], y[0:-1])]
+    data = [[], zip(x[0:-1], y[0:-1])]
     
     # train the flow 
     flow.train(data, scheduler)

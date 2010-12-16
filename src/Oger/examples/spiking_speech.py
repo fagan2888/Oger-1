@@ -56,10 +56,10 @@ if __name__ == "__main__":
     
     print "Training..."
     # train and test it
-    flow.train([[inputs[0:n_train_samples - 1]], \
+    flow.train([[], \
                 zip(inputs[0:n_train_samples - 1], \
                     outputs[0:n_train_samples - 1]), \
-                [None]])
+                []])
     
     ytrain, ytest = [], []
     print "Applying to trainingset..."

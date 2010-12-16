@@ -5,7 +5,7 @@ if __name__ == '__main__':
     """ This example demonstrates the use of the plotting functions of the Optimizer class.
     """
     [inputs, outputs] = Oger.datasets.narma30()
-    data = [inputs, zip(inputs, outputs)]
+    data = [[], zip(inputs, outputs)]
 
     # construct individual nodes
     reservoir = Oger.nodes.ReservoirNode(input_scaling=0.1, output_dim=100)

@@ -54,7 +54,7 @@ if __name__ == '__main__':
     input_size = 1
     inputs, outputs = Oger.datasets.narma30()
 
-    data = [inputs, zip(inputs, outputs)]
+    data = [[], zip(inputs, outputs)]
 
     # construct individual nodes
     reservoir = ReservoirNode_lyapunov(input_size, 100, lyapunov_skip=100)

@@ -20,7 +20,7 @@ if __name__ == "__main__":
     # build network with MDP framework
     flow = Oger.nodes.InspectableFlow([reservoir, readout], verbose=1)
     
-    data = [x[0:-1], zip(x[0:-1], y[0:-1])]
+    data = [[], zip(x[0:-1], y[0:-1])]
     
     # train the flow 
     flow.train(data)

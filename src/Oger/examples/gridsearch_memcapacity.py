@@ -4,7 +4,7 @@ import Oger
 if __name__ == '__main__':
     inputs, outputs = Oger.datasets.memtest(n_samples=2, sample_len=10000, n_delays=100)
 
-    data = [inputs, zip(inputs, outputs)]
+    data = [[], zip(inputs, outputs)]
 
     # construct individual nodes
     reservoir = Oger.nodes.ReservoirNode(1, 200)

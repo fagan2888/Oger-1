@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     inputs, outputs = Oger.datasets.narma30(sample_len=1000)
     #data = Dataset({'x':inputs, 'y':outputs})
-    data = [inputs, zip(inputs, outputs)]
+    data = [[], zip(inputs, outputs)]
 
     # construct individual nodes
     reservoir = Oger.nodes.ReservoirNode(output_dim=100, input_scaling=0.1)
