@@ -146,7 +146,7 @@ class Optimizer(object):
 
             if var_errors is not None and plot_variance:
                 pylab.figure()
-                pylab.imshow(mdp.numx.flipud(errors_to_plot), cmap=cmap, interpolation='nearest',
+                pylab.imshow(mdp.numx.flipud(var_errors), cmap=cmap, interpolation='nearest',
                              extent=self.get_extent(parameters), aspect="auto", vmin=vmin, vmax=vmax)
                 pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
                 pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
