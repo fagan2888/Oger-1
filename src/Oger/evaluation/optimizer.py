@@ -3,6 +3,21 @@ import mdp
 import itertools
 import scipy.stats
 
+class FlowExecuteCallableNoChecks(mdp.parallel.FlowExecuteCallable):
+    ''' This class is used in the parallel grid search for the Optimizer class, 
+        to avoid the pre_execution_checks done by MDP. In the function below, x 
+        is a list, which doesn't pass the checks since these assume a numpy array. 
+        The code below skips the tests. 
+    '''
+    def __call__(self, x):
+        y = self._flownode._execute(x, nodenr=self._nodenr)
+        if self._flownode.use_execute_fork():
+            if self._purge_nodes:
+                _purge_flownode(self._flownode)
+            return (y, self._flownode)
+        else:
+            return (y, None)
+            
 class Optimizer(object):
     ''' Class to perform optimization of the parameters of a flow using cross-validation.
         Supports grid-searching of a parameter space.
@@ -326,11 +341,11 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
                 
             params[node_index][node_parameter[1]] = parameter_values[parameter_index]
         
-        data_parallel.append([params, data])
+        data_parallel.append([[params, data]])
 
     parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs), ])
 
-    results = parallel_flow.execute(data_parallel, scheduler=self.scheduler)
+    results = parallel_flow.execute(data_parallel, scheduler=self.scheduler, execute_callable_class=FlowExecuteCallableNoChecks)
 
     i = 0
     for paramspace_index_flat, parameter_values in enumerate(self.param_space):
