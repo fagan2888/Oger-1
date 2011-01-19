@@ -24,7 +24,7 @@ if __name__ == "__main__":
     flow = Oger.nodes.InspectableFlow([reservoir, readout, fb], verbose=1)
         
     # Train the reservoir to do one-step ahead prediction using the teacher-forced signal
-    flow.train([ [[xtrain]] , [[xtrain, ytrain]], [[xtrain]]])
+    flow.train([ [[]] , [[xtrain, ytrain]], [[]]])
                     
     # Save the states of the reservoir during training for later plotting
     flow.execute(xtrain)
@@ -40,17 +40,11 @@ if __name__ == "__main__":
     # Execute the flow using the feedbacknode as input
     output = flow.execute(fb)
         
-    #collected_states=mdp.numx.array(reservoir.collected_states)
-    pylab.subplot(311)
-    #pylab.plot(mdp.numx.concatenate((mdp.numx.array(training_states[-freerun_steps:,:]), collected_states[0:freerun_steps,:])))
-    pylab.plot(training_states[-freerun_steps:, :])
-    
-    pylab.subplot(312)
+    pylab.subplot(211)
     pylab.plot(mdp.numx.concatenate((training_states[-freerun_steps:], flow.inspect(reservoir)[0:freerun_steps])))
     
-    pylab.subplot(313)
+    pylab.subplot(212)
     pylab.plot(mdp.numx.concatenate((ytrain[-freerun_steps:], output[0:freerun_steps])))
     pylab.plot(x[0][-2 * freerun_steps:])
-    pylab.plot(training_output[-freerun_steps:])
-
+    
     pylab.show()
