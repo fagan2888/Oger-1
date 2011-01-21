@@ -95,7 +95,7 @@ class ReservoirNode(mdp.Node):
             if callable(self.w_in_initial):
                 self.w_in = self.w_in_initial() # If it is a function, call it
             else:
-                self.w_in = self.w_in_initial # else just copy it
+                self.w_in = self.w_in_initial.copy() # else just copy it
         # Check if dimensions of the weight matrix match the dimensions of the node inputs and outputs
         if self.w_in.shape != (self.output_dim, self.input_dim):
             exception_str = 'Shape of given w_in does not match input/output dimensions of node. '
@@ -111,7 +111,7 @@ class ReservoirNode(mdp.Node):
             if callable(self.w_bias_initial):
                 self.w_bias = self.w_bias_initial() # If it is a function, call it
             else:
-                self.w_bias = self.w_bias_initial   # else just copy it
+                self.w_bias = self.w_bias_initial.copy()   # else just copy it
 
         # Check if dimensions of the weight matrix match the dimensions of the node inputs and outputs
         if self.w_bias.shape != (self.output_dim,):
@@ -129,7 +129,7 @@ class ReservoirNode(mdp.Node):
             if callable(self.w_initial):
                 self.w = self.w_initial() # If it is a function, call it
             else:
-                self.w = self.w_initial   # else just copy it
+                self.w = self.w_initial.copy()   # else just copy it
         
         # Check if dimensions of the weight matrix match the dimensions of the node inputs and outputs
         if self.w.shape != (self.output_dim, self.output_dim):
