@@ -1,6 +1,7 @@
 import mdp
 from mdp import numx
 import scipy.signal
+import numpy as np
 
 
 class FeedbackNode(mdp.Node):
@@ -407,3 +408,35 @@ class SupervisedLayer(mdp.hinet.Layer):
                 else:
                     y[:,out_start:out_stop] = node.execute(x, *args, **kwargs)
             return y
+            
+
+class MaxVotingNode(mdp.Node):
+    """
+    This node finds the maximum value of all input channels at each timestep,
+    and returns the corresponding label.
+
+    If no labels are supplied, the index of the channel is returned.
+    """
+
+    def __init__(self, labels=None, input_dim=None, dtype='float64'):
+         super(MaxVotingNode, self).__init__(input_dim, 1, dtype) # output_dim is always 1
+         if labels is None:
+             self.labels = np.arange(self.input_dim) # default labels = channel indices
+         else:
+             self.labels = np.asarray(labels)
+        
+    def is_trainable(self):
+        return False
+    
+    def is_invertible(self):
+        return False
+    
+    def _get_supported_dtypes(self):
+        return ['float32', 'float64']
+    
+    def _execute(self, x):
+        indices = np.atleast_2d(np.argmax(x, 1)).T
+        return self.labels[indices]
+        
+        
+
