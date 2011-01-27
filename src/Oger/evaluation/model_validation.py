@@ -144,6 +144,56 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
 
     return test_error
 
+
+def validate_gen(data, flow, cross_validate_function=n_fold_random, progress=True, *args, **kwargs):
+    '''
+    validate_gen(data, flow, cross_validate_function=n_fold_random, progress=True, *args, **kwargs) -> test_output
+    
+    Perform  cross-validation on a flow, but only train - don't evaluate anything. This function is a generator which returns the the flow, along with the data used to train it, and the remaining data that can be used for evaluation for each fold.
+    
+    Use it like this:
+    
+    for flow, train_data, test_data in validate_gen(...):
+        ...
+        
+    Parameters are the same as for 'validate', except there is no 'error_measure' parameter.
+    '''
+    # Get the number of samples 
+    n_samples = mdp.numx.amax(map(len, data))
+    # Get the indices of the training and testing samples for each fold by calling the 
+    # cross_validate_function hook
+    
+    train_samples, test_samples = cross_validate_function(n_samples, *args, **kwargs)
+    
+    if progress:
+        print "Performing cross-validation using " + cross_validate_function.__name__
+        iteration = mdp.utils.progressinfo(range(len(train_samples)), style='timer')
+    else:
+        iteration = range(len(train_samples))
+        
+    for fold in iteration:
+        # Get the training data from the whole data set
+        train_data = data_subset(data, train_samples[fold])
+        # Empty list to store test errors for current fold
+        fold_test = []
+        
+        # Copy the flow so we can re-train it for every fold
+        # Only nodes that need training are copied.
+        f_copy = mdp.Flow([])
+        for node in flow:
+            # TODO: check if this also works for e.g. LayerNodes with trainable
+            # nodes inside
+            if node.is_trainable():
+                f_copy += node.copy()
+            else:
+                f_copy += node 
+                
+        # train on all training samples
+        f_copy.train(train_data)
+        test_data = data_subset(data, test_samples[fold])
+        yield (f_copy, train_data, test_data) # collect everything needed to evaluate this fold and return it.
+
+
 def data_subset(data, data_indices):
     '''
     data_subset(data, data_indices) -> data_subset
