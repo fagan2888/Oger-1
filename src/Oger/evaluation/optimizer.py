@@ -1,5 +1,6 @@
 import Oger
-import mdp
+import mdp.utils
+import mdp.parallel
 import itertools
 import scipy.stats
 
@@ -68,9 +69,11 @@ class Optimizer(object):
             point in Optimizer.probe_data. This member variable is an N-dimensional list, with N the number of parameters being ranged over. 
             Each element of this N-d list is a dictionary, indexed by the nodes in the flow, whose values are the corresponding contents 
             of the probe_data.
+            After grid_search, the optimal (untrained) flow can be found in Optimizer.optimal_flow
         '''
         self.errors = mdp.numx.zeros(self.paramspace_dimensions)
         self.probe_data = {}
+        min_error = float('+infinity')
         
         if progress:
             iteration = mdp.utils.progressinfo(enumerate(self.param_space), style='timer', length=len(self.param_space))
@@ -93,7 +96,18 @@ class Optimizer(object):
            
             # After all node parameters have been set and initialized, do the cross-validation
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions)
-            self.errors[paramspace_index_full] = mdp.numx.mean(Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs))
+            
+            # Keep the untrained flow for later
+            current_flow = flow.copy()
+            current_error = mdp.numx.mean(Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs))
+            
+            # If the current error is minimal, store the current flow
+            if current_error < min_error:
+                min_error = current_error
+                self.optimal_flow = current_flow
+            
+            # Store the current error in the errors array
+            self.errors[paramspace_index_full] = current_error
             
             # Collect probe data if it is present
             for node in flow:

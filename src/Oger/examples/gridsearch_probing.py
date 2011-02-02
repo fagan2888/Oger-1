@@ -1,6 +1,7 @@
 import mdp
 import Oger
 import pylab
+import scipy as sp
 
 class ReservoirNode_lyapunov(Oger.nodes.ReservoirNode):
     def __init__ (self, input_dim=1, output_dim=None, spectral_radius=0.9,
@@ -25,9 +26,8 @@ class ReservoirNode_lyapunov(Oger.nodes.ReservoirNode):
         '''
         # We use broadcasting of the statevector
         if not (n + 1) % self.lyapunov_skip:
-            jacob = states[n, :, mdp.numx.newaxis] * self.w
-            #print jacob
-            ll = mdp.numx.sqrt(mdp.numx.absolute(mdp.numx.linalg.eigvals(mdp.numx.dot(jacob, jacob.T))))
+            jacob = (1-states[n, :, mdp.numx.newaxis]**2) * self.w
+            ll = sp.absolute(sp.linalg.eigvals(jacob))
             self.local_lyapunov[:, n / self.lyapunov_skip] = ll
             
     def _execute(self, x):
@@ -39,8 +39,8 @@ class ReservoirNode_lyapunov(Oger.nodes.ReservoirNode):
         # Simulate the reservoir
         out = super(ReservoirNode_lyapunov, self)._execute(x)
         
-        # Compute the geometric mean of the gathered local lyapunov exponents
-        self.probe_data.append(mdp.numx.prod(mdp.numx.power(self.local_lyapunov, 1. / self.n_lyapunov), 1))
+        # Append the computed local lyapunov exponents to the probe_data field, so it can be saved by the Optimizer
+        self.probe_data.append(sp.amax((self.local_lyapunov)))
         return out
         
 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     flow = mdp.Flow([reservoir, readout])
 
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, .2), 'spectral_radius':mdp.numx.arange(0.1, 1.5, .3)}}
+    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 2.2, .3), 'spectral_radius':mdp.numx.arange(0.1, 2.2, .3)}}
 
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     
     pylab.figure()
     pylab.imshow(mdp.numx.flipud(lle_max), cmap=pylab.jet(), interpolation='nearest', aspect="auto", extent=opt.get_extent(opt.parameters))
-    pylab.xlabel('Spectral Radius')
-    pylab.ylabel('Input scaling')
+    pylab.ylabel('Spectral Radius')
+    pylab.xlabel('Input scaling')
     pylab.suptitle('Max LLE')
     pylab.colorbar()

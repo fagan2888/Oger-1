@@ -1,4 +1,4 @@
-import mdp
+import mdp.utils
 import Oger
 
 def train_test_only(n_samples, training_fraction, random=True):
