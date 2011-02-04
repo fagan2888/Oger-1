@@ -26,7 +26,10 @@ class FeedbackNode(mdp.Node):
         self.current_timestep = 0
         
     def is_trainable(self):
-        return False
+        return True
+    
+    def _train(self, x, y):
+        self.last_value = mdp.numx.atleast_2d(y[-1, :])
 
     def __iter__(self):
         while self.current_timestep < self.n_timesteps:

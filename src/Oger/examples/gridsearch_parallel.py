@@ -1,6 +1,6 @@
-import mdp
 import Oger
-import mdp.parallel.pp_support
+import mdp.parallel
+import time
 
 if __name__ == '__main__':
     ''' Example of doing a grid-search
@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     # construct individual nodes
     reservoir = Oger.nodes.ReservoirNode(input_size, 200)
-    readout = Oger.nodes.RidgeRegressionNode(0)
+    readout = Oger.nodes.RidgeRegressionNode()
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout])
@@ -24,13 +24,24 @@ if __name__ == '__main__':
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
     
-    #mdp.activate_extension("parallel")
-    opt.scheduler = mdp.parallel.ProcessScheduler(n_processes=2, verbose=True)
-
-    # Do the grid search
-    mdp.activate_extension("parallel")
+    
+    print 'Sequential execution...'
+    start_time = time.time()
     opt.grid_search(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5)
-
+    seq_duration = int(time.time() - start_time)
+    print 'Duration: ' + str(seq_duration) + 's'
+    
+    # Do the grid search
+    print 'Parallel execution...'
+    opt.scheduler = mdp.parallel.ProcessScheduler(n_processes=2)
+    mdp.activate_extension("parallel")
+    start_time = time.time()
+    opt.grid_search(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5)
+    par_duration = int(time.time() - start_time)
+    print 'Duration: ' + str(par_duration) + 's'
+    
+    print 'Speed up factor: ' + str(float(seq_duration)/par_duration)
+    
     # Get the minimal error
     min_error, parameters = opt.get_minimal_error()
     

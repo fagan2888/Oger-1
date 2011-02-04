@@ -1,4 +1,4 @@
-import mdp
+import mdp.nodes
 import Oger
 
 if __name__ == '__main__':

@@ -1,4 +1,6 @@
-import mdp
+import mdp.nodes
+import mdp.utils
+import mdp.parallel
 
 class RidgeRegressionNode(mdp.nodes.LinearRegressionNode):
     """Ridge Regression node. Extends the LinearRegressionNode and adds an additional

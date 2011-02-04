@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
     # construct individual nodes
     reservoir = Oger.nodes.ReservoirNode(output_dim=100, input_scaling=0.1)
-    readout = Oger.nodes.RidgeRegressionNode(0)
+    readout = Oger.nodes.RidgeRegressionNode()
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout])

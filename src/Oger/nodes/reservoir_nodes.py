@@ -1,6 +1,7 @@
 import Oger
-import mdp
+import mdp.utils
 import scipy.signal
+import numpy as np
 import collections
 try:
     import cudamat as cm
@@ -20,7 +21,7 @@ class ReservoirNode(mdp.Node):
     A standard (ESN) reservoir node.
     """
     
-    def __init__(self, input_dim=1, output_dim=None, spectral_radius=0.9,
+    def __init__(self, input_dim=None, output_dim=None, spectral_radius=0.9,
                  nonlin_func=Oger.utils.TanhFunction, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
                  w_in=None, w=None, w_bias=None):
         """ Initializes and constructs a random reservoir.
@@ -69,7 +70,7 @@ class ReservoirNode(mdp.Node):
         self.w_bias = []
         
         # Call the initialize function to create the weight matrices
-        self.initialize()
+        self._is_initialized = False
         
     def is_trainable(self):
         return False
@@ -144,6 +145,11 @@ class ReservoirNode(mdp.Node):
     def _execute(self, x):
         """ Executes simulation with input vector x.
         """
+        # Check if the weight matrices are intialized, otherwise create them
+        if not self._is_initialized:
+            self.initialize()
+            self._is_initialized = True
+        
         steps = x.shape[0]
         
         # Pre-allocate the state vector, adding the initial state

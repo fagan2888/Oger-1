@@ -24,19 +24,21 @@ if __name__ == "__main__":
     flow = Oger.nodes.InspectableFlow([reservoir, readout, fb], verbose=1)
         
     # Train the reservoir to do one-step ahead prediction using the teacher-forced signal
-    flow.train([ [[]] , [[xtrain, ytrain]], [[]]])
+    #
+    # The second item in the list below is used to train the readout to do one step ahead prediction,
+    # and the third item in the list is used to warmup the reservoir and initialize the FeedbackNode to the correct
+    # (teacher forced) initial value
+    
+    flow.train([ [] , [[xtrain, ytrain]], [[xtrain, ytrain]]])
                     
-    # Save the states of the reservoir during training for later plotting
-    flow.execute(xtrain)
-    training_states = flow.inspect(reservoir)
+    # The inspection field of the reservoir contains a list of 2 arrays, since the reservoir was already run twice
+    training_states = flow.inspect(reservoir)[1]
+    
+    # The inspection field of the readout only contains one array, since the readout was only executed once yet, during training of the feedbacknode
     training_output = flow.inspect(readout)
      
     reservoir.reset_states = False
     
-    # Without this line, we start from the estimated last timestep, while
-    # this line starts the feedback node from the actual last timestep.
-    fb.last_value = mdp.numx.atleast_2d(ytrain[-1, :]) 
-
     # Execute the flow using the feedbacknode as input
     output = flow.execute(fb)
         

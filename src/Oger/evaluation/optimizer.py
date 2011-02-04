@@ -53,9 +53,6 @@ class Optimizer(object):
         # Construct all combinations
         self.param_space = list(itertools.product(*self.parameter_ranges))
 
-        # Initialize an N-dimensional list which will contain the probe data
-        self.probe_data = Oger.utils.empty_n_d_list(self.paramspace_dimensions)
-        
 
     def grid_search (self, data, flow, cross_validate_function, progress=True, *args, **kwargs):
         ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
@@ -73,6 +70,7 @@ class Optimizer(object):
         '''
         self.errors = mdp.numx.zeros(self.paramspace_dimensions)
         self.probe_data = {}
+        self.errors_per_fold = {}
         min_error = float('+infinity')
         
         if progress:
@@ -99,15 +97,17 @@ class Optimizer(object):
             
             # Keep the untrained flow for later
             current_flow = flow.copy()
-            current_error = mdp.numx.mean(Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs))
+            validation_errors = Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs)
+            mean_validation_error = mdp.numx.mean(validation_errors)
             
             # If the current error is minimal, store the current flow
-            if current_error < min_error:
-                min_error = current_error
+            if mean_validation_error < min_error:
+                min_error = mean_validation_error
                 self.optimal_flow = current_flow
             
             # Store the current error in the errors array
-            self.errors[paramspace_index_full] = current_error
+            self.errors[paramspace_index_full] = mean_validation_error
+            self.errors_per_fold[paramspace_index_full] = validation_errors
             
             # Collect probe data if it is present
             for node in flow:

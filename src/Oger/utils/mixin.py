@@ -23,13 +23,13 @@ import types
 copy_reg.pickle(types.MethodType, _pickle_method, _unpickle_method)
 
 
-def optimize_parameters(washout_class, gridsearch_parameters=None, cross_validate_function=None, error_measure=None, *args, **kwargs):
-    ''' Turn the class washout_class into a self-optimizing node, using the given cross-validation and optimization parameters.
+def optimize_parameters(original_class, gridsearch_parameters=None, cross_validate_function=None, error_measure=None, *args, **kwargs):
+    ''' Turn the class original_class into a self-optimizing node, using the given cross-validation and optimization parameters.
     When training the node, it will internally first optimize the parameters given in gridsearch_parameters using the given cross-validation scheme, and 
     then train on the given data using the optimal parameter set.
-    optimize_parameters (washout_class, gridsearch_parameters=None, cross_validate_function=None, error_measure=None, *args, **kwargs)
+    optimize_parameters (original_class, gridsearch_parameters=None, cross_validate_function=None, error_measure=None, *args, **kwargs)
     Arguments are:
-    - washout_class: the node class to change into a self-optimizing node
+    - original_class: the node class to change into a self-optimizing node
     - gridsearch_parameters: the dictionary of optimization parameters and corresponding ranges to use. See the documentation for Oger.evaluation.Optimizer for the format
     - cross_validate_function: the function to do cross-validation with
     - error_measure: the loss function based on which the optimal parameters are chosen
@@ -71,8 +71,8 @@ def optimize_parameters(washout_class, gridsearch_parameters=None, cross_validat
             # Set the obtained optimal parameter values in the node
             for param in opt_parameter_dict[self]:
                 self.__setattr__(param, opt_parameter_dict[self][param])
-                print 'Found optimal value for parameter ' + param + ' : ' + str(opt_parameter_dict[self][param])
-            
+                print 'Found optimal value for parameter ' + param + ' : ' + str(opt_parameter_dict[self][param]) + ', error: ' + str(self._op_minimal_error)
+      
             # Train the node using the optimal parameters
             flow = mdp.Flow([self])
             flow.train(data)
@@ -84,31 +84,31 @@ def optimize_parameters(washout_class, gridsearch_parameters=None, cross_validat
             self._op_is_optimizing = False
         
     
-    setattr(washout_class, "_op_collect_data", SelfOptimizingNode._op_collect_data)
-    setattr(washout_class, "_op_optimize", SelfOptimizingNode._op_optimize)
-    setattr(washout_class, "_op_orig_get_train_seq", washout_class._get_train_seq)
-    setattr(washout_class, "_get_train_seq", SelfOptimizingNode._get_train_seq)
-    setattr(washout_class, "_op_gridsearch_parameters", gridsearch_parameters)
-    setattr(washout_class, "_op_cross_validate_function", staticmethod(cross_validate_function))
-    setattr(washout_class, "_op_error_measure", staticmethod(error_measure))
-    setattr(washout_class, "_op_args", args)
-    setattr(washout_class, "_op_kwargs", kwargs)
-    setattr(washout_class, "_op_is_optimizing", False)
-    setattr(washout_class, "_op_minimal_error", None)
+    setattr(original_class, "_op_collect_data", SelfOptimizingNode._op_collect_data)
+    setattr(original_class, "_op_optimize", SelfOptimizingNode._op_optimize)
+    setattr(original_class, "_op_orig_get_train_seq", original_class._get_train_seq)
+    setattr(original_class, "_get_train_seq", SelfOptimizingNode._get_train_seq)
+    setattr(original_class, "_op_gridsearch_parameters", gridsearch_parameters)
+    setattr(original_class, "_op_cross_validate_function", staticmethod(cross_validate_function))
+    setattr(original_class, "_op_error_measure", staticmethod(error_measure))
+    setattr(original_class, "_op_args", args)
+    setattr(original_class, "_op_kwargs", kwargs)
+    setattr(original_class, "_op_is_optimizing", False)
+    setattr(original_class, "_op_minimal_error", None)
 
-    setattr(washout_class, "_op_x_list", [])
-    setattr(washout_class, "_op_y_list", [])
+    setattr(original_class, "_op_x_list", [])
+    setattr(original_class, "_op_y_list", [])
     
     # add to base classes
-    washout_class.__bases__ += (SelfOptimizingNode,)
+    original_class.__bases__ += (SelfOptimizingNode,)
 
 
-def select_inputs(washout_class, n_inputs=1, error_measure=None):
-    ''' Turn the class washout_class into a input selection node.
+def select_inputs(original_class, n_inputs=1, error_measure=None):
+    ''' Turn the class original_class into a input selection node.
     It selects the inputs using a forward input/feature selection algorithm.
     
     Arguments are:
-    - washout_class: the node class to change into a self-optimizing node
+    - original_class: the node class to change into a self-optimizing node
     - n_inputs: the number of inputs (one input can consist of several signals)
     - error_measure: the loss function based on which the optimal parameters are chosen
                      (is not necessary when optimize_parameters is used)
@@ -220,25 +220,25 @@ def select_inputs(washout_class, n_inputs=1, error_measure=None):
             else:
                 return self._si_orig_execute(x)   
     
-    setattr(washout_class, "_si_collect_data", FeatureSelectionNode._si_collect_data)
-    setattr(washout_class, "_si_fwd_input_selection", FeatureSelectionNode._si_fwd_input_selection)
-    setattr(washout_class, "_si_orig_get_train_seq", washout_class._get_train_seq)
-    setattr(washout_class, "_get_train_seq", FeatureSelectionNode._get_train_seq)
-    setattr(washout_class, "_si_selecting_inputs", False)
-    setattr(washout_class, "_si_orig_execute", washout_class._execute)
-    setattr(washout_class, "_execute", FeatureSelectionNode._execute)
-    setattr(washout_class, "_si_n_inputs", n_inputs)
-    setattr(washout_class, "_si_error_measure", staticmethod(error_measure))
-    setattr(washout_class, "_si_error", None)
+    setattr(original_class, "_si_collect_data", FeatureSelectionNode._si_collect_data)
+    setattr(original_class, "_si_fwd_input_selection", FeatureSelectionNode._si_fwd_input_selection)
+    setattr(original_class, "_si_orig_get_train_seq", original_class._get_train_seq)
+    setattr(original_class, "_get_train_seq", FeatureSelectionNode._get_train_seq)
+    setattr(original_class, "_si_selecting_inputs", False)
+    setattr(original_class, "_si_orig_execute", original_class._execute)
+    setattr(original_class, "_execute", FeatureSelectionNode._execute)
+    setattr(original_class, "_si_n_inputs", n_inputs)
+    setattr(original_class, "_si_error_measure", staticmethod(error_measure))
+    setattr(original_class, "_si_error", None)
     
-    setattr(washout_class, "_si_remove_data", FeatureSelectionNode._si_remove_data)
-    setattr(washout_class, "_si_sort_error", FeatureSelectionNode._si_sort_error)
-    setattr(washout_class, "_si_x_list", [])
-    setattr(washout_class, "_si_y_list", [])
-    setattr(washout_class, "si_selected_inputs", None)
+    setattr(original_class, "_si_remove_data", FeatureSelectionNode._si_remove_data)
+    setattr(original_class, "_si_sort_error", FeatureSelectionNode._si_sort_error)
+    setattr(original_class, "_si_x_list", [])
+    setattr(original_class, "_si_y_list", [])
+    setattr(original_class, "si_selected_inputs", None)
     
     # add to base classes
-    washout_class.__bases__ += (FeatureSelectionNode,)
+    original_class.__bases__ += (FeatureSelectionNode,)
 
     
     

@@ -51,16 +51,17 @@ def n_fold_random(n_samples, n_folds):
         - test_indices contains the indices of the dataset used for testing
     '''
     
-    if n_folds < 2:
-        raise RuntimeError('The number of folds should be > 1.')
+    if n_folds <= 1:
+        raise Exception('Number of folds should be larger than one.')
+    
+    if n_folds > n_samples:
+        raise Exception('Number of folds cannot be larger than the number of samples.')
+    
     
     # Create random permutation of number of samples
     randperm = mdp.numx.random.permutation(n_samples)
     train_indices, test_indices = [], []
     foldsize = mdp.numx.floor(float(n_samples) / n_folds)
-    
-    if n_folds <= 1:
-        raise Exception('Number of folds should be larger than one.')
     
     for fold in range(n_folds):
         # Select the sample indices used for testing
@@ -132,7 +133,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
                         f_copy[i].reset_states = False       
                     if isinstance(f_copy[i], Oger.nodes.FeedbackNode):
                         f_copy[i].reset()
-                               
+                        
                 # Run flow on training data so we have an initial state to start from
                 f_copy(train_data[0])     
                 

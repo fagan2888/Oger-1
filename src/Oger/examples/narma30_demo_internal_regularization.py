@@ -23,7 +23,7 @@ if __name__ == "__main__":
     cross_validate_function = Oger.evaluation.n_fold_random
     error_measure = Oger.utils.nrmse
     n_folds = 5
-    Oger.utils.optimize_parameters(Oger.nodes.RidgeRegressionNode, gridsearch_parameters=gridsearch_params, cross_validate_function=cross_validate_function, error_measure=error_measure, n_folds=n_folds)
+    Oger.utils.optimize_parameters(Oger.nodes.RidgeRegressionNode, gridsearch_parameters=gridsearch_params, cross_validate_function=cross_validate_function, error_measure=error_measure, n_folds=n_folds, progress = False)
     
     
     # build network with MDP framework

@@ -1,15 +1,17 @@
 import mdp
 import collections
+import numpy as np
 
-def mackey_glass(sample_len=1000, tau=17, seed=None):
+def mackey_glass(sample_len=1000, tau=17, seed=None, n_samples = 1):
     '''
-    mackey_glass(sample_len=1000, tau=17) -> input
+    mackey_glass(sample_len=1000, tau=17, seed = None, n_samples = 1) -> input
     Generate the Mackey Glass time-series. Parameters are:
         - sample_len: length of the time-series in timesteps. Default is 1000.
         - tau: delay of the MG - system. Commonly used values are tau=17 (mild 
           chaos) and tau=30 (moderate chaos). Default is 17.
         - seed: to seed the random generator, can be used to generate the same
           timeseries at each invocation.
+        - n_samples : number of samples to generate
     '''
     delta_t = 10
     history_len = tau * delta_t 
@@ -19,36 +21,41 @@ def mackey_glass(sample_len=1000, tau=17, seed=None):
     if seed is not None:
         mdp.numx.random.seed(seed)
 
-    history = collections.deque(1.2 * mdp.numx.ones(history_len) + 0.2 * \
-                                (mdp.numx.random.rand(history_len) - 0.5))
-    # Preallocate the array for the time-series
-    inp = mdp.numx.zeros([sample_len])
-    
-    for timestep in range(sample_len):
-        for _ in range(delta_t):
-            xtau = history.popleft()
-            history.append(timeseries)
-            timeseries = history[-1] + (0.2 * xtau / (1.0 + xtau ** 10) - \
-                         0.1 * history[-1]) / delta_t
-        inp[timestep] = timeseries
-    
-    # Squash timeseries through tanh
-    inp = mdp.numx.tanh(inp - 1)
-    inp.shape = (-1, 1)
-    return [inp, ]
+    samples = []
 
-def mso(sample_len=1000):
+    for _ in range(n_samples):
+        history = collections.deque(1.2 * mdp.numx.ones(history_len) + 0.2 * \
+                                    (mdp.numx.random.rand(history_len) - 0.5))
+        # Preallocate the array for the time-series
+        inp = mdp.numx.zeros((sample_len,1))
+        
+        for timestep in range(sample_len):
+            for _ in range(delta_t):
+                xtau = history.popleft()
+                history.append(timeseries)
+                timeseries = history[-1] + (0.2 * xtau / (1.0 + xtau ** 10) - \
+                             0.1 * history[-1]) / delta_t
+            inp[timestep] = timeseries
+        
+        # Squash timeseries through tanh
+        inp = mdp.numx.tanh(inp - 1)
+        samples.append(inp)
+    return samples
+
+def mso(sample_len=1000, n_samples = 1):
     '''
-    mso(sample_len=1000) -> input
+    mso(sample_len=1000, n_samples = 1) -> input
     Generate the Multiple Sinewave Oscillator time-series, a sum of two sines
     with incommensurable periods. Parameters are:
         - sample_len: length of the time-series in timesteps
-         
+        - n_samples: number of samples to generate
     '''
-    x = mdp.numx.arange(0, sample_len, 1)
-    x.shape += (1,)
-    signal = mdp.numx.sin(0.2 * x) + mdp.numx.sin(0.311 * x) 
-    return [signal, ]
+    signals = []
+    for _ in range(n_samples):
+        phase = np.random.rand()
+        x = np.atleast_2d(mdp.numx.arange(sample_len)).T
+        signals.append(np.sin(0.2 * x + phase) + np.sin(0.311 * x + phase))
+    return signals
 
 def lorentz(sample_len=1000, sigma=10, rho=28, beta=8 / 3, step=0.01):
     """This function generates a Lorentz time series of length sample_len,

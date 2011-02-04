@@ -13,13 +13,13 @@ if __name__ == '__main__':
 
     # construct individual nodes
     reservoir = Oger.nodes.ReservoirNode(input_size, 200)
-    readout = Oger.nodes.RidgeRegressionNode(0)
+    readout = Oger.nodes.RidgeRegressionNode()
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout])
 
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, .2), 'spectral_radius':mdp.numx.arange(0.1, 1.5, .3)}}
+    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, .3), 'spectral_radius':mdp.numx.arange(0.1, 1.5, .5)}}
 
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
@@ -38,9 +38,10 @@ if __name__ == '__main__':
             output_str += str(node) + '.' + node_param + ' : ' + str(parameters[node][node_param]) + '\n'
     print output_str
 
-    # Get the optimal flow and train and test it
+    # Get the optimal flow and run cross-validation with it 
     opt_flow = opt.optimal_flow
     
     print 'Performing cross-validation with the optimal flow. Note that this error can be slightly different from the one reported above due to another division of the dataset. It should be more or less the same though.'
+    
     errors = Oger.evaluation.validate(data, opt_flow, Oger.utils.nrmse, cross_validate_function=Oger.evaluation.n_fold_random, n_folds = 5)
     print 'Mean error over folds: ' + str(sp.mean(errors))
