@@ -1,10 +1,9 @@
 import Oger
-import mdp
+import mdp.utils
 from mdp import numx as numx
 import numpy
 from numpy import dot as dot
 from mdp.utils import mult
-import scipy
 
 # TODO: could we turn this in a generic "function" node?
 class ThresholdNode(mdp.Node):
@@ -57,7 +56,7 @@ class PerceptronNode(mdp.Node):
         return ['float32', 'float64']
 
     def _execute(self, x):
-        n, d = x.shape
+        n = x.shape[0]
         if n > 1:
             bias = numx.tile(self.b, (n, 1))
         else:

@@ -3,6 +3,7 @@ import mdp.utils
 import mdp.parallel
 import itertools
 import scipy.stats
+from copy import deepcopy
 
 class FlowExecuteCallableNoChecks(mdp.parallel.FlowExecuteCallable):
     ''' This class is used in the parallel grid search for the Optimizer class, 
@@ -88,15 +89,15 @@ class Optimizer(object):
                 node_parameter[0].__setattr__(node_parameter[1], parameter_values[parameter_index])
             
             # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
-            for node in node_set:
-                if hasattr(node, 'initialize'):
-                    node.initialize()
-           
+#            for node in node_set:
+#                if hasattr(node, 'initialize') and not node._is_initialized:
+#                    node.initialize()
+#           
             # After all node parameters have been set and initialized, do the cross-validation
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions)
             
             # Keep the untrained flow for later
-            current_flow = flow.copy()
+            current_flow = deepcopy(flow)
             validation_errors = Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs)
             mean_validation_error = mdp.numx.mean(validation_errors)
             

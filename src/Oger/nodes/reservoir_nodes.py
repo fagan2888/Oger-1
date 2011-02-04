@@ -1,6 +1,5 @@
 import Oger
 import mdp.utils
-import scipy.signal
 import numpy as np
 import collections
 try:
@@ -315,7 +314,6 @@ def get_specrad(Ac):
         eps = 1e-3
         b = 1e10
         c = 1e9
-        r = 1e9
         max_its = 1e6
     
         n_its = 0
@@ -367,9 +365,7 @@ class CUDAReservoirNode(mdp.Node):
         self.states = cm.empty((self.output_dim, n + 1))
 
         self.states.set_col_slice(0, 1, cm.CUDAMatrix(mdp.numx.zeros((self.output_dim, 1))))
-        temp = cm.empty((self.output_dim, 1))
-        bias = self.bias
-
+        
         for i in range(n):
 
             self.current_state = self.states.get_col_slice(i, i + 1)
@@ -378,14 +374,7 @@ class CUDAReservoirNode(mdp.Node):
             cm.dot(self.w, self.current_state, self.new_state)
             self.new_state.add_dot(self.w_in, x_T.get_col_slice(i, i + 1))
 
-            # I should either make this trainable or leave it out.
-            #self.new_state.add(bias)
-
             self.new_state.apply_tanh()
-
-            # Add leakrate
-            #self.new_state.mult(self.leak_rate)
-            #self.new_state.add_mult(self.current_state, 1 - self.leak_rate)
 
             # Note that the states are shifted in time and that the first state
             # is zero.

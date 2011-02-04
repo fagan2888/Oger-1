@@ -1,5 +1,6 @@
-import mdp
+import mdp.nodes
 import scipy.signal
+import numpy as np
 
 class FeedbackNode(mdp.Node):
     """FeedbackNode creates the ability to feed back a certain part of a flow as 
@@ -207,7 +208,7 @@ class FeedbackShiftNode(mdp.Node):
 
     def __init__(self, input_dim=None, output_dim=None, n_shifts=1,
                  dtype='float64'):
-        super(MyShiftNode, self).__init__(input_dim, output_dim, dtype)
+        super(FeedbackShiftNode, self).__init__(input_dim, output_dim, dtype)
         self.n_shifts = n_shifts
         self.y = None
     def is_trainable(self):
@@ -217,8 +218,6 @@ class FeedbackShiftNode(mdp.Node):
         n = x.shape
         assert(n > 1)
 
-        ns = self.n_shifts
-        
         if self.y == None:
             self.y = np.zeros((self.n_shifts,self._input_dim))
 

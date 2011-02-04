@@ -2,11 +2,6 @@ import Oger
 import mdp
 import pylab
 import scipy as sp
-try:
-    from NeuroTools import stgen
-except:
-    print "The Neurotools package was not found, but is required for this example. Please install it first or check your installation."
-    exit()
     
 if __name__ == "__main__":
 
@@ -41,7 +36,7 @@ if __name__ == "__main__":
     
     # construct individual nodes
     reservoir = Oger.nodes.SpikingIFReservoirNode(input_dim, output_dim=400, dtype=float, exc_frac=0.8, exc_w=0.1, inh_w= -0.5, input_w=0.2, cell_params=cell_params,
-                                       syn_delay=1.0, Cprob_exc=0.2, Cprob_inh=0.2, Cprob_inp=0.2, kernel=Oger.nodes.exp_kernel(tau=30, dt=1), inp2spikes_conversion=poisson_gen(rngseed))
+                                       syn_delay=1.0, Cprob_exc=0.2, Cprob_inh=0.2, Cprob_inp=0.2, kernel=Oger.utils.exp_kernel(tau=30, dt=1), inp2spikes_conversion=Oger.utils.poisson_gen(rngseed))
     readout = Oger.nodes.RidgeRegressionNode(0.001)
     mnnode = Oger.nodes.MeanAcrossTimeNode()
     

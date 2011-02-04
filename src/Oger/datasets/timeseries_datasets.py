@@ -39,7 +39,7 @@ def mackey_glass(sample_len=1000, tau=17, seed=None, n_samples = 1):
         
         # Squash timeseries through tanh
         inp = mdp.numx.tanh(inp - 1)
-        samples.append(inp)
+        samples.append([inp])
     return samples
 
 def mso(sample_len=1000, n_samples = 1):
@@ -54,7 +54,7 @@ def mso(sample_len=1000, n_samples = 1):
     for _ in range(n_samples):
         phase = np.random.rand()
         x = np.atleast_2d(mdp.numx.arange(sample_len)).T
-        signals.append(np.sin(0.2 * x + phase) + np.sin(0.311 * x + phase))
+        signals.append([np.sin(0.2 * x + phase) + np.sin(0.311 * x + phase)])
     return signals
 
 def lorentz(sample_len=1000, sigma=10, rho=28, beta=8 / 3, step=0.01):

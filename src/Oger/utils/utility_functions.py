@@ -1,6 +1,7 @@
 import mdp
 import itertools
-import scipy
+import scipy.signal
+import numpy as np
 
 ## Utility functions
 
@@ -26,7 +27,7 @@ def mfreqz(b, a=1):
     import pylab
     pylab.figure(1)
     w, h = scipy.signal.freqz(b, a)
-    h_dB = 20 * log10 (abs(h))
+    h_dB = 20 * np.log10 (abs(h))
     pylab.subplot(211)
     pylab.plot(w / max(w), h_dB)
     pylab.ylim(-150, 5)
@@ -34,7 +35,7 @@ def mfreqz(b, a=1):
     pylab.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
     pylab.title(r'Frequency response')
     pylab.subplot(212)
-    h_Phase = unwrap(arctan2(imag(h), real(h)))
+    h_Phase = np.unwrap(np.arctan2(np.imag(h), np.real(h)))
     pylab.plot(w / max(w), h_Phase)
     pylab.ylabel('Phase (radians)')
     pylab.xlabel(r'Normalized Frequency (x$\pi$rad/sample)')
@@ -59,7 +60,8 @@ def butter_coefficients(order, low_cutoff_freqs, high_cutoff_freqs, plot_freq_re
         if plot_freq_response:
             mfreqz(b, a)
     if plot_freq_response:
-        show()
+        import pylab
+        pylab.show()
     return b_list, a_list
 
 ## Utility classes

@@ -16,7 +16,7 @@ from scipy.io.matlab.mio import loadmat
 from scipy.signal.signaltools import resample
 import Oger
 import matplotlib.pyplot as plt
-import mdp
+import mdp.nodes
 import numpy as np
 
 

@@ -2,7 +2,6 @@
 # Note that there is already an MLPNode that implements the same architecture
 # as contstructed in this demo.
 
-import mdp
 import pylab
 import Oger
 import numpy as np

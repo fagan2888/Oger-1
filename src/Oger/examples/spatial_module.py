@@ -8,16 +8,14 @@
     @author: Vytenis Sakenas
 '''
 
-import mdp
+import mdp.nodes
 import Oger
 import pylab
-import scipy.io
 
 # imports for generating data
 from PIL import Image, ImageDraw, ImageFont
-import random, os
+import random
 from scipy.misc import fromimage
-from numpy.numarray.numerictypes import Float64
 
 class SubtractNode(mdp.Node):
     '''

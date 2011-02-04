@@ -1,5 +1,4 @@
 import mdp
-import pylab
 import Oger
 
 if __name__ == "__main__":

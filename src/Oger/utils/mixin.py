@@ -1,6 +1,6 @@
 import Oger
 import mdp
-import numpy
+import numpy as np
 
 def _pickle_method(method):
     func_name = method.im_func.__name__
@@ -136,10 +136,10 @@ def select_inputs(original_class, n_inputs=1, error_measure=None):
             # Rank the features
             n_chans = self._si_x_list[0].shape[1] / self._si_n_inputs             
             self._input_dim = n_chans
-            errors = numpy.zeros((self._si_n_inputs,))
+            errors = np.zeros((self._si_n_inputs,))
             for i in range(self._si_n_inputs):
                 print '\nTesting performance of input', i, '...'
-                inps = i * n_chans + numpy.arange(n_chans)
+                inps = i * n_chans + np.arange(n_chans)
                 x = self._si_remove_data(self._si_x_list, inps)
                 node = self.copy()
                 flow = mdp.Flow([node, ])
@@ -148,17 +148,17 @@ def select_inputs(original_class, n_inputs=1, error_measure=None):
                 if hasattr(self, '_op_minimal_error'):
                     errors[i] = node._op_minimal_error
                 else:
-                    errors[i] = self._si_error_measure(flow(x), concatenate(tuple(self._si_y_list)))
+                    errors[i] = self._si_error_measure(flow(x), np.concatenate(tuple(self._si_y_list)))
                 node = None
                 
             error_indices = self._si_sort_error(errors)
             
             # Add features to the feature set if the error decreases
             self._si_error = errors[error_indices[0]]
-            selected_inputs = error_indices[0] * n_chans + numpy.arange(n_chans)
+            selected_inputs = error_indices[0] * n_chans + np.arange(n_chans)
             for i in range(1, len(error_indices)):
                 print '\nTesting combination', i, 'of', len(error_indices) - 1, '...'
-                inps = numpy.concatenate((selected_inputs, error_indices[i] * n_chans + numpy.arange(n_chans)))
+                inps = np.concatenate((selected_inputs, error_indices[i] * n_chans + np.arange(n_chans)))
                 node = self.copy()
                 node._input_dim = len(inps)
                 flow = mdp.Flow([node, ])#, self.scheduler) 
@@ -168,7 +168,7 @@ def select_inputs(original_class, n_inputs=1, error_measure=None):
                 if hasattr(self, '_op_minimal_error'):
                     error = node._op_minimal_error
                 else:
-                    error = self._si_error_measure(flow(x), concatenate(tuple(self._si_y_list)))
+                    error = self._si_error_measure(flow(x), np.concatenate(tuple(self._si_y_list)))
                 node = None    
                 # Add to list if error decreases    
                 if error < self._si_error:
@@ -202,12 +202,12 @@ def select_inputs(original_class, n_inputs=1, error_measure=None):
         
         # Helper function to the next best feature   
         def _si_sort_error(self, errors):
-            to_big = numpy.float(numpy.finfo(errors[0]).max)
+            to_big = np.float(np.finfo(errors[0]).max)
             errors_copy = errors.copy()
-            errors_copy[numpy.isnan(errors_copy)] = to_big # ignore nans
+            errors_copy[np.isnan(errors_copy)] = to_big # ignore nans
             error_indices = []
-            for e in range(len(errors)):
-                i = numpy.argmin(errors_copy)
+            for _ in range(len(errors)):
+                i = np.argmin(errors_copy)
                 if errors_copy[i] == to_big:
                     break
                 error_indices.append(i)

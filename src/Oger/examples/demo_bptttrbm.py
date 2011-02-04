@@ -2,15 +2,15 @@
 # TODO: make a discriminative version to predict labels instead.
 import time
 import cudamat as cm
-import mdp
+import mdp.utils
 import Oger
 import scipy as sp
 from Oger.nodes import CUDATRM as ccrbm
 
 
 class Timer():
-   def __enter__(self): self.start = time.time()
-   def __exit__(self, *args): print time.time() - self.start
+    def __enter__(self): self.start = time.time()
+    def __exit__(self, *args): print time.time() - self.start
 
 
 

@@ -2,10 +2,6 @@ import Oger
 import mdp
 import pylab
 import scipy as sp
-import brian
-
-
-
 
 if __name__ == "__main__":
 

@@ -2,7 +2,7 @@
 # a very easy toy problem.
 
 import pylab
-import mdp
+import mdp.nodes
 import mdp.hinet
 import numpy as np
 import Oger

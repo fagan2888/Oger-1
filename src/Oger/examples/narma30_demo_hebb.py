@@ -1,6 +1,5 @@
 import Oger
 import pylab
-import mdp
 
 if __name__ == "__main__":
     """ This useless example demonstrates how you can train/adapt reservoir weights during training. In this case 

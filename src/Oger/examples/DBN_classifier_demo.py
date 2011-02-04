@@ -1,4 +1,4 @@
-import mdp
+import mdp.utils
 import pylab
 import numpy as np
 import cPickle

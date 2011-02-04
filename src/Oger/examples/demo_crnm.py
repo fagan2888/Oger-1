@@ -1,7 +1,6 @@
 # This file demonstrates the use of the CRBMNode (on a very trivial task...).
 
 import pylab
-import mdp
 import numpy as np
 import Oger
 

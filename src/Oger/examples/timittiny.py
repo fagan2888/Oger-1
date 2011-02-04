@@ -1,7 +1,5 @@
-import mdp
+import mdp.utils
 import Oger
-import pylab
-import scipy as sp
 
 if __name__ == "__main__":
 

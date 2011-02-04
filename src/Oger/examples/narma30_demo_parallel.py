@@ -1,7 +1,6 @@
 import Oger
 import pylab
-import mdp
-import time
+import mdp.parallel
 
 if __name__ == "__main__":
     """ This example shows parallelization of the samples in a dataset. In this case parallellization is done using
