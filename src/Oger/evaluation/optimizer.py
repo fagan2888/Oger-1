@@ -19,7 +19,7 @@ class FlowExecuteCallableNoChecks(mdp.parallel.FlowExecuteCallable):
             return (y, self._flownode)
         else:
             return (y, None)
-            
+
 class Optimizer(object):
     ''' Class to perform optimization of the parameters of a flow using cross-validation.
         Supports grid-searching of a parameter space.
@@ -34,10 +34,9 @@ class Optimizer(object):
             loss_function: the function used to compute the loss
         '''
         # Initialize attributes
-        self.optimization_dict = optimization_dict 
+        self.optimization_dict = optimization_dict
         self.loss_function = loss_function
         self.parameter_ranges = []
-        self.paramspace_dimensions = []
         self.parameters = []
         self.errors = []
 
@@ -48,11 +47,7 @@ class Optimizer(object):
             for parameter in self.optimization_dict[node_key].keys():
                 # Append the parameter name and ranges to the corresponding lists
                 self.parameter_ranges.append((self.optimization_dict[node_key])[parameter])
-                self.paramspace_dimensions.append(len(self.parameter_ranges[-1]))
                 self.parameters.append((node_key, parameter))
-
-        # Construct all combinations
-        self.param_space = list(itertools.product(*self.parameter_ranges))
 
 
     def grid_search (self, data, flow, cross_validate_function, progress=True, *args, **kwargs):
@@ -69,16 +64,22 @@ class Optimizer(object):
             of the probe_data.
             After grid_search, the optimal (untrained) flow can be found in Optimizer.optimal_flow
         '''
+        # Get the number of parameter points to be evaluated for each of the parameters
+        self.paramspace_dimensions = [len(r) for r in self.parameter_ranges]
+
         self.errors = mdp.numx.zeros(self.paramspace_dimensions)
         self.probe_data = {}
         self.errors_per_fold = {}
         min_error = float('+infinity')
-        
+
+        # Construct all combinations
+        self.param_space = list(itertools.product(*self.parameter_ranges))
+
         if progress:
             iteration = mdp.utils.progressinfo(enumerate(self.param_space), style='timer', length=len(self.param_space))
         else:
             iteration = enumerate(self.param_space)
-            
+
         # Loop over all points in the parameter space
         for paramspace_index_flat, parameter_values in iteration:
             # Set all parameters of all nodes to the correct values
@@ -87,7 +88,7 @@ class Optimizer(object):
                 # Add the current node to the set of nodes whose parameters are changed, and which should be re-initialized 
                 node_set.add(node_parameter[0])
                 node_parameter[0].__setattr__(node_parameter[1], parameter_values[parameter_index])
-            
+
             # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
 #            for node in node_set:
 #                if hasattr(node, 'initialize') and not node._is_initialized:
@@ -95,26 +96,72 @@ class Optimizer(object):
 #           
             # After all node parameters have been set and initialized, do the cross-validation
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions)
-            
+
             # Keep the untrained flow for later
             current_flow = deepcopy(flow)
             validation_errors = Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs)
             mean_validation_error = mdp.numx.mean(validation_errors)
-            
+
             # If the current error is minimal, store the current flow
             if mean_validation_error < min_error:
                 min_error = mean_validation_error
                 self.optimal_flow = current_flow
-            
+
             # Store the current error in the errors array
             self.errors[paramspace_index_full] = mean_validation_error
             self.errors_per_fold[paramspace_index_full] = validation_errors
-            
+
             # Collect probe data if it is present
             for node in flow:
                 if hasattr(node, 'probe_data'):
                     # If the key exists, append to it, otherwise insert an empty list and append to that
                     self.probe_data.setdefault(paramspace_index_full, {})[node] = node.probe_data
+
+    def cma_es (self, data, flow, cross_validate_function, progress=True, *args, **kwargs):
+        min_error = float('+infinity')
+        try:
+            import cma
+        except:
+            raise Exception('CMA-ES not found. cma.py should be in the python path.')
+
+        # Initial value is the mean element of each array in the optimization range
+        # CMA-ES assumes the optimum lies within x0 +- 3*sigma, so we rescale the parameters
+        # passed to and from the cma algorithm
+
+        x0 = [mdp.numx.mean(p) for p in self.parameter_ranges]
+        stds = [mdp.numx.std(p) for p in self.parameter_ranges]
+
+        iteration = 0
+        # Initialize a CMA instance
+        es = cma.CMAEvolutionStrategy(x0, 1)
+
+        while not es.stop:
+            print 'Iteration ' + str(iteration)
+            # Ask the next generation of parameter vectors from the optimization algorithm
+            parameter_vectors = es.ask()
+            print parameter_vectors
+
+            # Empty list to contain the errors per parameter vector
+            error_list = []
+
+            for parameter_vector in parameter_vectors:
+                node_set = set()
+                for ((parameter_index, node_parameter), std) in zip(enumerate(self.parameters), stds):
+                    # Add the current node to the set of nodes whose parameters are changed, and which should be re-initialized
+                    node_set.add(node_parameter[0])
+                    node_parameter[0].__setattr__(node_parameter[1], parameter_vector[parameter_index] * std)
+                current_flow = deepcopy(flow)
+                validation_errors = Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs)
+                mean_validation_error = mdp.numx.mean(validation_errors)
+
+                # If the current error is minimal, store the current flow
+                if mean_validation_error < min_error:
+                    min_error = mean_validation_error
+                    self.optimal_flow = current_flow
+                print mean_validation_error
+                error_list.append(mean_validation_error)
+            es.tell(parameter_vectors, error_list)
+            iteration += 1
 
     def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None, log_x=False, axes=None, title=None, plot_variance=True):
         ''' Plot the results of the optimization. 
@@ -136,7 +183,7 @@ class Optimizer(object):
         except ImportError:
             print "It looks like matplotlib isn't installed. Plotting is impossible."
             return
-        
+
         if axes is None:
             axes = pylab.axes()
 
@@ -145,7 +192,7 @@ class Optimizer(object):
             errors_to_plot[errors_to_plot < vmin] = vmin
         if vmax != None:
             errors_to_plot[errors_to_plot > vmax] = vmax
- 
+
         pylab.ion()
         # If we have ranged over only one parameter
         if errors_to_plot.ndim == 1:
@@ -155,11 +202,11 @@ class Optimizer(object):
             if var_errors is not None and plot_variance:
                 pylab.errorbar(self.parameter_ranges[param_index], errors_to_plot, var_errors, axes=axes)
             else:
-                if log_x: 
+                if log_x:
                     pylab.semilogx(self.parameter_ranges[param_index], errors_to_plot, axes=axes)
                 else:
                     pylab.plot(self.parameter_ranges[param_index], errors_to_plot, axes=axes)
-                    
+
             pylab.xlabel(str(parameters[0][0]) + '.' + parameters[0][1])
             pylab.ylabel(self.loss_function.__name__)
             if title is not None:
@@ -182,7 +229,7 @@ class Optimizer(object):
                 pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
                 pylab.suptitle('variance')
                 pylab.colorbar()
-            
+
             pylab.show()
         else:
             raise Exception("Too many parameter dimensions to plot: " + str(errors_to_plot.ndim))
@@ -198,9 +245,9 @@ class Optimizer(object):
         # In case of an empty list, we just return the errors
         if node_param_list is None:
             return self.errors, None, self.parameters
-        
+
         # Check if we have the requested node.parameter combinations in the optimization_dict
-        for node, param_string in node_param_list:    
+        for node, param_string in node_param_list:
             if not node in self.optimization_dict:
                 raise Exception('Cannot take the mean, given node ' + str(node) + ' is not in optimization_dict.')
             if not param_string in self.optimization_dict[node]:
@@ -211,16 +258,16 @@ class Optimizer(object):
         # with references to the old elements, hence the [:]
         parameters = self.parameters[:]
         errors = self.errors[:]
-        
+
         # Loop over all parameters in node_param_list and iteratively compute 
         # the mean
         for node, param_string in node_param_list:
             # Find the axis we need to take the mean across
             axis = parameters.index((node, param_string))
-            
+
             # Finally, return the mean and variance
             mean_errors = scipy.stats.nanmean(errors, axis)
-            
+
             # In case we take the mean over only one dimension, we can return
             # the variance as well
             if len(node_param_list) == 1:
@@ -228,14 +275,14 @@ class Optimizer(object):
                 var = scipy.stats.nanstd(errors, axis, bias=True) ** 2
             else:
                 var = None
-            
+
             # Remove the corresponding dimension from errors and parameters for
             # the next iteration of the for loop
             errors = mean_errors
             parameters.remove((node, param_string))
-            
+
         return errors, var, parameters
-         
+
 
     def get_minimal_error(self, node_param_list=None):
         '''Return the minimal error, and the corresponding parameter values as a tuple:
@@ -265,7 +312,7 @@ class Optimizer(object):
             else:
                 min_parameter_dict[param_d[0]] = {param_d[1] : opt_parameter_value}
 
-        return (minimal_error, min_parameter_dict) 
+        return (minimal_error, min_parameter_dict)
 
     def get_extent(self, parameters):
         '''Compute the correct boundaries of the parameter ranges for 
@@ -273,7 +320,7 @@ class Optimizer(object):
         '''
         param_index0 = self.parameters.index(parameters[1])
         param_index1 = self.parameters.index(parameters[0])
-        
+
         extent = [self.parameter_ranges[param_index0][0],
                     self.parameter_ranges[param_index0][-1],
                     self.parameter_ranges[param_index1][0],
@@ -282,32 +329,32 @@ class Optimizer(object):
         # Fix the range bounds
         xstep = (-extent[0] + extent[1]) / len(self.parameter_ranges[param_index0])
         ystep = (-extent[2] + extent[3]) / len(self.parameter_ranges[param_index1])
-        
+
         return [extent[0] - xstep / 2, extent[1] + xstep / 2, extent[2] - ystep / 2, extent[3] + ystep / 2]
-    
+
     def save(self, fname):
-        import pickle 
-        fhandle = open(fname, 'w') 
+        import pickle
+        fhandle = open(fname, 'w')
         pickle.dump(self, fhandle)
         fhandle.close()
 
-        
+
 class ParameterSettingNode(mdp.Node):
-    
+
     def __init__(self, flow, loss_function, cross_validation, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
         super(ParameterSettingNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
         self.flow = flow
         self.loss_function = loss_function
         self.cross_validation = cross_validation
-        
+
         # TODO: this is a bit messy...
         self.args = args
         self.kwargs = kwargs
-        
+
     def execute(self, x):
         params = x[0]
         data = x[1]
-        
+
         # Set all parameters of all nodes to the correct values
         node_set = set()
         for node_index, node_dict in params.items():
@@ -315,19 +362,19 @@ class ParameterSettingNode(mdp.Node):
                 node = self.flow[node_index]
                 node_set.add(node)
                 node.__setattr__(parameter, value)
-        
+
         # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
         for node in node_set:
             if hasattr(node, 'initialize'):
                 node.initialize()
-       
+
         # TODO: could this set of functions also be a parameter?
         return [mdp.numx.mean(Oger.evaluation.validate(data, self.flow, self.loss_function, self.cross_validation, progress=False, *self.args, **self.kwargs))]
-        
+
     def is_trainable(self):
         return False
 
-    
+
 @mdp.extension_method("parallel", Optimizer)
 def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
     ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
@@ -336,15 +383,21 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
             - data: a list of iterators which would be passed to MDP flows
             - flow : the MDP flow to do the grid-search on
     '''
-    
+
     if not hasattr(self, 'scheduler') or self.scheduler is None:
         err = ("No scheduler was assigned to the Optimizer so cannot run in parallel mode.")
         raise Exception(err)
-        
+
+    # Get the number of parameter points to be evaluated for each of the parameters
+    self.paramspace_dimensions = [len(r) for r in self.parameter_ranges]
+
     self.errors = mdp.numx.zeros(self.paramspace_dimensions)
-    
+
     data_parallel = []
-    
+
+    # Construct all combinations
+    self.param_space = list(itertools.product(*self.parameter_ranges))
+
     # Loop over all points in the parameter space
     for paramspace_index_flat, parameter_values in enumerate(self.param_space):
         params = {}
@@ -353,9 +406,9 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
             node_index = flow.flow.index(node_parameter[0])
             if not node_index in params:
                 params[node_index] = {}
-                
+
             params[node_index][node_parameter[1]] = parameter_values[parameter_index]
-        
+
         data_parallel.append([[params, data]])
 
     parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs), ])
@@ -364,8 +417,8 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
 
     i = 0
     for paramspace_index_flat, parameter_values in enumerate(self.param_space):
-        paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions) 
+        paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions)
         self.errors[paramspace_index_full] = results[i]
         i += 1
-        
+
     self.scheduler.shutdown()
