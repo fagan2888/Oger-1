@@ -263,16 +263,3 @@ class RescaleZMUSNode(mdp.Node):
 
     def _execute(self, x):
         return (x - self._mean) / self._std
-
-class FunctionNode(mdp.Node):
-    def __init__(self, function=None, input_dim=None, dtype=None):
-        super(FunctionNode, self).__init__(input_dim=input_dim, dtype=dtype)
-        if not callable(function):
-            raise mdp.NodeException("Function should be a callable (e.g. a function or lambda expression).")
-        self.function = function
-
-    def is_trainable(self):
-        return False
-
-    def _execute(self, x):
-        return self.function(x)
