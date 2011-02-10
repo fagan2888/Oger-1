@@ -19,7 +19,7 @@ class ReservoirNode(mdp.Node):
     """
     A standard (ESN) reservoir node.
     """
-    
+
     def __init__(self, input_dim=None, output_dim=None, spectral_radius=0.9,
                  nonlin_func=Oger.utils.TanhFunction, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
                  w_in=None, w=None, w_bias=None):
@@ -41,7 +41,7 @@ class ReservoirNode(mdp.Node):
         will be used as initialization instead.
         """
         super(ReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
-        
+
         # Set all object attributes
         # Scaling for input weight matrix
         self.input_scaling = input_scaling
@@ -54,29 +54,33 @@ class ReservoirNode(mdp.Node):
         self._instance = _instance
         # Non-linear function
         self.nonlin_func = nonlin_func
-        
-        self.initial_state = mdp.numx.zeros((1, self.output_dim))        
-        
+
+        self.initial_state = mdp.numx.zeros((1, self.output_dim))
+
         # Store any externally passed initialization values for w, w_in and w_bias
         self.w_in_initial = w_in
         self.w_initial = w
         self.w_bias_initial = w_bias
-        
+
         # Fields for allocating reservoir weight matrix w, input weight matrix w_in
         # and bias weight matrix w_bias
         self.w_in = []
         self.w = []
         self.w_bias = []
-        
-        # Call the initialize function to create the weight matrices
+
+
         self._is_initialized = False
-        
+
+        if input_dim is not None:
+            # Call the initialize function to create the weight matrices
+            self.initialize()
+
     def is_trainable(self):
         return False
-    
+
     def is_invertible(self):
         return False
-    
+
     def initialize(self):
         """ Initialize the weight matrices of the reservoir node. If no 
         arguments for w, w_in and w_bias matrices were given at construction
@@ -102,12 +106,12 @@ class ReservoirNode(mdp.Node):
             exception_str += 'Input dim: ' + str(self.input_dim) + ', output dim: ' + str(self.output_dim) + '. '
             exception_str += 'Shape of w_in: ' + str(self.w_in.shape)
             raise mdp.NodeException(exception_str)
-                   
+
         # Initialize bias weight matrix
         if self.w_bias_initial is None:
             # Initialize it to uniform random values using input_scaling
             self.w_bias = self.bias_scaling * (mdp.numx.random.rand(self.output_dim) * 2 - 1)
-        else:    
+        else:
             if callable(self.w_bias_initial):
                 self.w_bias = self.w_bias_initial() # If it is a function, call it
             else:
@@ -119,7 +123,7 @@ class ReservoirNode(mdp.Node):
             exception_str += 'Input dim: ' + str(self.input_dim) + ', output dim: ' + str(self.output_dim) + '. '
             exception_str += 'Shape of w_bias: ' + str(self.w_bias.shape)
             raise mdp.NodeException(exception_str)
-            
+
         # Initialize reservoir weight matrix
         if self.w_initial is None:
             self.w = mdp.numx.random.randn(self.output_dim, self.output_dim)
@@ -130,14 +134,17 @@ class ReservoirNode(mdp.Node):
                 self.w = self.w_initial() # If it is a function, call it
             else:
                 self.w = self.w_initial.copy()   # else just copy it
-        
+
         # Check if dimensions of the weight matrix match the dimensions of the node inputs and outputs
         if self.w.shape != (self.output_dim, self.output_dim):
             exception_str = 'Shape of given w does not match input/output dimensions of node. '
             exception_str += 'Output dim: ' + str(self.output_dim) + '. '
             exception_str += 'Shape of w: ' + str(self.w_in.shape)
             raise mdp.NodeException(exception_str)
-            
+
+        self._is_initialized = True
+
+
     def _get_supported_dtypes(self):
         return ['float32', 'float64']
 
@@ -147,30 +154,29 @@ class ReservoirNode(mdp.Node):
         # Check if the weight matrices are intialized, otherwise create them
         if not self._is_initialized:
             self.initialize()
-            self._is_initialized = True
-        
+
         steps = x.shape[0]
-        
+
         # Pre-allocate the state vector, adding the initial state
         states = mdp.numx.concatenate((self.initial_state, mdp.numx.zeros((steps, self.output_dim))))
-        
+
         nonlinear_function_pointer = self.nonlin_func.f
-        
+
         # Loop over the input data and compute the reservoir states
         for n in range(steps):
             states[n + 1, :] = nonlinear_function_pointer(mdp.numx.dot(self.w, states[n, :]) + mdp.numx.dot(self.w_in, x[n, :]) + self.w_bias)
-            self._post_update_hook(states, x, n)    
+            self._post_update_hook(states, x, n)
 
         # Return the whole state matrix except the initial state
         return states[1:, :]
-    
+
     def _post_update_hook(self, states, input, timestep):
         """ Hook which gets executed after the state update equation for every timestep. Do not use this to change the state of the 
             reservoir (e.g. to train internal weights) if you want to use parallellization - use the TrainableReservoirNode in that case.
         """
         pass
-    
- 
+
+
 class LeakyReservoirNode(ReservoirNode):
     """Reservoir node with leaky integrator neurons (a first-order low-pass filter added to the output of a standard neuron). 
     """
@@ -195,7 +201,7 @@ class LeakyReservoirNode(ReservoirNode):
             will be used as initialization instead.               
         """
         super(LeakyReservoirNode, self).__init__(*args, **kwargs)
-       
+
         # Leak rate, if 1 it is a standard neuron, lower values give slower dynamics 
         self.leak_rate = leak_rate
 
@@ -204,7 +210,7 @@ class LeakyReservoirNode(ReservoirNode):
 
 class BandpassReservoirNode(ReservoirNode):
     """Reservoir node with bandpass neurons (an Nth-order band-pass filter added to the output of a standard neuron). 
-    """ 
+    """
     def __init__(self, b=mdp.numx.array([[1]]), a=mdp.numx.array([[0]]), *args, **kwargs):
         """Initializes and constructs a random reservoir with band-pass neurons.
            Parameters are:
@@ -237,9 +243,9 @@ class BandpassReservoirNode(ReservoirNode):
         t2 = mdp.numx.sum(self.a * mdp.numx.array(self.output_buffer).T, axis=1)
         states[timestep + 1, :] = t1 - t2
         self.output_buffer.appendleft(states[timestep, :])
-        
-        
-        
+
+
+
 class TrainableReservoirNode(ReservoirNode):
     """A reservoir node that allows on-line training of the internal connections. Use
     this node for this purpose instead of implementing the _post_update_hook in the
@@ -247,24 +253,24 @@ class TrainableReservoirNode(ReservoirNode):
     """
     def is_trainable(self):
         return True
-    
+
     def _train(self, x):
         states = self._execute(x)
         self._post_train_hook(states, input)
-        
+
     def _post_update_hook(self, states, input, timestep):
         super(TrainableReservoirNode, self)._post_update_hook(states, input, timestep)
         if self.is_training():
-            self._post_train_update_hook(states, input, timestep) 
+            self._post_train_update_hook(states, input, timestep)
 
     def _post_train_update_hook(self, states, input, timestep):
         """Implement this function for on-line training after each time-step
-        """ 
+        """
         pass
 
     def _post_train_hook(self, states, input):
         """Implement this function for training after each time-series
-        """ 
+        """
         pass
 
 class HebbReservoirNode(TrainableReservoirNode):
@@ -280,13 +286,13 @@ class FeedbackReservoirNode(ReservoirNode):
     feedback. Note that because state needs to be stored in the Node object,
     this Node type is not parallelizable using threads.
     """
-    
+
     def __init__(self, reset_states=True, **kwargs):
         super(FeedbackReservoirNode, self).__init__(**kwargs)
         self.reset_states = reset_states
         self.states = mdp.numx.zeros((1, self.output_dim))
-        
-    def _execute(self, x):        
+
+    def _execute(self, x):
         # Set the initial state of the reservoir
         # if self.reset_states is true, initialize to zero,
         # otherwise initialize to the last time-step of the previous execute call (for freerun)
@@ -301,23 +307,23 @@ class FeedbackReservoirNode(ReservoirNode):
 
 def get_specrad(Ac):
         """Get spectral radius of A using the power method."""
-    
+
         m_size = Ac.shape[0]
-    
+
         x = np.random.normal(0, 1, (m_size, 1))
-    
+
         x = x / np.linalg.norm(x)
         x = cm.CUDAMatrix(x)
-    
+
         y = cm.empty((m_size, 1))
         diff = 200
         eps = 1e-3
         b = 1e10
         c = 1e9
         max_its = 1e6
-    
+
         n_its = 0
-    
+
         while diff > eps and n_its < max_its:
             cm.dot(Ac, x, target=y)
             norm = y.euclid_norm()
@@ -327,7 +333,7 @@ def get_specrad(Ac):
             diff = np.abs(a - b)
             b = float(a)
             n_its += 1
-    
+
         specrad = float(a / c)
         print 'Spectral radius:', specrad, 'Number of iterations:', n_its
         return float(a / c)
@@ -365,7 +371,7 @@ class CUDAReservoirNode(mdp.Node):
         self.states = cm.empty((self.output_dim, n + 1))
 
         self.states.set_col_slice(0, 1, cm.CUDAMatrix(mdp.numx.zeros((self.output_dim, 1))))
-        
+
         for i in range(n):
 
             self.current_state = self.states.get_col_slice(i, i + 1)

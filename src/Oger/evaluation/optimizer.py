@@ -39,6 +39,7 @@ class Optimizer(object):
         self.parameter_ranges = []
         self.parameters = []
         self.errors = []
+        self.optimal_flow = []
 
         # Construct the parameter space
         # Loop over all nodes that need their parameters set
@@ -50,7 +51,7 @@ class Optimizer(object):
                 self.parameters.append((node_key, parameter))
 
 
-    def grid_search (self, data, flow, cross_validate_function, progress=True, *args, **kwargs):
+    def grid_search (self, data, flow, cross_validate_function, progress=True, internal_gridsearch_parameters=None, *args, **kwargs):
         ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
             for each value in the parameter space.
             Input arguments are:
@@ -99,7 +100,7 @@ class Optimizer(object):
 
             # Keep the untrained flow for later
             current_flow = deepcopy(flow)
-            validation_errors = Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs)
+            validation_errors = Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, gridsearch_parameters=internal_gridsearch_parameters, *args, **kwargs)
             mean_validation_error = mdp.numx.mean(validation_errors)
 
             # If the current error is minimal, store the current flow
@@ -117,12 +118,13 @@ class Optimizer(object):
                     # If the key exists, append to it, otherwise insert an empty list and append to that
                     self.probe_data.setdefault(paramspace_index_full, {})[node] = node.probe_data
 
-    def cma_es (self, data, flow, cross_validate_function, progress=True, *args, **kwargs):
+    def cma_es (self, data, flow, cross_validate_function, progress=True, options=None, *args, **kwargs):
         min_error = float('+infinity')
         try:
             import cma
         except:
-            raise Exception('CMA-ES not found. cma.py should be in the python path.')
+            print 'CMA-ES not found. cma.py should be in the python path.'
+            raise
 
         # Initial value is the mean element of each array in the optimization range
         # CMA-ES assumes the optimum lies within x0 +- 3*sigma, so we rescale the parameters
@@ -133,7 +135,7 @@ class Optimizer(object):
 
         iteration = 0
         # Initialize a CMA instance
-        es = cma.CMAEvolutionStrategy(x0, 1)
+        es = cma.CMAEvolutionStrategy(x0, 1, options)
 
         while not es.stop:
             print 'Iteration ' + str(iteration)
@@ -161,6 +163,10 @@ class Optimizer(object):
                 print mean_validation_error
                 error_list.append(mean_validation_error)
             es.tell(parameter_vectors, error_list)
+            for parameters in mdp.numx.array(parameter_vectors).T:
+                self.parameter_ranges.append(parameters)
+            self.errors.extend(error_list)
+            self.parameter_ranges
             iteration += 1
 
     def plot_results(self, node_param_list=None, vmin=None, vmax=None, cmap=None, log_x=False, axes=None, title=None, plot_variance=True):
@@ -213,7 +219,26 @@ class Optimizer(object):
                 pylab.title(title)
             pylab.show()
         elif errors_to_plot.ndim == 2:
-            pylab.imshow(mdp.numx.flipud(errors_to_plot), cmap=pylab.jet(), interpolation='nearest',
+            # Get the extreme values of the parameter values
+            p1 = self.parameters.index(parameters[0])
+            p2 = self.parameters.index(parameters[1])
+
+            xm = mdp.numx.amin(self.parameter_ranges[p1])
+            ym = mdp.numx.amin(self.parameter_ranges[p2])
+
+            xM = mdp.numx.amax(self.parameter_ranges[p1])
+            yM = mdp.numx.amax(self.parameter_ranges[p2])
+
+            # For optimization algorithms which have non-uniform sampling of the parameter space, we interpolate here
+            # This has no effect on the plot for optimizations using gridsearch
+            xi = mdp.numx.linspace(xm, xM, len(self.parameter_ranges[p1]))
+            yi = mdp.numx.linspace(ym, yM, len(self.parameter_ranges[p2]))
+            (x, y) = mdp.numx.meshgrid(self.parameter_ranges[p1], self.parameter_ranges[p2])
+
+            # Create an interpolation grid
+            zi = pylab.griddata(x.flatten(), y.flatten(), mdp.numx.flipud(errors_to_plot).flatten(), xi, yi)
+
+            pylab.imshow(zi, cmap=pylab.jet(), interpolation='nearest',
              extent=self.get_extent(parameters), aspect="auto", axes=axes)
             pylab.xlabel(str(parameters[1][0]) + '.' + parameters[1][1])
             pylab.ylabel(str(parameters[0][0]) + '.' + parameters[0][1])
@@ -234,7 +259,7 @@ class Optimizer(object):
         else:
             raise Exception("Too many parameter dimensions to plot: " + str(errors_to_plot.ndim))
 
-    def mean_and_var(self, node_param_list):
+    def mean_and_var(self, node_param_list=None):
         ''' Return a tuple containing the mean and variance of the errors over a certain parameter.
             
             Gives the mean/variance of the errors w.r.t. the parameter given by 
@@ -265,7 +290,7 @@ class Optimizer(object):
             # Find the axis we need to take the mean across
             axis = parameters.index((node, param_string))
 
-            # Finally, return the mean and variance
+            # Compute the mean
             mean_errors = scipy.stats.nanmean(errors, axis)
 
             # In case we take the mean over only one dimension, we can return
@@ -285,7 +310,7 @@ class Optimizer(object):
 
 
     def get_minimal_error(self, node_param_list=None):
-        '''Return the minimal error, and the corresponding parameter values as a tuple:
+        '''Return the minimal error, the corresponding parameter values as a tuple:
         (error, param_values), where param_values is a dictionary of dictionaries,  
         with the key of the outer dictionary being the node, and inner dictionary
         consisting of (parameter:optimal_value) pairs.
@@ -313,6 +338,24 @@ class Optimizer(object):
                 min_parameter_dict[param_d[0]] = {param_d[1] : opt_parameter_value}
 
         return (minimal_error, min_parameter_dict)
+
+    def get_optimal_flow(self, verbose=False):
+        ''' Return the optimal flow obtained by the optimization algorithm.
+            If verbose=True, this will print the optimized parameters and their corresponding values.
+        '''
+        if verbose:
+            # Get the minimal error
+            min_error, parameters = self.get_minimal_error()
+            print 'The minimal error is ' + str(min_error)
+            print 'The corresponding parameter values are: '
+            output_str = ''
+            for node in parameters.keys():
+                for node_param in parameters[node].keys():
+                    output_str += str(node) + '.' + node_param + ' : ' + str(parameters[node][node_param]) + '\n'
+            print output_str
+
+        return self.optimal_flow
+
 
     def get_extent(self, parameters):
         '''Compute the correct boundaries of the parameter ranges for 

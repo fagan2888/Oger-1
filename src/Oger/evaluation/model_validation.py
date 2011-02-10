@@ -51,28 +51,28 @@ def n_fold_random(n_samples, n_folds):
         - train_indices contains the indices of the dataset used for training
         - test_indices contains the indices of the dataset used for testing
     '''
-    
+
     if n_folds <= 1:
         raise Exception('Number of folds should be larger than one.')
-    
+
     if n_folds > n_samples:
         raise Exception('Number of folds cannot be larger than the number of samples.')
-    
-    
+
+
     # Create random permutation of number of samples
     randperm = mdp.numx.random.permutation(n_samples)
     train_indices, test_indices = [], []
     foldsize = mdp.numx.floor(float(n_samples) / n_folds)
-    
+
     for fold in range(n_folds):
         # Select the sample indices used for testing
         test_indices.append(randperm[fold * foldsize:foldsize * (fold + 1)])
         # Select the rest for training
         train_indices.append(mdp.numx.array(mdp.numx.setdiff1d(randperm, test_indices[-1])))
     return train_indices, test_indices
-    
 
-def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs):
+
+def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, gridsearch_parameters=None, *args, **kwargs):
     '''
     validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs) -> test_errors
     
@@ -93,47 +93,52 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
     n_samples = mdp.numx.amax(map(len, data))
     # Get the indices of the training and testing samples for each fold by calling the 
     # cross_validate_function hook
-    
+
     train_samples, test_samples = cross_validate_function(n_samples, *args, **kwargs)
-    
+
     if progress:
         print "Performing cross-validation using " + cross_validate_function.__name__
         iteration = mdp.utils.progressinfo(range(len(train_samples)), style='timer')
     else:
         iteration = range(len(train_samples))
-        
+
     for fold in iteration:
         # Get the training data from the whole data set
         train_data = data_subset(data, train_samples[fold])
         # Empty list to store test errors for current fold
         fold_error = []
-        
+
         # Copy the flow so we can re-train it for every fold
         # Only nodes that need training are copied.
         f_copy = deepcopy(flow)
-                
+
+        if gridsearch_parameters is not None:
+            opt = Oger.evaluation.Optimizer(gridsearch_parameters, error_measure)
+            opt.grid_search(data, f_copy, cross_validate_function=cross_validate_function, progress=False)
+            f_copy = opt.optimal_flow
+
         # train on all training samples
         f_copy.train(train_data)
-        
+
         # test on all test samples
         for index in test_samples[fold]:
             test_data = data_subset(data, [index])
-            
+
             # If the last node is a feedback node: 
             if isinstance(flow[-1], Oger.nodes.FeedbackNode):
                 for i in range(len(flow)):
                     # Disable state resetting for all reservoir nodes.
                     if isinstance(f_copy[i], Oger.nodes.ReservoirNode):
-                        f_copy[i].reset_states = False       
+                        f_copy[i].reset_states = False
                     if isinstance(f_copy[i], Oger.nodes.FeedbackNode):
                         f_copy[i].reset()
-                        
+
                 # Run flow on training data so we have an initial state to start from
-                f_copy(train_data[0])     
-                
+                f_copy(train_data[0])
+
                 # TODO: the feedback node gets initiated with the last *estimated* timestep,
                 # not the last training example. Fixing this will improve performance!
-            
+
             fold_error.append(error_measure(f_copy(test_data[-1][0][0]), test_data[-1][0][-1]))
         test_error.append(mdp.numx.mean(fold_error))
 

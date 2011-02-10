@@ -19,29 +19,19 @@ if __name__ == '__main__':
     flow = mdp.Flow([reservoir, readout])
 
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, .3), 'spectral_radius':mdp.numx.arange(0.1, 1.5, .5)}}
+    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, .2), 'spectral_radius':mdp.numx.arange(0.1, 1.5, .1)}}
 
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
-    
+
     # Do the grid search
     opt.grid_search(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5)
 
-    # Get the minimal error
-    min_error, parameters = opt.get_minimal_error()
-    
-    print 'The minimal error is ' + str(min_error)
-    print 'The corresponding parameter values are: '
-    output_str = '' 
-    for node in parameters.keys():
-        for node_param in parameters[node].keys():
-            output_str += str(node) + '.' + node_param + ' : ' + str(parameters[node][node_param]) + '\n'
-    print output_str
-
+    opt.plot_results()
     # Get the optimal flow and run cross-validation with it 
-    opt_flow = opt.optimal_flow
-    
+    opt_flow = opt.get_optimal_flow(verbose=True)
+
     print 'Performing cross-validation with the optimal flow. Note that this error can be slightly different from the one reported above due to another division of the dataset. It should be more or less the same though.'
-    
-    errors = Oger.evaluation.validate(data, opt_flow, Oger.utils.nrmse, cross_validate_function=Oger.evaluation.n_fold_random, n_folds = 5)
+
+    errors = Oger.evaluation.validate(data, opt_flow, Oger.utils.nrmse, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5)
     print 'Mean error over folds: ' + str(sp.mean(errors))
