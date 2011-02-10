@@ -7,9 +7,9 @@ class MixinTest(unittest.TestCase):
         pass
 
     def test_washout_mixin_unsup(self):
-        x = mdp.numx.zeros((100, 1000))
+        x = mdp.numx.ones((100, 1000)) + mdp.numx.random.randn(100, 1000)
         Oger.utils.enable_washout(mdp.nodes.PCANode)
-        pca = mdp.nodes.PCANode()
+        pca = mdp.nodes.PCANode(reduce=True, output_dim = 20)
         pca.washout = 10
 
         assert(pca.is_trainable())
