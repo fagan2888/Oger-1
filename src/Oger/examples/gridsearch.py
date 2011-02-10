@@ -12,14 +12,14 @@ if __name__ == '__main__':
     data = [[], zip(inputs, outputs)]
 
     # construct individual nodes
-    reservoir = Oger.nodes.ReservoirNode(input_size, 200)
+    reservoir = Oger.nodes.ReservoirNode(input_size, 100)
     readout = Oger.nodes.RidgeRegressionNode()
 
     # build network with MDP framework
     flow = mdp.Flow([reservoir, readout])
 
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, .2), 'spectral_radius':mdp.numx.arange(0.1, 1.5, .1)}}
+    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 0.5, 0.1), 'spectral_radius':mdp.numx.arange(0.6, 1.3, 0.2), '_instance':range(5)}}
 
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # Do the grid search
     opt.grid_search(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5)
 
-    opt.plot_results()
+    opt.plot_results([(reservoir, '_instance')])
     # Get the optimal flow and run cross-validation with it 
     opt_flow = opt.get_optimal_flow(verbose=True)
 
