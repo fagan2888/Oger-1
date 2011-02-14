@@ -122,26 +122,25 @@ class IRLSLogisticRegressionNode (_LogisticRegressionBaseNode):
         
         if mdp.numx.rank(self._y)==1:
             self._y = self._y.reshape((len(self._y),1))
-            
-        w = dot(dot(inv(dot(self._x.T, self._x) + self.regul_param * numpy.eye(self._x.shape[1])),self._x.T), self._y)
+        
+        I_bias = mdp.numx.ones((self._x.shape[1]))
+        I_bias[-1] = 0
+        
+        xTy = dot(self._x.T, self._y)
+#        self._y = None 
+        w = dot(inv(dot(self._x.T, self._x) + numpy.diag(self.regul_param * I_bias)), xTy)
         
         for i in range(self._epochs):
+            xw = dot(self._x, w)
+            yn = Oger.utils.LogisticFunction.f(xw)
+            R = (1-yn) * yn
             w_old = w
-            yn = Oger.utils.LogisticFunction.f(dot(self._x, w)).reshape(self._y.shape)
-            nyn = 1-yn
-            # Avoid log(0)
-            epsilon = numpy.float(numpy.finfo(self._x.dtype).tiny)
-            yn[yn==0] = epsilon
-            nyn[nyn==0] = epsilon
-            
-            z = dot(self._x, w).reshape(self._y.shape) - (yn - self._y) / yn / nyn
-            R = dot(yn * nyn, mdp.numx.ones((1,self._x.shape[1]))).T
-            w = dot(dot(inv(dot(self._x.T * R, self._x) + self.regul_param * numpy.eye(self._x.shape[1])),self._x.T) * R, z)
-            
-            if numpy.mean(abs(w - w_old)) < self._threshold:
+            w = dot(inv(dot(self._x.T, R * self._x) + numpy.diag(self.regul_param * I_bias)), dot(self._x.T, R*xw - yn + self._y))
+            print Oger.utils.ce(Oger.utils.LogisticFunction.f(dot(self._x, w)), self._y), numpy.mean(abs(w-w_old))
+            if numpy.mean(abs(w_old - w)) < self._threshold:
                 break
         
-        if i == self._epochs - 1 and not numpy.mean(abs(w - w_old)) < self._threshold:
+        if i == self._epochs - 1 and not numpy.mean(abs(dw)) < self._threshold:
             str = 'Algorithm did not converge in %d steps. Try a larger regularisation parameter.' % self._epochs
             print str
         
