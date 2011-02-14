@@ -72,7 +72,7 @@ def n_fold_random(n_samples, n_folds):
     return train_indices, test_indices
 
 
-def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, gridsearch_parameters=None, *args, **kwargs):
+def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, gridsearch_parameters=None, validation_suffix_flow=None, *args, **kwargs):
     '''
     validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs) -> test_errors
     
@@ -138,6 +138,10 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
 
                 # TODO: the feedback node gets initiated with the last *estimated* timestep,
                 # not the last training example. Fixing this will improve performance!
+
+            # Add the suffix flow if requested
+            if validation_suffix_flow is not None:
+                f_copy += validation_suffix_flow
 
             fold_error.append(error_measure(f_copy(test_data[-1][0][0]), test_data[-1][0][-1]))
         test_error.append(mdp.numx.mean(fold_error))

@@ -15,34 +15,34 @@ class ReservoirNode_lyapunov(Oger.nodes.ReservoirNode):
                                                      input_scaling=input_scaling, _instance=_instance, w_in=w_in, w=w, w_bias=w_bias)
         self.lyapunov_skip = lyapunov_skip
         self.probe_data = []
-        
+
     def initialize(self):
         super(ReservoirNode_lyapunov, self).initialize()
         self.probe_data = []
-            
+
     def _post_update_hook(self, states, inp, n):
         ''' Compute the Lyapunov exponents for this reservoir and store it in probe_data
             Assumes a tanh nonlinearity
         '''
         # We use broadcasting of the statevector
         if not (n + 1) % self.lyapunov_skip:
-            jacob = (1-states[n, :, mdp.numx.newaxis]**2) * self.w
+            jacob = (1 - states[n, :, mdp.numx.newaxis] ** 2) * self.w
             ll = sp.absolute(sp.linalg.eigvals(jacob))
             self.local_lyapunov[:, n / self.lyapunov_skip] = ll
-            
+
     def _execute(self, x):
         # How many local lyapunov spectra will be computed?
         self.n_lyapunov = x.shape[0] / self.lyapunov_skip
         # Initialize the matrix which contains the local lyapunov exponents
         self.local_lyapunov = mdp.numx.zeros((self.output_dim, self.n_lyapunov))
-        
+
         # Simulate the reservoir
         out = super(ReservoirNode_lyapunov, self)._execute(x)
-        
+
         # Append the computed local lyapunov exponents to the probe_data field, so it can be saved by the Optimizer
         self.probe_data.append(sp.amax((self.local_lyapunov)))
         return out
-        
+
 
 if __name__ == '__main__':
     ''' Example of doing a grid-search with additional probing of (in this case) the Lyapunov exponents of the reservoir.
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
-    
+
     # Do the grid search
     opt.grid_search(data, flow, cross_validate_function=Oger.evaluation.train_test_only, training_fraction=.9)
 
@@ -77,10 +77,11 @@ if __name__ == '__main__':
     for i in range(opt.paramspace_dimensions[0]):
         for j in range(opt.paramspace_dimensions[1]):
             lle_max[i, j] = mdp.numx.amax(mdp.numx.mean(mdp.numx.array(opt.probe_data[i, j][reservoir]), 0))
-    
+
     pylab.figure()
     pylab.imshow(mdp.numx.flipud(lle_max), cmap=pylab.jet(), interpolation='nearest', aspect="auto", extent=opt.get_extent(opt.parameters))
     pylab.ylabel('Spectral Radius')
     pylab.xlabel('Input scaling')
     pylab.suptitle('Max LLE')
     pylab.colorbar()
+    pylab.show()

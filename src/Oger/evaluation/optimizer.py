@@ -3,6 +3,7 @@ import mdp.utils
 import mdp.parallel
 import itertools
 import scipy.stats
+import scipy as sp
 from copy import deepcopy
 
 class FlowExecuteCallableNoChecks(mdp.parallel.FlowExecuteCallable):
@@ -51,7 +52,7 @@ class Optimizer(object):
                 self.parameters.append((node_key, parameter))
 
 
-    def grid_search (self, data, flow, cross_validate_function, progress=True, internal_gridsearch_parameters=None, *args, **kwargs):
+    def grid_search (self, data, flow, cross_validate_function, progress=True, internal_gridsearch_parameters=None, validation_suffix_flow=None, *args, **kwargs):
         ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
             for each value in the parameter space.
             Input arguments are:
@@ -59,11 +60,12 @@ class Optimizer(object):
                 - flow : the MDP flow to do the grid-search on
                 - cross-validate_function: the function to use for cross-validation
                 - progressinfo (default: True): show a progress bar
+                - internal_gridsearch_parameters: perform a second internal optimization of these parameters
+                - validation_suffix_flow: append this flow to the given flow during validation (e.g. for adding noise during freerun)
             If any of the nodes in the flow have a member variable probe_data, the contents of this variable are also stored for each parameter
             point in Optimizer.probe_data. This member variable is an N-dimensional list, with N the number of parameters being ranged over. 
             Each element of this N-d list is a dictionary, indexed by the nodes in the flow, whose values are the corresponding contents 
             of the probe_data.
-            After grid_search, the optimal (untrained) flow can be found in Optimizer.optimal_flow
         '''
         # Get the number of parameter points to be evaluated for each of the parameters
         self.paramspace_dimensions = [len(r) for r in self.parameter_ranges]
@@ -101,7 +103,14 @@ class Optimizer(object):
 
             # Keep the untrained flow for later
             current_flow = deepcopy(flow)
-            validation_errors = Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, gridsearch_parameters=internal_gridsearch_parameters, *args, **kwargs)
+
+            # Do the validation
+            validation_errors = Oger.evaluation.validate(data, flow,
+                                                         self.loss_function, cross_validate_function,
+                                                         progress=False, gridsearch_parameters=internal_gridsearch_parameters,
+                                                         validation_suffix_flow=validation_suffix_flow,
+                                                         *args, **kwargs)
+
             mean_validation_error = mdp.numx.mean(validation_errors)
 
             # If the current error is minimal, store the current flow
@@ -119,7 +128,24 @@ class Optimizer(object):
                     # If the key exists, append to it, otherwise insert an empty list and append to that
                     self.probe_data.setdefault(paramspace_index_full, {})[node] = node.probe_data
 
-    def cma_es (self, data, flow, cross_validate_function, progress=True, options=None, *args, **kwargs):
+    def cma_es (self, data, flow, cross_validate_function, options=None, internal_gridsearch_parameters=None, validate_suffix_flow=None, *args, **kwargs):
+        ''' Perform optimization of the parameters given at construction time using CMA-ES (Covariance Matrix Adaptation - Evolution Strategy).
+            The file cma.py (available from http://www.lri.fr/~hansen/cmaes_inmatlab.html#python) needs to be in the python path.
+            Each parameter should have a starting value x0 and a standard deviation of the search space. This should be given as a 2d array in gridsearch_parameters, 
+            e.g. {reservoir: {'spectral_radius':scipy.array([1,.5])}} for searching around 1 with a std. dev. of 1/2.
+            Input arguments are:
+                - data: a list of iterators which would be passed to MDP flows
+                - flow : the MDP flow to do the grid-search on
+                - cross-validate_function: the function to use for cross-validation
+                - options: an Options instance as defined by CMA-ES, useful e.g. for defining bounds on the parameters. See the documentation for CMA-ES for more information.
+                - internal_gridsearch_parameters: perform a second internal optimization of these parameters
+                - validate_suffix_flow: append this flow to the given flow during validation (e.g. for adding noise during freerun)
+            If any of the nodes in the flow have a member variable probe_data, the contents of this variable are also stored for each parameter
+            point in Optimizer.probe_data. This member variable is an N-dimensional list, with N the number of parameters being ranged over. 
+            Each element of this N-d list is a dictionary, indexed by the nodes in the flow, whose values are the corresponding contents 
+            of the probe_data.
+        '''
+
         min_error = float('+infinity')
         try:
             import cma
@@ -127,12 +153,15 @@ class Optimizer(object):
             print 'CMA-ES not found. cma.py should be in the python path.'
             raise
 
+        if sp.any([sp.squeeze(p).shape != (2,) for p in self.parameter_ranges]):
+            raise mdp.FlowException('When using cma_es as optimization algorithm, the parameter ranges should be two-dimensional, the first is assumed the mean and the second the standard devation of the search space.')
+
         # Initial value is the mean element of each array in the optimization range
         # CMA-ES assumes the optimum lies within x0 +- 3*sigma, so we rescale the parameters
         # passed to and from the cma algorithm
 
-        x0 = [mdp.numx.mean(p) for p in self.parameter_ranges]
-        stds = [mdp.numx.std(p) for p in self.parameter_ranges]
+        x0 = [p[0] for p in self.parameter_ranges]
+        stds = [p[1] for p in self.parameter_ranges]
 
         iteration = 0
         # Initialize a CMA instance
