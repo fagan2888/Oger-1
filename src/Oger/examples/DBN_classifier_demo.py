@@ -73,13 +73,13 @@ image = np.zeros((28 * 20, 28 * 10))
 for i in range(10):
     for j in range(10):
         image[i * 28:(i + 1) * 28, j * 28:(j + 1) * 28] = w_generative[:, i * 10 + j].ravel().reshape((28, 28))
-        
+
 
 for i in range(10, 20):
     for j in range(10):
         image[i * 28:(i + 1) * 28, j * 28:(j + 1) * 28] = rbmnode1.w[:, (i - 10) * 10 + j].ravel().reshape((28, 28))
-        
 
-pylab.imshow(image, cmap=pylab.cm.gray)
+
+pylab.imshow(image, cmap=pylab.gray)
 pylab.show()
 
