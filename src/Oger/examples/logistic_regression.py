@@ -1,6 +1,7 @@
-## A demo to demonstrate the different implemented logistic regression methods
-# convergence time might be very long for some algorithms...
-# For comparison, simple ridge regression is also computed
+''' A demo to demonstrate the different implemented logistic regression methods
+    convergence time might be very long for some algorithms...
+    For comparison, simple ridge regression is also computed
+'''
 
 import mdp
 from Oger.nodes import RidgeRegressionNode, IRLSLogisticRegressionNode, LogisticRegressionNode, ThresholdNode
