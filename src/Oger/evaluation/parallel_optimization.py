@@ -5,7 +5,8 @@ Created on Feb 23, 2011
 
 @author: dvrstrae
 '''
-import Oger
+from optimizer import Optimizer
+from model_validation import validate
 import mdp.parallel
 import itertools
 import scipy as sp
@@ -40,13 +41,13 @@ class ParameterSettingNode(mdp.Node):
                 node.initialize()
 
         # TODO: could this set of functions also be a parameter?
-        return (mdp.numx.mean(Oger.evaluation.validate(data, self.flow, self.loss_function, self.cross_validation, progress=False, *self.args, **self.kwargs)), self.flow)
+        return (mdp.numx.mean(validate(data, self.flow, self.loss_function, self.cross_validation, progress=False, *self.args, **self.kwargs)), self.flow)
 
     def is_trainable(self):
         return False
 
 
-@mdp.extension_method("parallel", Oger.evaluation.Optimizer)
+@mdp.extension_method("parallel", Optimizer)
 def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
     ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
         for each value in the parameter space.
@@ -104,7 +105,7 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
 
     self.scheduler.shutdown()
 
-@mdp.extension_method("parallel", Oger.evaluation.Optimizer)
+@mdp.extension_method("parallel", Optimizer)
 def cma_es (self, data, flow, cross_validate_function, options=None, internal_gridsearch_parameters=None, validate_suffix_flow=None, *args, **kwargs):
     if not hasattr(self, 'scheduler') or self.scheduler is None:
         err = ("No scheduler was assigned to the Optimizer so cannot run in parallel mode.")
@@ -169,7 +170,7 @@ def cma_es (self, data, flow, cross_validate_function, options=None, internal_gr
             self.optimal_flow = flow_list[sp.argmin(error_list)]
         iteration += 1
 
-        self.scheduler.shutdown()
+    self.scheduler.shutdown()
 
 
 class FlowExecuteCallableNoChecks(mdp.parallel.FlowExecuteCallable):

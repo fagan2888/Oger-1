@@ -13,7 +13,7 @@ if __name__ == '__main__':
     data = [[], zip(inputs, outputs)]
 
     # construct individual nodes
-    reservoir = Oger.nodes.ReservoirNode(input_size, 200)
+    reservoir = Oger.nodes.ReservoirNode(input_size, 100)
     readout = Oger.nodes.RidgeRegressionNode()
 
     # build network with MDP framework
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     print 'Sequential execution...'
     start_time = time.time()
-    opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':5, 'bounds':[0.01, None]})
+    opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':5, 'bounds':[0.01, None], 'seed':1234})
     seq_duration = int(time.time() - start_time)
     print 'Duration: ' + str(seq_duration) + 's'
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     opt.scheduler = mdp.parallel.ProcessScheduler(n_processes=2)
     mdp.activate_extension("parallel")
     start_time = time.time()
-    opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':5, 'bounds':[0.01, None]})
+    opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':5, 'bounds':[0.01, None], 'seed':1234})
     par_duration = int(time.time() - start_time)
     print 'Duration: ' + str(par_duration) + 's'
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     # Get the optimal flow and run cross-validation with it 
     opt_flow = opt.get_optimal_flow()
 
-    print 'Performing cross-validation with the optimal flow.'
+    print 'Performing cross-validation with the optimal flow. Note that this result can differ slightly from the one above because of different choices of randomization of the folds.'
 
     errors = Oger.evaluation.validate(data, opt_flow, Oger.utils.nrmse, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, progress=False)
     print 'Mean error over folds: ' + str(sp.mean(errors))
