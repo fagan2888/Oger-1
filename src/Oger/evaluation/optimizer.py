@@ -1,25 +1,10 @@
 import Oger
 import mdp.utils
-import mdp.parallel
 import itertools
 import scipy.stats
 import scipy as sp
 from copy import deepcopy
 
-class FlowExecuteCallableNoChecks(mdp.parallel.FlowExecuteCallable):
-    ''' This class is used in the parallel grid search for the Optimizer class, 
-        to avoid the pre_execution_checks done by MDP. In the function below, x 
-        is a list, which doesn't pass the checks since these assume a numpy array. 
-        The code below skips the tests. 
-    '''
-    def __call__(self, x):
-        y = self._flownode._execute(x, nodenr=self._nodenr)
-        if self._flownode.use_execute_fork():
-            if self._purge_nodes:
-                _purge_flownode(self._flownode)
-            return (y, self._flownode)
-        else:
-            return (y, None)
 
 class Optimizer(object):
     ''' Class to perform optimization of the parameters of a flow using cross-validation.
@@ -95,8 +80,7 @@ class Optimizer(object):
             # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
             for node in node_set:
                 if hasattr(node, 'initialize'):
-                    if node._is_initialized:
-                        node.initialize()
+                    node.initialize()
 
             # After all node parameters have been set and initialized, do the cross-validation
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions)
@@ -145,8 +129,8 @@ class Optimizer(object):
             Each element of this N-d list is a dictionary, indexed by the nodes in the flow, whose values are the corresponding contents 
             of the probe_data.
         '''
-
         min_error = float('+infinity')
+        self.evaluated_parameters = []
         try:
             import cma
         except:
@@ -171,7 +155,7 @@ class Optimizer(object):
             print 'Iteration ' + str(iteration)
             # Ask the next generation of parameter vectors from the optimization algorithm
             parameter_vectors = es.ask()
-            print parameter_vectors
+            #print parameter_vectors
 
             # Empty list to contain the errors per parameter vector
             error_list = []
@@ -182,6 +166,12 @@ class Optimizer(object):
                     # Add the current node to the set of nodes whose parameters are changed, and which should be re-initialized
                     node_set.add(node_parameter[0])
                     node_parameter[0].__setattr__(node_parameter[1], parameter_vector[parameter_index] * std)
+
+                # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
+                for node in node_set:
+                    if hasattr(node, 'initialize'):
+                        node.initialize()
+
                 current_flow = deepcopy(flow)
                 validation_errors = Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs)
                 mean_validation_error = mdp.numx.mean(validation_errors)
@@ -190,11 +180,11 @@ class Optimizer(object):
                 if mean_validation_error < min_error:
                     min_error = mean_validation_error
                     self.optimal_flow = current_flow
-                print mean_validation_error
+                #print mean_validation_error
                 error_list.append(mean_validation_error)
             es.tell(parameter_vectors, error_list)
             for parameters in mdp.numx.array(parameter_vectors).T:
-                self.parameter_ranges.append(parameters)
+                self.evaluated_parameters.append(parameters)
             self.errors.extend(error_list)
             self.parameter_ranges
             iteration += 1
@@ -412,86 +402,4 @@ class Optimizer(object):
         fhandle.close()
 
 
-class ParameterSettingNode(mdp.Node):
 
-    def __init__(self, flow, loss_function, cross_validation, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
-        super(ParameterSettingNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
-        self.flow = flow
-        self.loss_function = loss_function
-        self.cross_validation = cross_validation
-
-        # TODO: this is a bit messy...
-        self.args = args
-        self.kwargs = kwargs
-
-    def execute(self, x):
-        params = x[0]
-        data = x[1]
-
-        # Set all parameters of all nodes to the correct values
-        node_set = set()
-        for node_index, node_dict in params.items():
-            for parameter, value in node_dict.items():
-                node = self.flow[node_index]
-                node_set.add(node)
-                node.__setattr__(parameter, value)
-
-        # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
-        for node in node_set:
-            if hasattr(node, 'initialize'):
-                node.initialize()
-
-        # TODO: could this set of functions also be a parameter?
-        return [mdp.numx.mean(Oger.evaluation.validate(data, self.flow, self.loss_function, self.cross_validation, progress=False, *self.args, **self.kwargs))]
-
-    def is_trainable(self):
-        return False
-
-
-@mdp.extension_method("parallel", Optimizer)
-def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
-    ''' Do a combinatorial grid-search of the given parameters and given parameter ranges, and do cross-validation of the flowNode
-        for each value in the parameter space.
-        Input arguments are:
-            - data: a list of iterators which would be passed to MDP flows
-            - flow : the MDP flow to do the grid-search on
-    '''
-
-    if not hasattr(self, 'scheduler') or self.scheduler is None:
-        err = ("No scheduler was assigned to the Optimizer so cannot run in parallel mode.")
-        raise Exception(err)
-
-    # Get the number of parameter points to be evaluated for each of the parameters
-    self.paramspace_dimensions = [len(r) for r in self.parameter_ranges]
-
-    self.errors = mdp.numx.zeros(self.paramspace_dimensions)
-
-    data_parallel = []
-
-    # Construct all combinations
-    self.param_space = list(itertools.product(*self.parameter_ranges))
-
-    # Loop over all points in the parameter space
-    for paramspace_index_flat, parameter_values in enumerate(self.param_space):
-        params = {}
-
-        for parameter_index, node_parameter in enumerate(self.parameters):
-            node_index = flow.flow.index(node_parameter[0])
-            if not node_index in params:
-                params[node_index] = {}
-
-            params[node_index][node_parameter[1]] = parameter_values[parameter_index]
-
-        data_parallel.append([[params, data]])
-
-    parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs), ])
-
-    results = parallel_flow.execute(data_parallel, scheduler=self.scheduler, execute_callable_class=FlowExecuteCallableNoChecks)
-
-    i = 0
-    for paramspace_index_flat, parameter_values in enumerate(self.param_space):
-        paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions)
-        self.errors[paramspace_index_full] = results[i]
-        i += 1
-
-    self.scheduler.shutdown()

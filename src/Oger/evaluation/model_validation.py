@@ -115,7 +115,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
         if gridsearch_parameters is not None:
             opt = Oger.evaluation.Optimizer(gridsearch_parameters, error_measure)
             opt.grid_search(data, f_copy, cross_validate_function=cross_validate_function, progress=False)
-            f_copy = opt.optimal_flow
+            f_copy = opt.get_optimal_flow()
 
         # train on all training samples
         f_copy.train(train_data)
@@ -124,7 +124,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
         for index in test_samples[fold]:
             test_data = data_subset(data, [index])
 
-            # If the last node is a feedback node: 
+            # If the last node is a feedback node:
             if isinstance(flow[-1], Oger.nodes.FeedbackNode):
                 for i in range(len(flow)):
                     # Disable state resetting for all reservoir nodes.
@@ -136,14 +136,12 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
                 # Run flow on training data so we have an initial state to start from
                 f_copy(train_data[0])
 
-                # TODO: the feedback node gets initiated with the last *estimated* timestep,
-                # not the last training example. Fixing this will improve performance!
-
             # Add the suffix flow if requested
             if validation_suffix_flow is not None:
                 f_copy += validation_suffix_flow
 
-            fold_error.append(error_measure(f_copy(test_data[-1][0][0]), test_data[-1][0][-1]))
+            yhat = f_copy(test_data[-1][0][0])
+            fold_error.append(error_measure(yhat, test_data[-1][0][-1]))
         test_error.append(mdp.numx.mean(fold_error))
 
     return test_error
