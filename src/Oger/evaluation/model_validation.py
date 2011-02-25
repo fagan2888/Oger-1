@@ -87,46 +87,15 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
         - progress is a boolean to enable a progress bar (default True)
     '''
     test_error = []
-    # Get the number of samples 
-    n_samples = mdp.numx.amax(map(len, data))
-    # Get the indices of the training and testing samples for each fold by calling the 
-    # cross_validate_function hook
     
-    train_samples, test_samples = cross_validate_function(n_samples, *args, **kwargs)
-    
-    if progress:
-        print "Performing cross-validation using " + cross_validate_function.__name__
-        iteration = mdp.utils.progressinfo(range(len(train_samples)), style='timer')
-    else:
-        iteration = range(len(train_samples))
-        
-    for fold in iteration:
-        # Get the training data from the whole data set
-        train_data = data_subset(data, train_samples[fold])
+    for f_copy, train_data, test_sample_list in validate_gen(data, flow, cross_validate_function, progress, *args, **kwargs):
         # Empty list to store test errors for current fold
         fold_error = []
-        
-        # Copy the flow so we can re-train it for every fold
-        # Only nodes that need training are copied.
-        f_copy = mdp.Flow([])
-        for node in flow:
-            # TODO: check if this also works for e.g. LayerNodes with trainable
-            # nodes inside
-            if node.is_trainable():
-                f_copy += node.copy()
-            else:
-                f_copy += node 
-                
-        # train on all training samples
-        f_copy.train(train_data)
-        
         # test on all test samples
-        for index in test_samples[fold]:
-            test_data = data_subset(data, [index])
-            
+        for test_sample in test_sample_list:
             # If the last node is a feedback node: 
-            if isinstance(flow[-1], Oger.nodes.FeedbackNode):
-                for i in range(len(flow)):
+            if isinstance(f_copy[-1], Oger.nodes.FeedbackNode):
+                for i in range(len(f_copy)):
                     # Disable state resetting for all reservoir nodes.
                     if isinstance(f_copy[i], Oger.nodes.ReservoirNode):
                         f_copy[i].reset_states = False       
@@ -139,24 +108,25 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
                 # TODO: the feedback node gets initiated with the last *estimated* timestep,
                 # not the last training example. Fixing this will improve performance!
             
-            fold_error.append(error_measure(f_copy(test_data[-1][0][0]), test_data[-1][0][-1]))
+            fold_error.append(error_measure(f_copy(test_sample[-1][0][0]), test_sample[-1][0][-1]))
         test_error.append(mdp.numx.mean(fold_error))
-
+        
     return test_error
+
 
 
 def validate_gen(data, flow, cross_validate_function=n_fold_random, progress=True, *args, **kwargs):
     '''
     validate_gen(data, flow, cross_validate_function=n_fold_random, progress=True, *args, **kwargs) -> test_output
     
-    Perform  cross-validation on a flow, but only train - don't evaluate anything. This function is a generator which returns the the flow, along with the data used to train it, and the remaining data that can be used for evaluation for each fold.
+    This generator performs cross-validation on a flow. It splits the data into folds according to the supplied cross_validate_function, and then for each fold, trains the flow and yields the trained flow, the training data, and a list of test data samples.
     
     Use it like this:
     
-    for flow, train_data, test_data in validate_gen(...):
+    for flow, train_data, test_sample_list in validate_gen(...):
         ...
         
-    Parameters are the same as for 'validate', except there is no 'error_measure' parameter.
+    See 'validate' for more information about the function signature.
     '''
     # Get the number of samples 
     n_samples = mdp.numx.amax(map(len, data))
@@ -190,8 +160,9 @@ def validate_gen(data, flow, cross_validate_function=n_fold_random, progress=Tru
                 
         # train on all training samples
         f_copy.train(train_data)
-        test_data = data_subset(data, test_samples[fold])
-        yield (f_copy, train_data, test_data) # collect everything needed to evaluate this fold and return it.
+        
+        test_sample_list = [data_subset(data, [k]) for k in test_samples[fold]]       
+        yield (f_copy, train_data, test_sample_list) # collect everything needed to evaluate this fold and return it.
 
 
 def data_subset(data, data_indices):
