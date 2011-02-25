@@ -584,16 +584,13 @@ try:
         """
         Simple function to visualise a balanced confusion matrix.
         """
-        plt.clf()
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        res = ax.imshow(np.asarray(conf), cmap=plt.cm.jet, interpolation='nearest')
+        res = plt.imshow(np.asarray(conf), cmap=plt.cm.jet, interpolation='nearest')
         # display correct detection percentages (only makes sense for CMs that are normalised per class (each row sums to 1)).
         for i, err in enumerate(conf.correct):
             err_percent = "%d%%" % round(err * 100)
             plt.text(i-.2, i+.1, err_percent, fontsize=14)
 
-        cb = fig.colorbar(res)
+        cb = plt.colorbar(res)
         plt.show()
         
 except ImportError:
