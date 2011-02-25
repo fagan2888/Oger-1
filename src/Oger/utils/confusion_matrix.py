@@ -16,11 +16,10 @@ import numpy as np
 #
 # Usage example:
 # 
-#   import conf
-#   c = conf.ConfusionMatrix.from_samples(num_classes, predictions, targets, labels)
+#   c = ConfusionMatrix.from_samples(num_classes, predictions, targets, labels)
 #   print "BER: %f" % c.ber
 #   print "Error rates per class: %s" % repr(c.error_rates) 
-#   conf.plot_conf(c.balance())
+#   plot_conf(c.balance())
 #
 # Note: a ConfusionMatrix wraps a numpy ARRAY, not a numpy MATRIX.
 
