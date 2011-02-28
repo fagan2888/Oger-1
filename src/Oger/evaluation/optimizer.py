@@ -2,6 +2,7 @@ import Oger
 import mdp.utils
 import itertools
 import scipy.stats
+import scipy.optimize
 import scipy as sp
 from copy import deepcopy
 
@@ -401,5 +402,25 @@ class Optimizer(object):
         pickle.dump(self, fhandle)
         fhandle.close()
 
+    def scipy_optimize (self, data, flow, cross_validate_function, opt_func=scipy.optimize.fmin, internal_gridsearch_parameters=None, validate_suffix_flow=None, options=None, *args, **kwargs):
 
+        def _f_opt(parameter_values, data, flow, cross_validate_function):
+            node_set = set()
+            for (parameter_index, node_parameter) in enumerate(self.parameters):
+                # Add the current node to the set of nodes whose parameters are changed, and which should be re-initialized
+                node_set.add(node_parameter[0])
+                node_parameter[0].__setattr__(node_parameter[1], parameter_values[parameter_index])
 
+            # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
+            for node in node_set:
+                if hasattr(node, 'initialize'):
+                    node.initialize()
+
+            validation_errors = Oger.evaluation.validate(data, flow, self.loss_function, cross_validate_function, progress=False, *args, **kwargs)
+            return mdp.numx.mean(validation_errors)
+
+        self.evaluated_parameters = []
+
+        x0 = [p[0] for p in self.parameter_ranges]
+
+        (xopt, fopt, iter, _, _, self.evaluated_parameters) = opt_func(_f_opt, x0, (data, flow, cross_validate_function), maxiter=5, maxfun=5, disp=True, full_output=True, retall=True)
