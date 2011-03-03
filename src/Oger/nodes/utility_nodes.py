@@ -1,6 +1,8 @@
 import mdp.nodes
+from mdp import numx
 import scipy.signal
 import numpy as np
+
 
 class FeedbackNode(mdp.Node):
     """FeedbackNode creates the ability to feed back a certain part of a flow as 
@@ -263,3 +265,178 @@ class RescaleZMUSNode(mdp.Node):
 
     def _execute(self, x):
         return (x - self._mean) / self._std
+
+    
+class SupervisedLayer(mdp.hinet.Layer):
+    """
+    An extension of the MDP Layer class that is aware of target labels. This allows for
+    more flexibility when using supervised techniques.
+    
+    The SupervisedLayer can mimic the behaviour of both the regular MDP Layer and the 
+    SameInputLayer, with regards to the partitioning of the input training data.
+    
+    In addition, the SupervisedLayer is also aware of target labels, and can partition
+    them according to the output dimensions of the contained nodes, or not partition
+    them at all. The latter is the behaviour of the label-agnostic MDP Layer
+    and SameInputLayer classes.
+    
+    The SupervisedLayer has two flags that toggle input and target label partitioning:
+    * input_partitioning (defaults to True)
+    * target_partitioning (defaults to False)
+    
+    The defaults mimic the behaviour of the MDP Layer class. Setting 'input_partitioning'
+    to False causes SameInputLayer-like behaviour.
+    
+    Because this class explicitly refers to target labels (second argument of the 'train'
+    method), it will not work properly when used with unsupervised nodes.
+    
+    EXAMPLE
+    
+    A layer could contain 5 regressor nodes, each of which have 4-dimensional input and
+    3-dimensional target labels. In that case, the input_dim of the layer is 5*4 = 20,
+    and the output_dim is 5*3 = 15.
+    
+    A default Layer will split the input data according to the input_dims of the contained
+    nodes, so the 20 input channels will be split into 5 sets of 4, which is the desired
+    behaviour.
+    
+    However, the Layer is unaware of the target labels and simply passes through additional
+    arguments to the 'train' function to the contained nodes. This means that each of the
+    regressors will receive the same set of 15-dimensional target labels. The Layer should
+    instead split the 15 target channels into 5 sets of 3, but it is not capable of doing
+    so. Replacing the Layer with a SupervisedLayer(input_partitioning=True,
+    target_partitioning=True) solves this problem.
+    
+    Another use case is one where the regressors have the same input data, but are trained
+    with different target labels. In that case, a SuperivsedLayer(input_partitioning=False,
+    target_partitioning=True) can be used. Using the previous example, each regressor then
+    has an input_dim of 20 and an output_dim of 3.
+    """
+    
+    def __init__(self, nodes, dtype=None, input_partitioning=True, target_partitioning=False):
+        self.input_partitioning = input_partitioning
+        self.target_partitioning = target_partitioning
+        
+        self.nodes = nodes
+        # check nodes properties and get the dtype
+        dtype = self._check_props(dtype)
+        
+        # set the correct input/output dimensions.
+        # The output_dim of the Layer is always the sum of the output dims of the nodes,
+        # Regardless of whether target partitioning is enabled.
+        output_dim = self._get_output_dim_from_nodes()
+        
+        # The input_dim of the Layer however depends on whether input partitioning is 
+        # enabled. When input_partitioning is disabled, all contained nodes should have
+        # the same input_dim and the input_dim of the layer should be equal to it.
+        if self.input_partitioning:
+            input_dim = 0
+            for node in nodes:
+                input_dim += node.input_dim
+                
+        else: # all nodes should have same input_dim, input_dim of the layer is equal to this
+            input_dim = nodes[0].input_dim
+            for node in nodes:
+                if not node.input_dim == input_dim:
+                    err = "The nodes have different input dimensions."
+                    raise mdp.NodeException(err)
+
+        # intentionally use MRO above Layer, not SupervisedLayer
+        super(mdp.hinet.Layer, self).__init__(input_dim=input_dim,
+                                    output_dim=output_dim,
+                                    dtype=dtype)        
+    
+    def is_invertible(self):
+        return False # inversion is theoretically possible if input partitioning is enabled.
+        # however, it is not implemented.
+    
+    def _train(self, x, y, *args, **kwargs):
+        """Perform single training step by training the internal nodes."""
+        x_idx, y_idx = 0, 0
+
+        for node in self.nodes:
+            if self.input_partitioning:
+                next_x_idx = x_idx + node.input_dim
+                x_selected = x[:,x_idx:next_x_idx] # selected input dimensions for this node
+                x_idx = next_x_idx
+            else:
+                x_selected = x # use all input dimensions
+                
+            if self.target_partitioning:
+                next_y_idx = y_idx + node.output_dim
+                y_selected = y[:,y_idx:next_y_idx] # select target dimensions for this node
+                y_idx = next_y_idx
+            else:
+                y_selected = y # use all target dimensions
+            
+            if node.is_training():
+                node.train(x_selected, y_selected, *args, **kwargs)
+                
+
+    def _pre_execution_checks(self, x):
+        """Make sure that output_dim is set and then perform normal checks."""
+        if self.input_partitioning: # behaviour is like Layer, so just use the method of the parent class
+            super(SupervisedLayer, self)._pre_execution_checks(x)
+        else: # behaviour is like SameInputLayer
+            if self.output_dim is None:
+                # first make sure that the output_dim is set for all nodes
+                for node in self.nodes:
+                    node._pre_execution_checks(x)
+                self.output_dim = self._get_output_dim_from_nodes()
+                if self.output_dim is None:
+                    err = "output_dim must be set at this point for all nodes"
+                    raise mdp.NodeException(err)
+            # intentionally use MRO above Layer, not SupervisedLayer
+            super(mdp.hinet.Layer, self)._pre_execution_checks(x)
+
+    def _execute(self, x, *args, **kwargs):
+        """Process the data through the internal nodes."""
+        if self.input_partitioning: # behaviour is like Layer, so just use the method of the parent class
+            return super(SupervisedLayer, self)._execute(x, *args, **kwargs)
+        else: # behaviour is like SameInputLayer
+            out_start = 0
+            out_stop = 0
+            y = None
+            for node in self.nodes:
+                out_start = out_stop
+                out_stop += node.output_dim
+                if y is None:
+                    node_y = node.execute(x, *args, **kwargs)
+                    y = numx.zeros([node_y.shape[0], self.output_dim],
+                                   dtype=node_y.dtype)
+                    y[:,out_start:out_stop] = node_y
+                else:
+                    y[:,out_start:out_stop] = node.execute(x, *args, **kwargs)
+            return y
+            
+
+class MaxVotingNode(mdp.Node):
+    """
+    This node finds the maximum value of all input channels at each timestep,
+    and returns the corresponding label.
+
+    If no labels are supplied, the index of the channel is returned.
+    """
+
+    def __init__(self, labels=None, input_dim=None, dtype='float64'):
+         super(MaxVotingNode, self).__init__(input_dim, 1, dtype) # output_dim is always 1
+         if labels is None:
+             self.labels = np.arange(self.input_dim) # default labels = channel indices
+         else:
+             self.labels = np.asarray(labels)
+        
+    def is_trainable(self):
+        return False
+    
+    def is_invertible(self):
+        return False
+    
+    def _get_supported_dtypes(self):
+        return ['float32', 'float64']
+    
+    def _execute(self, x):
+        indices = np.atleast_2d(np.argmax(x, 1)).T
+        return self.labels[indices]
+        
+        
+

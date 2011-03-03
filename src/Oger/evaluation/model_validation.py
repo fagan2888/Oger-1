@@ -89,6 +89,36 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
         - progress is a boolean to enable a progress bar (default True)
     '''
     test_error = []
+
+    for f_copy, _, test_sample_list in validate_gen(data, flow, cross_validate_function, gridsearch_parameters, error_measure, progress, *args, **kwargs):
+        # Empty list to store test errors for current fold
+        fold_error = []
+
+        # Add the suffix flow if requested
+        if validation_suffix_flow is not None:
+            f_copy += validation_suffix_flow
+
+        # test on all test samples
+        for test_sample in test_sample_list:
+            fold_error.append(error_measure(f_copy(test_sample[-1][0][0]), test_sample[-1][0][-1]))
+
+        test_error.append(mdp.numx.mean(fold_error))
+
+    return test_error
+
+
+
+def validate_gen(data, flow, cross_validate_function=n_fold_random, gridsearch_parameters=None, error_measure=None, progress=True, *args, **kwargs):
+    '''
+    validate_gen(data, flow, cross_validate_function=n_fold_random, progress=True, *args, **kwargs) -> test_output
+    
+    This generator performs cross-validation on a flow. It splits the data into folds according to the supplied cross_validate_function, and then for each fold, trains the flow and yields the trained flow, the training data, and a list of test data samples.
+    Use it like this:    
+    for flow, train_data, test_sample_list in validate_gen(...):
+        ...
+        
+    See 'validate' for more information about the function signature.
+    '''
     # Get the number of samples 
     n_samples = mdp.numx.amax(map(len, data))
     # Get the indices of the training and testing samples for each fold by calling the 
@@ -105,46 +135,20 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
     for fold in iteration:
         # Get the training data from the whole data set
         train_data = data_subset(data, train_samples[fold])
-        # Empty list to store test errors for current fold
-        fold_error = []
 
         # Copy the flow so we can re-train it for every fold
-        # Only nodes that need training are copied.
         f_copy = deepcopy(flow)
 
         if gridsearch_parameters is not None:
             opt = Oger.evaluation.Optimizer(gridsearch_parameters, error_measure)
-            opt.grid_search(data, f_copy, cross_validate_function=cross_validate_function, progress=False)
+            opt.grid_search(train_data, f_copy, cross_validate_function=cross_validate_function, progress=False)
             f_copy = opt.get_optimal_flow()
 
         # train on all training samples
         f_copy.train(train_data)
 
-        # test on all test samples
-        for index in test_samples[fold]:
-            test_data = data_subset(data, [index])
-
-            # If the last node is a feedback node:
-            if isinstance(flow[-1], Oger.nodes.FeedbackNode):
-                for i in range(len(flow)):
-                    # Disable state resetting for all reservoir nodes.
-                    if isinstance(f_copy[i], Oger.nodes.ReservoirNode):
-                        f_copy[i].reset_states = False
-                    if isinstance(f_copy[i], Oger.nodes.FeedbackNode):
-                        f_copy[i].reset()
-
-                # Run flow on training data so we have an initial state to start from
-                f_copy(train_data[0])
-
-            # Add the suffix flow if requested
-            if validation_suffix_flow is not None:
-                f_copy += validation_suffix_flow
-
-            yhat = f_copy(test_data[-1][0][0])
-            fold_error.append(error_measure(yhat, test_data[-1][0][-1]))
-        test_error.append(mdp.numx.mean(fold_error))
-
-    return test_error
+        test_sample_list = [data_subset(data, [k]) for k in test_samples[fold]]
+        yield (f_copy, train_data, test_sample_list) # collect everything needed to evaluate this fold and return it.
 
 def data_subset(data, data_indices):
     '''

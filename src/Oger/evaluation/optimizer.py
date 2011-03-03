@@ -79,9 +79,9 @@ class Optimizer(object):
                 node_parameter[0].__setattr__(node_parameter[1], parameter_values[parameter_index])
 
             # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
-            for node in node_set:
+            for node in flow:
                 if hasattr(node, 'initialize'):
-                    node.initialize()
+                    node._is_initialized = False
 
             # After all node parameters have been set and initialized, do the cross-validation
             paramspace_index_full = mdp.numx.unravel_index(paramspace_index_flat, self.paramspace_dimensions)
