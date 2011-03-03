@@ -38,7 +38,7 @@ class ParameterSettingNode(mdp.Node):
         # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
         for node in node_set:
             if hasattr(node, 'initialize'):
-                node.initialize()
+                node._is_initialized = False
 
         # TODO: could this set of functions also be a parameter?
         return (mdp.numx.mean(validate(data, self.flow, self.loss_function, self.cross_validation, progress=False, *self.args, **self.kwargs)), self.flow)
@@ -80,6 +80,11 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
             node_index = flow.flow.index(node_parameter[0])
             if not node_index in params:
                 params[node_index] = {}
+
+        # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
+        for node in flow:
+            if hasattr(node, 'initialize'):
+                node._is_initialized = False
 
             params[node_index][node_parameter[1]] = parameter_values[parameter_index]
 
@@ -149,10 +154,14 @@ def cma_es (self, data, flow, cross_validate_function, options=None, internal_gr
         for parameter_vector in parameter_vectors:
             for ((parameter_index, node_parameter), std) in zip(enumerate(self.parameters), stds):
                 node_index = flow.flow.index(node_parameter[0])
-                if not node_index in params:
-                    params[node_index] = {}
+                params[node_index] = {}
                 params[node_index][node_parameter[1]] = parameter_vector[parameter_index] * std
             data_parallel.append([[params, data]])
+
+        # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
+        for node in flow:
+            if hasattr(node, 'initialize'):
+                node._is_initialized = False
 
         parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs), ])
 
