@@ -4,6 +4,9 @@ import Oger
 import numpy as np
 from Oger.utils import ConfusionMatrix, BinaryConfusionMatrix
 
+# Python 2.6 unittest has no facilities to check exception messages, it seems.
+# code for Python 2.7 with message checking is in the comments.
+
 class ConfusionMatrixTest(unittest.TestCase):
     def setUp(self):
         pass
@@ -14,14 +17,14 @@ class ConfusionMatrixTest(unittest.TestCase):
         # self.assertEqual(cm.exception.message, "ConfusionMatrix should be 2-dimensional - ndim is 1")
         def func():
             c = ConfusionMatrix([1,2,3])
-        self.assertRaisesRegexp(RuntimeError, "ConfusionMatrix should be 2-dimensional - ndim is 1", func)
+        self.assertRaises(RuntimeError, func)
                 
         # with self.assertRaises(RuntimeError) as cm:
         #     c = ConfusionMatrix([[1,2,3],[4,5,6]])
         # self.assertEqual(cm.exception.message, "ConfusionMatrix should be rectangular - shape is 2x3")
         def func():
             c = ConfusionMatrix([[1,2,3],[4,5,6]])
-        self.assertRaisesRegexp(RuntimeError, "ConfusionMatrix should be rectangular - shape is 2x3", func)
+        self.assertRaises(RuntimeError, func)
         
     def test_constructor_labels(self):
         c = ConfusionMatrix([[1,2],[3,4]])
@@ -35,14 +38,14 @@ class ConfusionMatrixTest(unittest.TestCase):
         # self.assertEqual(cm.exception.message, "Number of class labels does not equal number of classes - number of labels is 3, number of classes is 2")
         def func():
             c = ConfusionMatrix([[1,2],[3,4]], labels=[1,2,3])
-        self.assertRaisesRegexp(RuntimeError, "Number of class labels does not equal number of classes - number of labels is 3, number of classes is 2", func)
+        self.assertRaises(RuntimeError, func)
         
         # with self.assertRaises(RuntimeError) as cm:
         #     c = ConfusionMatrix([[1,2],[3,4]], labels=[1,1])
         # self.assertEqual(cm.exception.message, "Class labels are not unique - labels are [1, 1]")
         def func():
             c = ConfusionMatrix([[1,2],[3,4]], labels=[1,1])
-        self.assertRaisesRegexp(RuntimeError, "Class labels are not unique - labels are \[1, 1\]", func)
+        self.assertRaises(RuntimeError, func)
         
     def test_asarray(self):
         c = ConfusionMatrix([[1,2],[3,4]])
@@ -108,7 +111,7 @@ class ConfusionMatrixTest(unittest.TestCase):
             i = np.atleast_2d(np.array([0, 1])).T
             t = np.atleast_2d(np.array([2])).T
             c = ConfusionMatrix.from_data(3, i, t)
-        self.assertRaisesRegexp(RuntimeError, "Output and target data should have the same shape", func)
+        self.assertRaises(RuntimeError, func)
         
         i = np.atleast_2d(np.array([0, 0, 1, 2, 0, 0, 2, 2, 1, 2])).T
         t = np.atleast_2d(np.array([0, 0, 0, 1, 1, 0, 2, 2, 1, 1])).T
@@ -153,14 +156,14 @@ class BinaryConfusionMatrixTest(unittest.TestCase):
         # self.assertEqual(cm.exception.message, "ConfusionMatrix should be 2-dimensional - ndim is 1")
         def func():
             c = BinaryConfusionMatrix([1,2,3])
-        self.assertRaisesRegexp(RuntimeError, "ConfusionMatrix should be 2-dimensional - ndim is 1", func)    
+        self.assertRaises(RuntimeError, func)    
         
         # with self.assertRaises(RuntimeError) as cm:
         #     c = BinaryConfusionMatrix([[1,2,3],[4,5,6]])
         # self.assertEqual(cm.exception.message, "ConfusionMatrix should have shape 2x2 - shape is 2x3")
         def func():
             c = BinaryConfusionMatrix([[1,2,3],[4,5,6]])
-        self.assertRaisesRegexp(RuntimeError, "ConfusionMatrix should have shape 2x2 - shape is 2x3", func)        
+        self.assertRaises(RuntimeError, func)        
         
     def test_normalise(self):
         c = BinaryConfusionMatrix([[1,2],[3,4]])
