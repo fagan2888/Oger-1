@@ -9,13 +9,19 @@ class ConfusionMatrixTest(unittest.TestCase):
         pass
         
     def test_constructor_dimension_checks(self):
-        with self.assertRaises(RuntimeError) as cm:
+        # with self.assertRaises(RuntimeError) as cm:
+        #    c = ConfusionMatrix([1,2,3])
+        # self.assertEqual(cm.exception.message, "ConfusionMatrix should be 2-dimensional - ndim is 1")
+        def func():
             c = ConfusionMatrix([1,2,3])
-        self.assertEqual(cm.exception.message, "ConfusionMatrix should be 2-dimensional - ndim is 1")
-        
-        with self.assertRaises(RuntimeError) as cm:
+        self.assertRaisesRegexp(RuntimeError, "ConfusionMatrix should be 2-dimensional - ndim is 1", func)
+                
+        # with self.assertRaises(RuntimeError) as cm:
+        #     c = ConfusionMatrix([[1,2,3],[4,5,6]])
+        # self.assertEqual(cm.exception.message, "ConfusionMatrix should be rectangular - shape is 2x3")
+        def func():
             c = ConfusionMatrix([[1,2,3],[4,5,6]])
-        self.assertEqual(cm.exception.message, "ConfusionMatrix should be rectangular - shape is 2x3")
+        self.assertRaisesRegexp(RuntimeError, "ConfusionMatrix should be rectangular - shape is 2x3", func)
         
     def test_constructor_labels(self):
         c = ConfusionMatrix([[1,2],[3,4]])
@@ -24,13 +30,19 @@ class ConfusionMatrixTest(unittest.TestCase):
         c = ConfusionMatrix([[1,2],[3,4]], labels=['a','b'])
         self.assertEqual(c.labels, ['a','b'])
         
-        with self.assertRaises(RuntimeError) as cm:
+        # with self.assertRaises(RuntimeError) as cm:
+        #     c = ConfusionMatrix([[1,2],[3,4]], labels=[1,2,3])
+        # self.assertEqual(cm.exception.message, "Number of class labels does not equal number of classes - number of labels is 3, number of classes is 2")
+        def func():
             c = ConfusionMatrix([[1,2],[3,4]], labels=[1,2,3])
-        self.assertEqual(cm.exception.message, "Number of class labels does not equal number of classes - number of labels is 3, number of classes is 2")
+        self.assertRaisesRegexp(RuntimeError, "Number of class labels does not equal number of classes - number of labels is 3, number of classes is 2", func)
         
-        with self.assertRaises(RuntimeError) as cm:
+        # with self.assertRaises(RuntimeError) as cm:
+        #     c = ConfusionMatrix([[1,2],[3,4]], labels=[1,1])
+        # self.assertEqual(cm.exception.message, "Class labels are not unique - labels are [1, 1]")
+        def func():
             c = ConfusionMatrix([[1,2],[3,4]], labels=[1,1])
-        self.assertEqual(cm.exception.message, "Class labels are not unique - labels are [1, 1]")
+        self.assertRaisesRegexp(RuntimeError, "Class labels are not unique - labels are \[1, 1\]", func)
         
     def test_asarray(self):
         c = ConfusionMatrix([[1,2],[3,4]])
@@ -83,14 +95,20 @@ class ConfusionMatrixTest(unittest.TestCase):
         self.assertTrue(np.all(bs[1].asarray() == np.array([[5, 10],[10, 20]])))
         self.assertTrue(np.all(bs[2].asarray() == np.array([[9, 15],[9, 12]])))
         for b in bs:
-            self.assertIsInstance(b, BinaryConfusionMatrix)
+            # self.assertIsInstance(b, BinaryConfusionMatrix)
+            self.assertTrue(isinstance(b, BinaryConfusionMatrix))
 
     def test_from_data(self):
-        with self.assertRaises(RuntimeError) as cm:
+        # with self.assertRaises(RuntimeError) as cm:
+        #     i = np.atleast_2d(np.array([0, 1])).T
+        #     t = np.atleast_2d(np.array([2])).T
+        #     c = ConfusionMatrix.from_data(3, i, t)
+        # self.assertEqual(cm.exception.message, "Output and target data should have the same shape")
+        def func():
             i = np.atleast_2d(np.array([0, 1])).T
             t = np.atleast_2d(np.array([2])).T
             c = ConfusionMatrix.from_data(3, i, t)
-        self.assertEqual(cm.exception.message, "Output and target data should have the same shape")
+        self.assertRaisesRegexp(RuntimeError, "Output and target data should have the same shape", func)
         
         i = np.atleast_2d(np.array([0, 0, 1, 2, 0, 0, 2, 2, 1, 2])).T
         t = np.atleast_2d(np.array([0, 0, 0, 1, 1, 0, 2, 2, 1, 1])).T
@@ -130,24 +148,32 @@ class BinaryConfusionMatrixTest(unittest.TestCase):
         pass
         
     def test_constructor_dimension_checks(self):
-        with self.assertRaises(RuntimeError) as cm:
+        # with self.assertRaises(RuntimeError) as cm:
+        #     c = BinaryConfusionMatrix([1,2,3])
+        # self.assertEqual(cm.exception.message, "ConfusionMatrix should be 2-dimensional - ndim is 1")
+        def func():
             c = BinaryConfusionMatrix([1,2,3])
-        self.assertEqual(cm.exception.message, "ConfusionMatrix should be 2-dimensional - ndim is 1")
+        self.assertRaisesRegexp(RuntimeError, "ConfusionMatrix should be 2-dimensional - ndim is 1", func)    
         
-        with self.assertRaises(RuntimeError) as cm:
+        # with self.assertRaises(RuntimeError) as cm:
+        #     c = BinaryConfusionMatrix([[1,2,3],[4,5,6]])
+        # self.assertEqual(cm.exception.message, "ConfusionMatrix should have shape 2x2 - shape is 2x3")
+        def func():
             c = BinaryConfusionMatrix([[1,2,3],[4,5,6]])
-        self.assertEqual(cm.exception.message, "ConfusionMatrix should have shape 2x2 - shape is 2x3")    
+        self.assertRaisesRegexp(RuntimeError, "ConfusionMatrix should have shape 2x2 - shape is 2x3", func)        
         
     def test_normalise(self):
         c = BinaryConfusionMatrix([[1,2],[3,4]])
         cn = c.normalise()
-        self.assertIsInstance(cn, BinaryConfusionMatrix)
+        # self.assertIsInstance(cn, BinaryConfusionMatrix)
+        self.assertTrue(isinstance(cn, BinaryConfusionMatrix))
         self.assertTrue(np.all(cn.asarray() == np.array([[0.1,0.2],[0.3,0.4]])))
         
     def test_balance(self):
         c = BinaryConfusionMatrix([[1,3],[2,2]])
         cb = c.balance()
-        self.assertIsInstance(cb, BinaryConfusionMatrix)
+        # self.assertIsInstance(cb, BinaryConfusionMatrix)
+        self.assertTrue(isinstance(cb, BinaryConfusionMatrix))
         self.assertTrue(np.all(cb.asarray() == np.array([[0.25,0.75],[0.5,0.5]])))
 
     def test_add(self):
@@ -155,7 +181,8 @@ class BinaryConfusionMatrixTest(unittest.TestCase):
         c2 = BinaryConfusionMatrix([[3,4],[1,2]])
         s = c1 + c2
         t = BinaryConfusionMatrix([[4,6],[4,6]])
-        self.assertIsInstance(s, BinaryConfusionMatrix)
+        # self.assertIsInstance(s, BinaryConfusionMatrix)
+        self.assertTrue(isinstance(s, BinaryConfusionMatrix))
         self.assertTrue(np.all(s.asarray() == t.asarray()))
         
     def test_elements(self):
