@@ -90,7 +90,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
     '''
     test_error = []
 
-    for f_copy, _, test_sample_list in validate_gen(data, flow, cross_validate_function, gridsearch_parameters, error_measure, progress, *args, **kwargs):
+    for f_copy, _, test_sample_list in validate_gen(data, flow, cross_validate_function, gridsearch_parameters, error_measure, progress, validation_suffix_flow, *args, **kwargs):
         # Empty list to store test errors for current fold
         fold_error = []
 
@@ -108,9 +108,9 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
 
 
 
-def validate_gen(data, flow, cross_validate_function=n_fold_random, gridsearch_parameters=None, error_measure=None, progress=True, *args, **kwargs):
+def validate_gen(data, flow, cross_validate_function=n_fold_random, gridsearch_parameters=None, error_measure=None, progress=True, validation_suffix_flow=None, *args, **kwargs):
     '''
-    validate_gen(data, flow, cross_validate_function=n_fold_random, progress=True, *args, **kwargs) -> test_output
+    validate_gen(data, flow, cross_validate_function=n_fold_random, progress=True, validation_suffix_flow=None, *args, **kwargs) -> test_output
     
     This generator performs cross-validation on a flow. It splits the data into folds according to the supplied cross_validate_function, and then for each fold, trains the flow and yields the trained flow, the training data, and a list of test data samples.
     Use it like this:    
@@ -121,9 +121,9 @@ def validate_gen(data, flow, cross_validate_function=n_fold_random, gridsearch_p
     '''
     # Get the number of samples 
     n_samples = mdp.numx.amax(map(len, data))
+
     # Get the indices of the training and testing samples for each fold by calling the 
     # cross_validate_function hook
-
     train_samples, test_samples = cross_validate_function(n_samples, *args, **kwargs)
 
     if progress:
@@ -141,7 +141,7 @@ def validate_gen(data, flow, cross_validate_function=n_fold_random, gridsearch_p
 
         if gridsearch_parameters is not None:
             opt = Oger.evaluation.Optimizer(gridsearch_parameters, error_measure)
-            opt.grid_search(train_data, f_copy, cross_validate_function=cross_validate_function, progress=False)
+            opt.grid_search(train_data, f_copy, cross_validate_function=cross_validate_function, progress=False, validation_suffix_flow=validation_suffix_flow)
             f_copy = opt.get_optimal_flow()
 
         # train on all training samples
