@@ -257,7 +257,7 @@ class Optimizer(object):
             (x, y) = mdp.numx.meshgrid(self.parameter_ranges[p1], self.parameter_ranges[p2])
 
             # Create an interpolation grid
-            zi = pylab.griddata(x.flatten(), y.flatten(), mdp.numx.flipud(errors_to_plot).flatten(), xi, yi)
+            zi = pylab.griddata(x.flatten(), y.flatten(), errors_to_plot.flatten(), xi, yi)
 
             pylab.imshow(zi, cmap=pylab.jet(), interpolation='nearest',
              extent=self.get_extent(parameters), aspect="auto", axes=axes)
