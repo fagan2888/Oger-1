@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     print 'Sequential execution...'
     start_time = time.time()
-    opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':5, 'bounds':[0.01, None], 'seed':1234})
+    opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':20, 'bounds':[0.01, None], 'seed':1234})
     seq_duration = int(time.time() - start_time)
     print 'Duration: ' + str(seq_duration) + 's'
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     opt.scheduler = mdp.parallel.ProcessScheduler(n_processes=2)
     mdp.activate_extension("parallel")
     start_time = time.time()
-    opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':5, 'bounds':[0.01, None], 'seed':1234})
+    opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':20, 'bounds':[0.01, None], 'seed':1234})
     par_duration = int(time.time() - start_time)
     print 'Duration: ' + str(par_duration) + 's'
 

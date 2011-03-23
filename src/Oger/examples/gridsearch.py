@@ -6,13 +6,12 @@ if __name__ == '__main__':
     ''' Example of doing a grid-search
         Runs the NARMA 30 task for input scaling values = 0.1 to 1 with 0.2 stepsize and spectral radius = 0.1 to 1.5 with stepsize 0.3
     '''
-    input_size = 1
     inputs, outputs = Oger.datasets.narma30()
 
     data = [[], zip(inputs, outputs)]
 
     # construct individual nodes
-    reservoir = Oger.nodes.ReservoirNode(input_size, 100)
+    reservoir = Oger.nodes.ReservoirNode(output_dim=100)
     readout = Oger.nodes.RidgeRegressionNode()
 
     # build network with MDP framework

@@ -1,6 +1,6 @@
 ''' A demo to demonstrate the different implemented logistic regression methods
     convergence time might be very long for some algorithms...
-    For comparison, simple ridge regression is also computed
+    For comparison, simple ridge regression is also computed, which doesn't perform well in case of an unbalanced dataset.
 '''
 
 import mdp
