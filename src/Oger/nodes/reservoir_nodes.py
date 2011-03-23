@@ -21,7 +21,7 @@ class ReservoirNode(mdp.Node):
     """
 
     def __init__(self, input_dim=None, output_dim=None, spectral_radius=0.9,
-                 nonlin_func=Oger.utils.TanhFunction, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
+                 nonlin_func=Oger.utils.TanhFunction, reset_states=True, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
                  w_in=None, w=None, w_bias=None):
         """ Initializes and constructs a random reservoir.
         Parameters are:
@@ -31,6 +31,7 @@ class ReservoirNode(mdp.Node):
             - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
             - input_scaling: scaling of the input weight matrix, default: 1
             - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
+            - reset_states: should the reservoir states be reset to zero at each call of execute? Default True, set to False for use in FeedbackFlow
         
         Weight matrices are either generated randomly or passed at construction time.
         if w, w_in or w_bias are not given in the constructor, they are created randomly:
@@ -39,6 +40,8 @@ class ReservoirNode(mdp.Node):
             - reservoir matrix: gaussian weights rescaled to the desired spectral radius
         If w, w_in or w_bias were given as a numpy array or a function, these
         will be used as initialization instead.
+        In case reset_states = False, note that because state needs to be stored in the Node object,
+        this Node type is not parallelizable using threads.
         """
         super(ReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
 
@@ -68,6 +71,8 @@ class ReservoirNode(mdp.Node):
         self.w = []
         self.w_bias = []
 
+        self.reset_states = reset_states
+        self.states = mdp.numx.zeros((1, self.output_dim))
 
         self._is_initialized = False
 
@@ -155,6 +160,14 @@ class ReservoirNode(mdp.Node):
         if not self._is_initialized:
             self.initialize()
 
+        # Set the initial state of the reservoir
+        # if self.reset_states is true, initialize to zero,
+        # otherwise initialize to the last time-step of the previous execute call (for freerun)
+        if self.reset_states:
+            self.initial_state = mdp.numx.zeros((1, self.output_dim))
+        else:
+            self.initial_state = mdp.numx.atleast_2d(self.states[-1, :])
+
         steps = x.shape[0]
 
         # Pre-allocate the state vector, adding the initial state
@@ -167,8 +180,11 @@ class ReservoirNode(mdp.Node):
             states[n + 1, :] = nonlinear_function_pointer(mdp.numx.dot(self.w, states[n, :]) + mdp.numx.dot(self.w_in, x[n, :]) + self.w_bias)
             self._post_update_hook(states, x, n)
 
+        # Save the state for re-initialization in case reset_states = False
+        self.states = states[1:, :]
+
         # Return the whole state matrix except the initial state
-        return states[1:, :]
+        return self.states
 
     def _post_update_hook(self, states, input, timestep):
         """ Hook which gets executed after the state update equation for every timestep. Do not use this to change the state of the 
@@ -281,29 +297,6 @@ class HebbReservoirNode(TrainableReservoirNode):
         self.w_in -= 0.01 * mdp.utils.mult(states[timestep + 1:timestep + 2, :].T, input[timestep:timestep + 1, :])
         self.w_bias -= 0.01 * states[timestep + 1, :];
 
-class FeedbackReservoirNode(ReservoirNode):
-    """This is a reservoir node that can be used for setups that use output 
-    feedback. Note that because state needs to be stored in the Node object,
-    this Node type is not parallelizable using threads.
-    """
-
-    def __init__(self, reset_states=True, **kwargs):
-        super(FeedbackReservoirNode, self).__init__(**kwargs)
-        self.reset_states = reset_states
-        self.states = mdp.numx.zeros((1, self.output_dim))
-
-    def _execute(self, x):
-        # Set the initial state of the reservoir
-        # if self.reset_states is true, initialize to zero,
-        # otherwise initialize to the last time-step of the previous execute call (for freerun)
-        if self.reset_states:
-            self.initial_state = mdp.numx.zeros((1, self.output_dim))
-        else:
-            self.initial_state = mdp.numx.atleast_2d(self.states[-1, :])
-
-        self.states = super(FeedbackReservoirNode, self)._execute(x)
-
-        return self.states
 
 def get_specrad(Ac):
         """Get spectral radius of A using the power method."""

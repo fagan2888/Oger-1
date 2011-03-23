@@ -3,7 +3,7 @@ This subpackage contains a number of Oger-related nodes. It contains several add
 """
 
 from flows import (InspectableFlow, FreerunFlow)
-from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, FeedbackReservoirNode, BandpassReservoirNode, CUDAReservoirNode)
+from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, BandpassReservoirNode, CUDAReservoirNode)
 from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)
 from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressionNode, LogisticRegressionNode)
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
@@ -20,7 +20,7 @@ del nonlinear_nodes
 del utility_nodes
 del spiking_nodes
 
-__all__ = ['InspectableFlow', 'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode', 'FeedbackReservoirNode',
+__all__ = ['InspectableFlow', 'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode',
            'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
            'ERBMNode', 'CRBMNode', 'CUDACRBMNode', 'CUDAReservoirNode', 'CUDATRMNode',
            'FeedbackNode', 'WashoutNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZMUSNode', 'SupervisedLayer', 'MaxVotingNode',
