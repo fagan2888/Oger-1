@@ -140,9 +140,14 @@ def validate_gen(data, flow, cross_validate_function=n_fold_random, internal_gri
         f_copy = deepcopy(flow)
 
         if internal_gridsearch_parameters is not None:
+            # We turn off parallelization for internal gridsearch
+            active_extensions = mdp.get_active_extensions()
+            mdp.deactivate_extension('parallel')
             opt = Oger.evaluation.Optimizer(internal_gridsearch_parameters, error_measure)
             opt.grid_search(train_data, f_copy, cross_validate_function=cross_validate_function, progress=False, validation_suffix_flow=validation_suffix_flow)
             f_copy = opt.get_optimal_flow()
+            # Reactivate the parallel extension if needed
+            mdp.activate_extension(active_extensions)
 
         # train on all training samples
         f_copy.train(train_data)
