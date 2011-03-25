@@ -92,7 +92,7 @@ class Optimizer(object):
             # Do the validation
             validation_errors = Oger.evaluation.validate(data, flow,
                                                          self.loss_function, cross_validate_function,
-                                                         progress=False, gridsearch_parameters=internal_gridsearch_parameters,
+                                                         progress=False, internal_gridsearch_parameters=internal_gridsearch_parameters,
                                                          validation_suffix_flow=validation_suffix_flow,
                                                          *args, **kwargs)
 
@@ -222,7 +222,7 @@ class Optimizer(object):
 
         pylab.ion()
         # If we have ranged over only one parameter
-        if errors_to_plot.ndim == 1:
+        if len(parameters) == 1:
             # Get the index of the remaining parameter to plot using the correct 
             # parameter ranges
             param_index = self.parameters.index(parameters[0])
@@ -239,7 +239,7 @@ class Optimizer(object):
             if title is not None:
                 pylab.title(title)
             pylab.show()
-        elif errors_to_plot.ndim == 2:
+        elif len(parameters) == 2:
             # Get the extreme values of the parameter values
             p1 = self.parameters.index(parameters[0])
             p2 = self.parameters.index(parameters[1])
@@ -257,7 +257,7 @@ class Optimizer(object):
             (x, y) = mdp.numx.meshgrid(self.parameter_ranges[p1], self.parameter_ranges[p2])
 
             # Create an interpolation grid
-            zi = pylab.griddata(x.flatten(), y.flatten(), errors_to_plot.flatten(), xi, yi)
+            zi = pylab.griddata(x.flatten(), y.flatten(), errors_to_plot.flatten('F'), xi, yi).T
 
             pylab.imshow(zi, cmap=pylab.jet(), interpolation='nearest',
              extent=self.get_extent(parameters), aspect="auto", axes=axes)
@@ -290,7 +290,7 @@ class Optimizer(object):
         '''
         # In case of an empty list, we just return the errors
         if node_param_list is None:
-            return self.errors, None, self.parameters
+            return mdp.numx.array(self.errors), None, self.parameters
 
         # Check if we have the requested node.parameter combinations in the optimization_dict
         for node, param_string in node_param_list:
