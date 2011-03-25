@@ -147,7 +147,7 @@ def validate_gen(data, flow, cross_validate_function=n_fold_random, internal_gri
             opt.grid_search(train_data, f_copy, cross_validate_function=cross_validate_function, progress=False, validation_suffix_flow=validation_suffix_flow)
             f_copy = opt.get_optimal_flow()
             # Reactivate the parallel extension if needed
-            mdp.activate_extension(active_extensions)
+            mdp.activate_extensions(active_extensions)
 
         # train on all training samples
         f_copy.train(train_data)
