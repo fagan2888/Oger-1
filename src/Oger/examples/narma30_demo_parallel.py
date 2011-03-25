@@ -21,27 +21,27 @@ if __name__ == "__main__":
 
     # build network with MDP framework
     flow = mdp.parallel.ParallelFlow([reservoir, readout], verbose=1)
-    
+
     #scheduler = mdp.parallel.ThreadScheduler(n_threads=2, verbose=True)
     scheduler = mdp.parallel.ProcessScheduler(n_processes=2, verbose=True)
 #    scheduler = mdp.parallel.pp_support.LocalPPScheduler(ncpus=2, max_queue_length=0, verbose=True)
 
     data = [[], zip(x[0:-1], y[0:-1])]
-    
+
     # train the flow 
     flow.train(data, scheduler)
-    
+
     scheduler.shutdown()
 
     #apply the trained flow to the training data and test data
     outputs = flow.execute(x, scheduler=scheduler)
-    
+
     print "NRMSE: " + str(Oger.utils.nrmse(y[9], outputs[-1000:, :]))
 
     #plot the input
     pylab.subplot(nx, ny, 1)
     pylab.plot(x[0])
-    
+
     #plot everything
     pylab.subplot(nx, ny, 2)
     pylab.plot(outputs[1:1000], 'r')

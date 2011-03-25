@@ -72,7 +72,7 @@ def n_fold_random(n_samples, n_folds):
     return train_indices, test_indices
 
 
-def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, gridsearch_parameters=None, validation_suffix_flow=None, *args, **kwargs):
+def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, internal_gridsearch_parameters=None, validation_suffix_flow=None, *args, **kwargs):
     '''
     validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs) -> test_errors
     
@@ -90,7 +90,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
     '''
     test_error = []
 
-    for f_copy, _, test_sample_list in validate_gen(data, flow, cross_validate_function, gridsearch_parameters, error_measure, progress, validation_suffix_flow, *args, **kwargs):
+    for f_copy, _, test_sample_list in validate_gen(data, flow, cross_validate_function, internal_gridsearch_parameters, error_measure, progress, validation_suffix_flow, *args, **kwargs):
         # Empty list to store test errors for current fold
         fold_error = []
 
@@ -108,7 +108,7 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
 
 
 
-def validate_gen(data, flow, cross_validate_function=n_fold_random, gridsearch_parameters=None, error_measure=None, progress=True, validation_suffix_flow=None, *args, **kwargs):
+def validate_gen(data, flow, cross_validate_function=n_fold_random, internal_gridsearch_parameters=None, error_measure=None, progress=True, validation_suffix_flow=None, *args, **kwargs):
     '''
     validate_gen(data, flow, cross_validate_function=n_fold_random, progress=True, validation_suffix_flow=None, *args, **kwargs) -> test_output
     
@@ -139,8 +139,8 @@ def validate_gen(data, flow, cross_validate_function=n_fold_random, gridsearch_p
         # Copy the flow so we can re-train it for every fold
         f_copy = deepcopy(flow)
 
-        if gridsearch_parameters is not None:
-            opt = Oger.evaluation.Optimizer(gridsearch_parameters, error_measure)
+        if internal_gridsearch_parameters is not None:
+            opt = Oger.evaluation.Optimizer(internal_gridsearch_parameters, error_measure)
             opt.grid_search(train_data, f_copy, cross_validate_function=cross_validate_function, progress=False, validation_suffix_flow=validation_suffix_flow)
             f_copy = opt.get_optimal_flow()
 

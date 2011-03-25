@@ -33,6 +33,10 @@ if __name__ == "__main__":
     # Select a set of reservoirs as input for the RidgeRegressionNode
     Oger.utils.select_inputs(Oger.nodes.RidgeRegressionNode, n_inputs=len(reservoirs))
 
+    opt = Oger.evaluation.Optimizer()
+    opt.grid_search()
+    flow = opt.get_optimal_flow()
+
     # build network with MDP framework
     flow = Oger.nodes.InspectableFlow([Res, readout], verbose=1)
 

@@ -10,9 +10,6 @@ class GridScheduler(mdp.parallel.Scheduler):
                  verbose=False):
         super(GridScheduler, self).__init__(result_container=result_container,
                                           verbose=verbose)
-        self.ppserver = ppserver
-        self.jobs = []
-        self.job_id = datetime.now().strftime('%Y%m%d-%H%M%S')
         try:
             self.whoami = getpass.getuser()
         except:
@@ -23,7 +20,7 @@ class GridScheduler(mdp.parallel.Scheduler):
         # is apparently important for condor
         self.condor_options = [
         ['cmd', '/opt/Python-2.6.4/bin/ppserver.py'], \
-        ['args', '-p 60002 -t 1 -s '], \
+        ['args', ''], \
         ['log', '/tmp/log_condor_pp_test.log'], \
         ['requirements', 'OpSys=="*" || Arch=="*" || FileSystemDomain == "elis.ugent.be"'], \
         ['output', '/mnt/snn_gluster/Oger_jobs/dvrstrae/out.$(cluster)'], \
@@ -33,7 +30,7 @@ class GridScheduler(mdp.parallel.Scheduler):
         ['should_transfer_files', 'No'], \
         #('when_to_transfer_output', 'ON_EXIT'), \
         ['transfer_executable', 'False'], \
-        ['InitialDir', '/mnt/snn_gluster/Oger_jobs/' + self.whoami], \
+        ['InitialDir', '/mnt/snn_gluster/usr/' + self.whoami], \
         ]
 
         if ppservers is None:
@@ -71,17 +68,17 @@ class GridScheduler(mdp.parallel.Scheduler):
         else:
             self.ppservers = ppservers
 
-        if ppserver is None:
-            self.ppserver = pp.Server(ncpus=0, ppservers=self.ppservers, secret=self.whoami + '_' + self.job_id)
-        else:
-            self.ppserver = ppserver
+        self.reset()
 
-
+    def reset(self):
+        self.jobs = []
+        self.job_id = datetime.now().strftime('%Y%m%d-%H%M%S')
+        self.ppserver = pp.Server(ncpus=0, ppservers=self.ppservers, secret=self.whoami + '_' + self.job_id)
         self.jobs_done = 0
 
     def execute(self):
         tempfile = open('condor_tmp_file.job', 'w')
-        self.condor_options[1][1] += self.whoami + '_' + self.job_id
+        self.condor_options[1][1] = '-p 60002 -t 1 -s ' + self.whoami + '_' + self.job_id
         self.condor_job_str = ''
         for option, value in self.condor_options:
             self.condor_job_str += option + ' = ' + value + '\n'
@@ -118,7 +115,9 @@ class GridScheduler(mdp.parallel.Scheduler):
 
     def get_results(self):
         self.execute()
-        return super(GridScheduler, self).get_results()
+        results = super(GridScheduler, self).get_results()
+        self.reset()
+        return results
 
     def _pp_result_callback(self, result):
         """Calback method for pp to unpack the result and the task id.

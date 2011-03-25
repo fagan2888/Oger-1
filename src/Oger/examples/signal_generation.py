@@ -1,52 +1,44 @@
 import Oger
 import pylab
-import mdp
-
+import scipy
 
 if __name__ == "__main__":
 
-    freerun_steps = 500
-    
-    x = Oger.datasets.mackey_glass(sample_len=10000)
-    xtrain = x[0][0:-freerun_steps]
-    ytrain = xtrain[1:]
-    xtrain = xtrain[0:-1]
-        
-    # construct individual nodes
-    reservoir = Oger.nodes.FeedbackReservoirNode(output_dim=100, input_scaling=.8)    
-    Oger.utils.mix_in(Oger.nodes.FeedbackReservoirNode, Oger.nodes.LeakyReservoirNode)
-    reservoir.leak_rate = 0.5
-    
-    readout = Oger.nodes.RidgeRegressionNode(0.0001)
-    fb = Oger.nodes.FeedbackNode(n_timesteps=freerun_steps)
-         
-    # build network with MDP framework
-    flow = Oger.nodes.InspectableFlow([reservoir, readout, fb], verbose=1)
-        
-    # Train the reservoir to do one-step ahead prediction using the teacher-forced signal
-    #
-    # The second item in the list below is used to train the readout to do one step ahead prediction,
-    # and the third item in the list is used to warmup the reservoir and initialize the FeedbackNode to the correct
-    # (teacher forced) initial value
-    
-    flow.train([ [] , [[xtrain, ytrain]], [[xtrain, ytrain]]])
-                    
-    # The inspection field of the reservoir contains a list of 2 arrays, since the reservoir was already run twice
-    training_states = flow.inspect(reservoir)[1]
-    
-    # The inspection field of the readout only contains one array, since the readout was only executed once yet, during training of the feedbacknode
-    training_output = flow.inspect(readout)
-     
-    reservoir.reset_states = False
-    
-    # Execute the flow using the feedbacknode as input
-    output = flow.execute(fb)
-        
-    pylab.subplot(211)
-    pylab.plot(mdp.numx.concatenate((training_states[-freerun_steps:], flow.inspect(reservoir)[0:freerun_steps])))
-    
-    pylab.subplot(212)
-    pylab.plot(mdp.numx.concatenate((ytrain[-freerun_steps:], output[0:freerun_steps])))
-    pylab.plot(x[0][-2 * freerun_steps:])
-    
+    freerun_steps = 1000
+    training_sample_length = 5000
+    n_training_samples = 3
+    test_sample_length = 5000
+
+    train_signals = Oger.datasets.mackey_glass(sample_len=training_sample_length, n_samples=n_training_samples)
+    test_signals = Oger.datasets.mackey_glass(sample_len=test_sample_length, n_samples=1)
+
+    reservoir = Oger.nodes.LeakyReservoirNode(output_dim=400, leak_rate=0.8, input_scaling=.4, bias_scaling=.2, reset_states=False)
+
+    readout = Oger.nodes.RidgeRegressionNode()
+    Oger.utils.enable_washout(Oger.nodes.RidgeRegressionNode, 100)
+
+    flow = Oger.nodes.FreerunFlow([reservoir, readout], freerun_steps=freerun_steps)
+
+    gridsearch_parameters = {readout:{'ridge_param': 10 ** scipy.arange(-4, 0, .3)}}
+
+    # Instantiate an optimizer
+    loss_function = Oger.utils.timeslice(range(training_sample_length - freerun_steps, training_sample_length), Oger.utils.nrmse)
+    opt = Oger.evaluation.Optimizer(gridsearch_parameters, loss_function)
+
+    # Do the grid search
+    opt.grid_search([[], train_signals], flow, cross_validate_function=Oger.evaluation.leave_one_out)
+
+    # Get the optimal flow and run cross-validation with it 
+    opt_flow = opt.get_optimal_flow(verbose=True)
+
+    print 'Freerun on test_signals signal with the optimal flow...'
+    opt_flow.train([[], train_signals])
+    freerun_output = opt_flow.execute(test_signals[0][0])
+
+    pylab.plot(scipy.concatenate((test_signals[0][0][-2 * freerun_steps:])))
+    pylab.plot(scipy.concatenate((freerun_output[-2 * freerun_steps:])))
+    pylab.xlabel('Timestep')
+    pylab.legend(['Target signal', 'Predicted signal'])
+    pylab.axvline(pylab.xlim()[1] - freerun_steps + 1, pylab.ylim()[0], pylab.ylim()[1], color='r')
+    print opt_flow[1].ridge_param
     pylab.show()
