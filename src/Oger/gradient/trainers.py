@@ -6,11 +6,6 @@ The convention is to minimize the objective (error) function.
 
 from mdp import numx
 
-# TODO: Should we build a check to see if scipy is available and only define
-# the trainers that don't depend on it? This might lead to import errors
-# otherwise even for those who don't even use the trainers.
-import scipy.optimize as opt
-
 # More can be found here:
 #  - http://docs.scipy.org/doc/scipy/reference/tutorial/optimize.html
 #  - http://openopt.org/Welcome
@@ -22,6 +17,7 @@ class CGTrainer:
     See the documentation of scipy.optimize.fmin_cg for more details. 
     """
     def train(self, func, x0):
+        import scipy.optimize as opt
         """Optimize parameters to minimze loss.
 
         Arguments:
@@ -41,6 +37,7 @@ class BFGSTrainer:
     See the documentation of scipy.optimize.fmin_bfgs for more details. 
     """
     def train(self, func, x0):
+        import scipy.optimize as opt
         """Optimize parameters to minimze loss.
 
         Arguments:
@@ -53,19 +50,20 @@ class BFGSTrainer:
         fobj = lambda x: func(x)[1]
         fprime = lambda x: func(x)[0]
         return opt.fmin_bfgs(fobj, x0, fprime, disp=2)
-        
+
 class LBFGSBTrainer:
     """Trainer that uses L-BFGS-B to optimize a loss function under cosntraints.
     
     See the documentation of scipy.optimize.fmin_l_bfgs_b for more details. 
     """
-    def __init__(self, weight_bounds=(-1,1)):
+    def __init__(self, weight_bounds=(-1, 1)):
         if numx.rank(weight_bounds) == 0:
             self.weight_bounds = (-weight_bounds, weight_bounds)
         else:
             self.weight_bounds = weight_bounds
-        
+
     def train(self, func, x0):
+        import scipy.optimize as opt
         """Optimize parameters to minimze loss.
 
         Arguments:
@@ -77,7 +75,7 @@ class LBFGSBTrainer:
         """
         fobj = lambda x: func(x)[1]
         fprime = lambda x: func(x)[0]
-        bounds = [self.weight_bounds,] * x0.size
+        bounds = [self.weight_bounds, ] * x0.size
         return opt.fmin_l_bfgs_b(fobj, x0, fprime=fprime, bounds=bounds)[0]
 
 class GradientDescentTrainer:
@@ -95,9 +93,9 @@ class GradientDescentTrainer:
         self.momentum = momentum
         self.epochs = epochs
         self.decay = decay
-        
+
         self.dparams = None
-        
+
     def train(self, func, x0):
         """Optimize parameters to minimze loss.
 
@@ -110,15 +108,15 @@ class GradientDescentTrainer:
         """
         if self.dparams is None:
             self.dparams = numx.zeros(x0.shape)
-            
+
         updated_params = x0
-    
+
         for _ in range(self.epochs):
             gradient = func(updated_params)[0]
             self.dparams = self.momentum * self.dparams - self.learning_rate * gradient
             # TODO: how do we make sure that we do not decay the bias terms?
             updated_params += self.dparams - self.decay * updated_params
-            
+
         return updated_params
 
 class RPROPTrainer:
@@ -147,23 +145,23 @@ class RPROPTrainer:
         if self._uW is None:
             # TODO: should we not refcast here?
             self._uW = numx.zeros_like(x0)
-            self.deltaW = numx.ones_like(x0)*self.deltainit
-            
+            self.deltaW = numx.ones_like(x0) * self.deltainit
+
         updated_params = x0.copy()
-    
+
         for _ in range(self.epochs):
             # TODO: properly name variables
             uW = func(updated_params)[0]
 
             WW = self._uW * uW;
 
-            self.deltaW *= self.etaplus*(WW>0)+self.etamin*(WW<0)+1*(WW==0);
-        
+            self.deltaW *= self.etaplus * (WW > 0) + self.etamin * (WW < 0) + 1 * (WW == 0);
+
             self.deltaW = numx.maximum(self.deltaW, self.deltamin)
             self.deltaW = numx.minimum(self.deltaW, self.deltamax)
-        
-            updated_params -= self.deltaW*numx.sign(uW)
-    
+
+            updated_params -= self.deltaW * numx.sign(uW)
+
             self._uW = uW
 
         return updated_params
