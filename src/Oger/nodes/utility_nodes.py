@@ -266,7 +266,7 @@ class RescaleZMUSNode(mdp.Node):
     def _execute(self, x):
         return (x - self._mean) / self._std
 
-    
+
 class SupervisedLayer(mdp.hinet.Layer):
     """
     An extension of the MDP Layer class that is aware of target labels. This allows for
@@ -312,20 +312,20 @@ class SupervisedLayer(mdp.hinet.Layer):
     target_partitioning=True) can be used. Using the previous example, each regressor then
     has an input_dim of 20 and an output_dim of 3.
     """
-    
+
     def __init__(self, nodes, dtype=None, input_partitioning=True, target_partitioning=False):
         self.input_partitioning = input_partitioning
         self.target_partitioning = target_partitioning
-        
+
         self.nodes = nodes
         # check nodes properties and get the dtype
         dtype = self._check_props(dtype)
-        
+
         # set the correct input/output dimensions.
         # The output_dim of the Layer is always the sum of the output dims of the nodes,
         # Regardless of whether target partitioning is enabled.
         output_dim = self._get_output_dim_from_nodes()
-        
+
         # The input_dim of the Layer however depends on whether input partitioning is 
         # enabled. When input_partitioning is disabled, all contained nodes should have
         # the same input_dim and the input_dim of the layer should be equal to it.
@@ -333,7 +333,7 @@ class SupervisedLayer(mdp.hinet.Layer):
             input_dim = 0
             for node in nodes:
                 input_dim += node.input_dim
-                
+
         else: # all nodes should have same input_dim, input_dim of the layer is equal to this
             input_dim = nodes[0].input_dim
             for node in nodes:
@@ -344,12 +344,12 @@ class SupervisedLayer(mdp.hinet.Layer):
         # intentionally use MRO above Layer, not SupervisedLayer
         super(mdp.hinet.Layer, self).__init__(input_dim=input_dim,
                                     output_dim=output_dim,
-                                    dtype=dtype)        
-    
+                                    dtype=dtype)
+
     def is_invertible(self):
         return False # inversion is theoretically possible if input partitioning is enabled.
         # however, it is not implemented.
-    
+
     def _train(self, x, y, *args, **kwargs):
         """Perform single training step by training the internal nodes."""
         x_idx, y_idx = 0, 0
@@ -357,21 +357,21 @@ class SupervisedLayer(mdp.hinet.Layer):
         for node in self.nodes:
             if self.input_partitioning:
                 next_x_idx = x_idx + node.input_dim
-                x_selected = x[:,x_idx:next_x_idx] # selected input dimensions for this node
+                x_selected = x[:, x_idx:next_x_idx] # selected input dimensions for this node
                 x_idx = next_x_idx
             else:
                 x_selected = x # use all input dimensions
-                
+
             if self.target_partitioning:
                 next_y_idx = y_idx + node.output_dim
-                y_selected = y[:,y_idx:next_y_idx] # select target dimensions for this node
+                y_selected = y[:, y_idx:next_y_idx] # select target dimensions for this node
                 y_idx = next_y_idx
             else:
                 y_selected = y # use all target dimensions
-            
+
             if node.is_training():
                 node.train(x_selected, y_selected, *args, **kwargs)
-                
+
 
     def _pre_execution_checks(self, x):
         """Make sure that output_dim is set and then perform normal checks."""
@@ -404,11 +404,11 @@ class SupervisedLayer(mdp.hinet.Layer):
                     node_y = node.execute(x, *args, **kwargs)
                     y = numx.zeros([node_y.shape[0], self.output_dim],
                                    dtype=node_y.dtype)
-                    y[:,out_start:out_stop] = node_y
+                    y[:, out_start:out_stop] = node_y
                 else:
-                    y[:,out_start:out_stop] = node.execute(x, *args, **kwargs)
+                    y[:, out_start:out_stop] = node.execute(x, *args, **kwargs)
             return y
-            
+
 
 class MaxVotingNode(mdp.Node):
     """
@@ -419,24 +419,24 @@ class MaxVotingNode(mdp.Node):
     """
 
     def __init__(self, labels=None, input_dim=None, dtype='float64'):
-         super(MaxVotingNode, self).__init__(input_dim, 1, dtype) # output_dim is always 1
-         if labels is None:
-             self.labels = np.arange(self.input_dim) # default labels = channel indices
-         else:
-             self.labels = np.asarray(labels)
-        
+        super(MaxVotingNode, self).__init__(input_dim, 1, dtype) # output_dim is always 1
+        if labels is None:
+            self.labels = np.arange(self.input_dim) # default labels = channel indices
+        else:
+            self.labels = np.asarray(labels)
+
     def is_trainable(self):
         return False
-    
+
     def is_invertible(self):
         return False
-    
+
     def _get_supported_dtypes(self):
         return ['float32', 'float64']
-    
+
     def _execute(self, x):
         indices = np.atleast_2d(np.argmax(x, 1)).T
         return self.labels[indices]
-        
-        
+
+
 

@@ -55,32 +55,7 @@ if __name__ == "__main__":
     pylab.xlabel("Timestep")
     pylab.ylabel("Activation")
 
-    print "Error without optimization of regularization parameter: " + str(mdp.numx.mean([loss_01_time(sample, target) for (sample, target) in zip(ytest, outputs[n_train_samples:])]))
-
-
-    #Create a new, untrained readout
-    readout2 = Oger.nodes.RidgeRegressionNode()
-
-    # Build a flow with the same reservoir as before 
-    flow2 = Oger.nodes.InspectableFlow([reservoir, readout2])
-
-    # Determine the range over which the regularization parameter should be optimized
-    gridsearch_params = {readout:{'ridge_param':mdp.numx.concatenate((mdp.numx.array([0]), mdp.numx.power(10., mdp.numx.arange(-15, 0, .5))))}}
-    cross_validate_function = Oger.evaluation.n_fold_random
-    error_measure = loss_01_time
-    n_folds = 5
-    Oger.utils.optimize_parameters(Oger.nodes.RidgeRegressionNode, gridsearch_parameters=gridsearch_params, cross_validate_function=cross_validate_function, error_measure=error_measure, n_folds=5, progress=False)
-
-    print "Training..."
-    flow2.train([[], zip(inputs[0:n_train_samples], outputs[0:n_train_samples])])
-
-    ytest = []
-    print "Applying to testset..."
-    for xtest in inputs[n_train_samples:]:
-        ytest.append(flow2(xtest))
-    print "Error with optimization of regularization parameter:" + str(mdp.numx.mean([loss_01_time(sample, target) for (sample, target) in zip(ytest, outputs[n_train_samples:])]))
-    print readout2.ridge_param
-    pylab.show()
+    print "Error : " + str(mdp.numx.mean([loss_01_time(sample, target) for (sample, target) in zip(ytest, outputs[n_train_samples:])]))
 
     ymean = sp.array([sp.argmax(mdp.numx.atleast_2d(mdp.numx.mean(sample, axis=0))) for sample in
                       outputs[n_train_samples:]])
@@ -106,5 +81,6 @@ if __name__ == "__main__":
     print "Balanced error rate: %.4f" % ber(ytestmean, ymean)
 
     # plot confusion matrix (balanced, each class is equally weighted)
+    pylab.figure()
     plot_conf(confusion_matrix.balance())
 

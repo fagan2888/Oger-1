@@ -78,7 +78,7 @@ class GridScheduler(mdp.parallel.Scheduler):
 
     def execute(self):
         tempfile = open('condor_tmp_file.job', 'w')
-        self.condor_options[1][1] = '-p 60002 -t 1 -s ' + self.whoami + '_' + self.job_id
+        self.condor_options[1][1] = '-p 60002 -t 3 -s ' + self.whoami + '_' + self.job_id
         self.condor_job_str = ''
         for option, value in self.condor_options:
             self.condor_job_str += option + ' = ' + value + '\n'
