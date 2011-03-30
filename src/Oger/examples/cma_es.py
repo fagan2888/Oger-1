@@ -26,30 +26,30 @@ if __name__ == '__main__':
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
 
-#    print 'Sequential execution...'
-#    start_time = time.time()
-#    opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':20, 'bounds':[0.01, None], 'seed':1234})
-#    seq_duration = int(time.time() - start_time)
-#    print 'Duration: ' + str(seq_duration) + 's'
-#
-#    # Get the optimal flow and run cross-validation with it 
-#    opt_flow = opt.get_optimal_flow()
+    print 'Sequential execution...'
+    start_time = time.time()
+    opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':20, 'bounds':[0.01, None], 'seed':1234})
+    seq_duration = int(time.time() - start_time)
+    print 'Duration: ' + str(seq_duration) + 's'
 
-#    print 'Performing cross-validation with the optimal flow.'
-#    errors = Oger.evaluation.validate(data, opt_flow, Oger.utils.nrmse, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, progress=False)
-#    print 'Mean error over folds: ' + str(sp.mean(errors))
+    # Get the optimal flow and run cross-validation with it 
+    opt_flow = opt.get_optimal_flow()
+
+    print 'Performing cross-validation with the optimal flow.'
+    errors = Oger.evaluation.validate(data, opt_flow, Oger.utils.nrmse, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, progress=False)
+    print 'Mean error over folds: ' + str(sp.mean(errors))
 
     # Do the grid search
     print 'Parallel execution...'
-    #opt.scheduler = mdp.parallel.ProcessScheduler(n_processes=2)
-    opt.scheduler = Oger.parallel.GridScheduler()
+    opt.scheduler = mdp.parallel.ProcessScheduler(n_processes=2)
+    #opt.scheduler = Oger.parallel.GridScheduler()
     mdp.activate_extension("parallel")
     start_time = time.time()
     opt.cma_es(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, options={'maxiter':20, 'bounds':[0.01, None], 'seed':1234})
     par_duration = int(time.time() - start_time)
     print 'Duration: ' + str(par_duration) + 's'
 
-#    print 'Speed up factor: ' + str(float(seq_duration) / par_duration)
+    print 'Speed up factor: ' + str(float(seq_duration) / par_duration)
 
     # Get the optimal flow and run cross-validation with it 
     opt_flow = opt.get_optimal_flow()

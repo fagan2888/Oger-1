@@ -19,18 +19,17 @@ if __name__ == '__main__':
     flow = mdp.Flow([reservoir, readout])
 
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 1, 0.2), 'spectral_radius':mdp.numx.arange(0.1, 1.5, 0.3)}}
     gridsearch_parameters = {reservoir:{'spectral_radius':mdp.numx.arange(0.1, 1.5, 0.5), 'input_scaling': mdp.numx.arange(0.1, 1, 0.2)}}
 
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
 
 
-#    print 'Sequential execution...'
-#    start_time = time.time()
-#    opt.grid_search(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5)
-#    seq_duration = int(time.time() - start_time)
-#    print 'Duration: ' + str(seq_duration) + 's'
+    print 'Sequential execution...'
+    start_time = time.time()
+    opt.grid_search(data, flow, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5)
+    seq_duration = int(time.time() - start_time)
+    print 'Duration: ' + str(seq_duration) + 's'
 
     # Do the grid search
     print 'Parallel execution...'

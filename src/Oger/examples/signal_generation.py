@@ -13,7 +13,6 @@ if __name__ == "__main__":
     test_signals = Oger.datasets.mackey_glass(sample_len=test_sample_length, n_samples=1)
 
     reservoir = Oger.nodes.LeakyReservoirNode(output_dim=400, leak_rate=0.8, input_scaling=.4, bias_scaling=.2, reset_states=False)
-
     readout = Oger.nodes.RidgeRegressionNode()
     Oger.utils.enable_washout(Oger.nodes.RidgeRegressionNode, 100)
 
