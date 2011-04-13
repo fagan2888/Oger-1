@@ -21,9 +21,10 @@ class GridScheduler(mdp.parallel.Scheduler):
         self.condor_options = [
         ['cmd', '/opt/Python-2.6.4/bin/ppserver.py'], \
         ['args', ''], \
-        ['log', '/tmp/log_condor_pp_test.log'], \
         ['requirements', 'OpSys=="*" || Arch=="*" || FileSystemDomain == "elis.ugent.be"'], \
         ['output', '/mnt/snn_gluster/Oger_jobs/dvrstrae/out.$(cluster)'], \
+        ['error', '/mnt/snn_gluster/Oger_jobs/dvrstrae/err.$(cluster).$(Process)'], \
+        ['log', '/mnt/snn_gluster/Oger_jobs/dvrstrae/log.$(cluster).$(Process)'], \
         ['universe', 'vanilla'], \
         ['environment', '"MPLCONFIGDIR=/tmp/"'], \
         ['Notification', 'Error'], \
@@ -64,6 +65,14 @@ class GridScheduler(mdp.parallel.Scheduler):
                  'clsnn028:60002',
                  'clsnn029:60002',
                  'clsnn030:60002',
+                 'digilab01:60002',
+                 'digilab02:60002',
+                 'digilab03:60002',
+                 'digilab04:60002',
+                 'digilab05:60002',
+                 'digilab06:60002',
+                 'digilab07:60002',
+                 'digilab08:60002',
                  )
         else:
             self.ppservers = ppservers
@@ -78,7 +87,7 @@ class GridScheduler(mdp.parallel.Scheduler):
 
     def execute(self):
         tempfile = open('condor_tmp_file.job', 'w')
-        self.condor_options[1][1] = '-p 60002 -t 3 -s ' + self.whoami + '_' + self.job_id
+        self.condor_options[1][1] = '-p 60002 -d -w 1 -s ' + self.whoami + '_' + self.job_id
         self.condor_job_str = ''
         for option, value in self.condor_options:
             self.condor_job_str += option + ' = ' + value + '\n'

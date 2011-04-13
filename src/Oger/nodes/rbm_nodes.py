@@ -42,10 +42,10 @@ class ERBMNode(RBMNode):
 
     def _energy(self, v, h):
         if self._gaussian:
-            return ((((v - self.bv) ** 2).sum() / 2) - mult(h, self.bh) - 
+            return ((((v - self.bv) ** 2).sum() / 2) - mult(h, self.bh) -
                     (mult(v, self.w) * h).sum(axis=1))
         else:
-            return (-mult(v, self.bv) - mult(h, self.bh) - 
+            return (-mult(v, self.bv) - mult(h, self.bh) -
                     (mult(v, self.w) * h).sum(axis=1))
 
     def train(self, v, n_updates=1, epsilon=0.1, decay=0., momentum=0.):
@@ -58,7 +58,7 @@ class ERBMNode(RBMNode):
         epsilon -- learning rate. Default value: 0.1
         decay -- weight decay term. Default value: 0.
         momentum -- momentum term. Default value: 0.
-        """        
+        """
 
         if not self.is_training():
             errstr = "The training phase has already finished."
@@ -78,7 +78,7 @@ class ERBMNode(RBMNode):
         epsilon -- learning rate. Default value: 0.1
         decay -- weight decay term. Default value: 0.
         momentum -- momentum term. Default value: 0.
-        """        
+        """
 
         if not self._initialized:
             self._init_weights()
@@ -129,12 +129,12 @@ class ERBMNode(RBMNode):
                 ph_model, h_model = self._sample_h(pv_model)
             else:
                 ph_model, h_model = self._sample_h(v_model)
-        
+
         # find dw
         data_term = mult(v.T, ph_data)
         model_term = mult(v_model.T, ph_model)
         dw = (data_term - model_term) / n
-        
+
         # find dbv
         data_term = v.sum(axis=0)
         model_term = v_model.sum(axis=0)
@@ -170,6 +170,9 @@ class ERBMNode(RBMNode):
             return probs
         else:
             return v
+
+    def is_trainable(self):
+        return True
 
     # TODO: This _execute method is identical to the one in the original RBMNode and
     # could just have been inherited but somehow this messes up the
@@ -224,7 +227,7 @@ class CRBMNode(ERBMNode):
         # break the symmetry that might lead to degenerate solutions during
         # learning
         self._initialized = True
-        
+
         # undirected weights
         self.w = self._refcast(randn(self.visible_dim, self.output_dim) * 0.01)
         # context to visible weights
@@ -308,7 +311,7 @@ class CRBMNode(ERBMNode):
         for i in range(n_updates):
             pv_model, v_model = self._sample_v(h_model, x)
             ph_model, h_model = self._sample_h(v_model, x)
-        
+
         # find dw
         data_term = mult(v.T, ph_data)
         model_term = mult(v_model.T, ph_model)
@@ -319,12 +322,12 @@ class CRBMNode(ERBMNode):
         model_term = v_model
         # Should I include the weight decay here as well?
         da = mult(x.T, data_term - model_term) / n
-        
+
         # find db
         data_term = ph_data
         model_term = ph_model
         db = mult(x.T, data_term - model_term) / n
-        
+
         # find dbv
         data_term = v.sum(axis=0)
         model_term = v_model.sum(axis=0)
@@ -349,10 +352,10 @@ class CRBMNode(ERBMNode):
         epsilon -- learning rate. Default value: 0.1
         decay -- weight decay term. Default value: 0.
         momentum -- momentum term. Default value: 0.
-        """        
+        """
         if not self._initialized:
             self._init_weights()
- 
+
 
         # useful quantities
         n = x.shape[0]
@@ -360,7 +363,7 @@ class CRBMNode(ERBMNode):
 
         # old gradients for momentum term
         dw, da, db, dbv, dbh = self._delta
-        
+
         # get the gradient
         dwt, dbvt, dbht, dat, dbt = self.get_CD_gradient(x, n_updates)
 
@@ -371,11 +374,11 @@ class CRBMNode(ERBMNode):
         # update a
         da = momentum * da + epsilon * dat - decay * a
         a += da
-        
+
         # update b
         db = momentum * db + epsilon * dbt - decay * b
         b += db
-        
+
         # update bv
         dbv = momentum * dbv + epsilon * dbvt
         bv += dbv
@@ -417,10 +420,10 @@ class CRBMNode(ERBMNode):
         ba += self.bv
         bb += self.bh
         if self._gaussian:
-            return (((v - ba) ** 2).sum() / 2 - (h * bb).sum(axis=1) - 
+            return (((v - ba) ** 2).sum() / 2 - (h * bb).sum(axis=1) -
                     (mult(v, self.w) * h).sum(axis=1))
         else:
-            return (-(v * ba).sum(axis=1) - (h * bb).sum(axis=1) - 
+            return (-(v * ba).sum(axis=1) - (h * bb).sum(axis=1) -
                     (mult(v, self.w) * h).sum(axis=1))
 
     def energy(self, v, h, x):
@@ -491,7 +494,7 @@ class CUDACRBMNode(ERBMNode):
         # break the symmetry that might lead to degenerate solutions during
         # learning
         self._initialized = True
-        
+
         # undirected weights
         self.w = self._refcast(randn(self.visible_dim, self.output_dim) * 0.01)
         # context to visible weights
@@ -529,7 +532,7 @@ class CUDACRBMNode(ERBMNode):
     def _sample_h(self, v, x, sample=False, x_is_bias=False):
         # updates self.h
         #
-        
+
         self.h = cm.empty((v.shape[0], self.output_dim))
 
         if x_is_bias: # Bias is precalculated
@@ -544,7 +547,7 @@ class CUDACRBMNode(ERBMNode):
         self.h.add_dot(ones_cut.T, self.bhg)
 
         self.h.apply_sigmoid(self.h)
-        
+
         if sample:
             # Sample random values
             sampled = cm.empty((v.shape[0], self.output_dim))
@@ -621,7 +624,7 @@ class CUDACRBMNode(ERBMNode):
         # Pre-calculate dynamic biases.
         dynamic_h = cm.empty((n, self.output_dim))
         dynamic_v = cm.empty((n, self.visible_dim))
-        
+
         cm.dot(x, self.ag, dynamic_v)
         cm.dot(x, self.bg, dynamic_h)
 
@@ -651,13 +654,13 @@ class CUDACRBMNode(ERBMNode):
         da = cm.empty(self.a.shape)
         self.v_data.subtract(self.v, temp)
         cm.dot(x.T, temp, da)
-        
+
         # find db
         temp = cm.empty(self.h.shape) # TODO: perhaps this is inefficient...
         db = cm.empty(self.b.shape)
         self.h_data.subtract(self.h, temp)
         cm.dot(x.T, temp, db)
-        
+
         # find dbv
         dbv = cm.empty((1, self.visible_dim))
         self.v_data.sum(axis=0, target=dbv)
@@ -680,10 +683,10 @@ class CUDACRBMNode(ERBMNode):
         epsilon -- learning rate. Default value: 0.1
         decay -- weight decay term. Default value: 0.
         momentum -- momentum term. Default value: 0.
-        """        
+        """
         if not self._initialized:
             self._init_weights()
- 
+
 
         # useful quantities
         n = x.shape[0]
@@ -691,7 +694,7 @@ class CUDACRBMNode(ERBMNode):
 
         # old gradients for momentum term
         dw, da, db, dbv, dbh = self.mwg, self.mag, self.mbg, self.mbvg, self.mbhg
-        
+
         # get the gradient
         dwt, dbvt, dbht, dat, dbt = self.get_CD_gradient(x, n_updates)
 
@@ -707,13 +710,13 @@ class CUDACRBMNode(ERBMNode):
         da.add_mult(dat, epsilon / n)
         da.add_mult(a, -decay)
         a.add(da)
-        
+
         # update b
         db.mult(momentum)
         db.add_mult(dbt, epsilon / n)
         db.add_mult(b, -decay)
         b.add(db)
-        
+
         # update bv
         dbv.mult(momentum)
         dbv.add_mult(dbvt, epsilon / n)
@@ -778,7 +781,7 @@ class CUDATRMNode(ERBMNode):
         # break the symmetry that might lead to degenerate solutions during
         # learning
         self._initialized = True
-        
+
         # undirected weights
         self.w = self._refcast(randn(self.visible_dim, self.output_dim) * 0.01)
         # context to visible weights
@@ -824,7 +827,7 @@ class CUDATRMNode(ERBMNode):
     def _sample_h(self, v, x, sample=False, x_is_bias=False):
         # updates self.h
         #
-        
+
         self.h = cm.empty((v.shape[0], self.output_dim))
 
         if x_is_bias: # Bias is precalculated
@@ -839,7 +842,7 @@ class CUDATRMNode(ERBMNode):
         self.h.add_dot(ones_cut.T, self.bhg)
 
         self.h.apply_sigmoid2(self.h)
-        
+
         if sample:
             # Sample random values
             sampled = cm.empty((v.shape[0], self.output_dim))
@@ -918,7 +921,7 @@ class CUDATRMNode(ERBMNode):
         # Pre-calculate dynamic biases.
         dynamic_h = cm.empty((n, self.output_dim))
         dynamic_v = cm.empty((n, self.visible_dim))
-        
+
         cm.dot(x, self.ag, dynamic_v)
         cm.dot(x, self.bg, dynamic_h)
 
@@ -934,7 +937,7 @@ class CUDATRMNode(ERBMNode):
             self._stochastic_h()
             self._sample_v(self.h, dynamic_v, x_is_bias=True)
             self._sample_h(self.v, dynamic_h, sample=False, x_is_bias=True)
-        
+
 
         # Is preallocating really that "bad" for for example data_term?
         # find dw
@@ -947,7 +950,7 @@ class CUDATRMNode(ERBMNode):
         da = cm.empty(self.a.shape)
         self.v_data.subtract(self.v, d_v)
         cm.dot(x.T, d_v, da)
-        
+
         # find db
         d_h = cm.empty(self.h.shape) # TODO: perhaps this is inefficient...
         # TODO: I should probably just compute the gradient with respect to the
@@ -956,7 +959,7 @@ class CUDATRMNode(ERBMNode):
         db = cm.empty(self.b.shape)
         self.h_data.subtract(self.h, d_h)
         cm.dot(x.T, d_h, db)
-        
+
         # find dbv
         dbv = cm.empty((1, self.visible_dim))
         self.v_data.sum(axis=0, target=dbv)
@@ -982,7 +985,7 @@ class CUDATRMNode(ERBMNode):
         dtanh = cm.empty(x_T.shape)
         x_T.apply_dtanh(target=dtanh)
 
-        
+
         # Last state gets no gradient information from the future
         drt = d_reservoir.get_col_slice(n - 1, n)
         drt.assign(0)
@@ -1046,10 +1049,10 @@ class CUDATRMNode(ERBMNode):
         epsilon -- learning rate. Default value: 0.1
         decay -- weight decay term. Default value: 0.
         momentum -- momentum term. Default value: 0.
-        """        
+        """
         if not self._initialized:
             self._init_weights()
- 
+
 
         # useful quantities
         n = x.shape[0]
@@ -1062,7 +1065,7 @@ class CUDATRMNode(ERBMNode):
                                                    self.mbg, self.mbvg,
                                                    self.mbhg, self.mw_resg,
                                                    self.mw_ing)
-        
+
         # get the gradient
         dwt, dbvt, dbht, dat, dbt, dw_rest, dw_res_int = self.get_gradient(x,
                                                                      n_updates)
@@ -1078,13 +1081,13 @@ class CUDATRMNode(ERBMNode):
         da.add_mult(dat, epsilon / n)
         da.add_mult(a, -decay)
         a.add(da)
-        
+
         # update b
         db.mult(momentum)
         db.add_mult(dbt, epsilon / n)
         db.add_mult(b, -decay)
         b.add(db)
-        
+
         # update bv
         dbv.mult(momentum)
         dbv.add_mult(dbvt, epsilon / n)

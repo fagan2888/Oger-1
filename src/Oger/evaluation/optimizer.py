@@ -423,4 +423,17 @@ class Optimizer(object):
 
         x0 = [p[0] for p in self.parameter_ranges]
 
-        (xopt, fopt, iter, _, _, self.evaluated_parameters) = opt_func(_f_opt, x0, (data, flow, cross_validate_function), maxiter=5, maxfun=5, disp=True, full_output=True, retall=True)
+        if options is None:
+            optimization_results = opt_func(_f_opt, x0, (data, flow, cross_validate_function))
+        else:
+            optimization_results = opt_func(_f_opt, x0, (data, flow, cross_validate_function), full_output=True, retall=True, **options)
+
+        xopt = optimization_results[0]
+        self.errors = optimization_results[1]
+        self.evaluated_parameters = optimization_results[-1]
+
+        # Set the parameters of the optimal flow
+        for (parameter_index, node_parameter) in enumerate(self.parameters):
+            node_parameter[0].__setattr__(node_parameter[1], xopt[parameter_index])
+
+        self.optimal_flow = flow

@@ -48,8 +48,7 @@ if __name__ == "__main__":
     test_signals = switching_signals(f1, f2, T, n_switches, n_samples=1)
 
     # create a reservoir node and enable leak rate
-    reservoir = Oger.nodes.FeedbackReservoirNode(output_dim=N, input_scaling=.1)
-    Oger.utils.mix_in(Oger.nodes.FeedbackReservoirNode, Oger.nodes.LeakyReservoirNode)
+    reservoir = Oger.nodes.LeakyReservoirNode(output_dim=N, input_scaling=.1)
     reservoir.leak_rate = .1
 
     # create a ridge regression node and enable washout during training (disregarding the first timesteps)
