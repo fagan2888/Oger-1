@@ -4,6 +4,24 @@ import subprocess
 import getpass
 from datetime import datetime
 
+class ParallelFlow(mdp.parallel.ParallelFlow):
+    def __init__(self, flow, data, verbose=False, **kwargs):
+        self._data = data
+        super(ParallelFlow, self).__init__(flow, verbose=verbose, **kwargs)
+
+    def _create_execute_task(self):
+        """Create and return a single execution task.
+
+        Returns None if data iterator end is reached.
+        """
+        try:
+            dummy = self._exec_data_iterator.next()
+            dummy[0].append(self._data)
+            # TODO: check if forked task is forkable before enforcing caching
+            return (dummy, None)
+        except StopIteration:
+            return None
+
 class GridScheduler(mdp.parallel.Scheduler):
     def __init__(self, ppserver=None, max_queue_length=1,
                  result_container=mdp.parallel.ListResultContainer(), ppservers=None,
@@ -87,7 +105,7 @@ class GridScheduler(mdp.parallel.Scheduler):
 
     def execute(self):
         tempfile = open('condor_tmp_file.job', 'w')
-        self.condor_options[1][1] = '-p 60002 -d -w 1 -s ' + self.whoami + '_' + self.job_id
+        self.condor_options[1][1] = '-p 60002 -d -w 1 -t 3 -s ' + self.whoami + '_' + self.job_id
         self.condor_job_str = ''
         for option, value in self.condor_options:
             self.condor_job_str += option + ' = ' + value + '\n'

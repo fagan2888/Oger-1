@@ -5,8 +5,9 @@ Created on Feb 23, 2011
 
 @author: dvrstrae
 '''
-from optimizer import Optimizer
-from model_validation import validate
+from Oger.evaluation import Optimizer
+from Oger.evaluation import validate
+from parallel import ParallelFlow
 import mdp.parallel
 import itertools
 import scipy as sp
@@ -88,9 +89,11 @@ def grid_search (self, data, flow, cross_validate_function, *args, **kwargs):
 
             params[node_index][node_parameter[1]] = parameter_values[parameter_index]
 
-        data_parallel.append([[params, data]])
+        #data_parallel.append([[params, data]])
+        data_parallel.append([[params]])
 
-    parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs), ])
+    parallel_flow = ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs), ], data)
+    #parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs), ])
 
     # Call the parallel execution of the flow. This returns a list of error, 
     results = parallel_flow.execute(data_parallel, scheduler=self.scheduler, execute_callable_class=FlowExecuteCallableNoChecks)

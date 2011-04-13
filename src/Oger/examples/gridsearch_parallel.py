@@ -40,7 +40,7 @@ if __name__ == '__main__':
     par_duration = int(time.time() - start_time)
     print 'Duration: ' + str(par_duration) + 's'
 
-    print 'Speed up factor: ' + str(float(seq_duration) / par_duration)
+#    print 'Speed up factor: ' + str(float(seq_duration) / par_duration)
 
     # Get the minimal error
     min_error, parameters = opt.get_minimal_error()
