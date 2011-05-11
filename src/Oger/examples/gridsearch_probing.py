@@ -64,7 +64,7 @@ if __name__ == '__main__':
     flow = mdp.Flow([reservoir, readout])
 
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 2.2, .3), 'spectral_radius':mdp.numx.arange(0.1, 2.2, .3)}}
+    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 2.2, .7), 'spectral_radius':mdp.numx.arange(0.1, 2.2, .7)}}
 
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)

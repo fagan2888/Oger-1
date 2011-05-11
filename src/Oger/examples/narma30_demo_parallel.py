@@ -34,7 +34,7 @@ if __name__ == "__main__":
     scheduler.shutdown()
 
     #apply the trained flow to the training data and test data
-    outputs = flow.execute(x, scheduler=scheduler)
+    outputs = flow.execute(x)
 
     print "NRMSE: " + str(Oger.utils.nrmse(y[9], outputs[-1000:, :]))
 

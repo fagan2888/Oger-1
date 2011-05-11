@@ -1,7 +1,6 @@
 import mdp.nodes
 import Oger
 import pylab
-from signal_gen_loss import loss
 
 if __name__ == "__main__":
 
@@ -25,15 +24,15 @@ if __name__ == "__main__":
     internal_gridsearch_parameters = {readout:{'ridge_param': 10 ** mdp.numx.arange(-4, 0, .5)}}
 
     # Instantiate an optimizer
-    loss_function = loss
+    loss_function = Oger.utils.nrmse
     #loss_function = Oger.utils.timeslice(range(training_sample_length - freerun_steps, training_sample_length), Oger.utils.nrmse)
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, loss_function)
 
     # Add a noise flow during validation, to increase robustness and long term stability
     suffix_flow = mdp.Flow([mdp.nodes.NormalNoiseNode(noise_args=(0, .0001))])
 
-    opt.scheduler = Oger.parallel.GridScheduler()
-    mdp.activate_extension("parallel")
+#    opt.scheduler = Oger.parallel.GridScheduler()
+#    mdp.activate_extension("parallel")
 
 
     # Do the grid search

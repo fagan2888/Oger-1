@@ -6,7 +6,6 @@ import random
 from Oger.utils import ConfusionMatrix, plot_conf
 
 def loss_01_time(x, y):
-    # This custom error function is used to optimize the regularization parameter of the ridge regression node below
     return Oger.utils.loss_01(sp.argmax(mdp.numx.atleast_2d(mdp.numx.mean(x, axis=0))), sp.argmax(mdp.numx.mean(y, axis=0)))
 
 if __name__ == "__main__":
@@ -28,7 +27,7 @@ if __name__ == "__main__":
     input_dim = inputs[0].shape[1]
 
     # construct individual nodes
-    reservoir = Oger.nodes.LeakyReservoirNode(input_dim=input_dim, output_dim=30, input_scaling=.1, leak_rate=1)
+    reservoir = Oger.nodes.LeakyReservoirNode(input_dim=input_dim, output_dim=100, input_scaling=.1, leak_rate=.3)
     readout = Oger.nodes.RidgeRegressionNode()
 
     flow = Oger.nodes.InspectableFlow([reservoir, readout])

@@ -150,8 +150,6 @@ def cma_es (self, data, flow, cross_validate_function, options=None, internal_gr
         parameter_vectors = es.ask()
         #print parameter_vectors
 
-        # Empty list to contain the errors per parameter vector
-        error_list = []
 
         params = {}
         for parameter_vector in parameter_vectors:

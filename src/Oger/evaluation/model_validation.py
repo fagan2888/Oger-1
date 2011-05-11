@@ -72,7 +72,7 @@ def n_fold_random(n_samples, n_folds):
     return train_indices, test_indices
 
 
-def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, internal_gridsearch_parameters=None, validation_suffix_flow=None,error_aggregation_function=mdp.numx.mean, *args, **kwargs):
+def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, internal_gridsearch_parameters=None, validation_suffix_flow=None, error_aggregation_function=mdp.numx.mean, *args, **kwargs):
     '''
     validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, *args, **kwargs) -> test_errors
     
@@ -104,7 +104,6 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
             fold_error.append(test)
 
         test_error.append(error_aggregation_function(fold_error))
-
     return test_error
 
 
@@ -151,8 +150,10 @@ def validate_gen(data, flow, cross_validate_function=n_fold_random, internal_gri
             mdp.activate_extensions(active_extensions)
 
         # train on all training samples
-        f_copy.train(train_data)
-
+        if internal_gridsearch_parameters is not None:
+            f_copy.train(train_data)
+        else:
+            f_copy.train(train_data)
         test_sample_list = [data_subset(data, [k]) for k in test_samples[fold]]
         yield (f_copy, train_data, test_sample_list) # collect everything needed to evaluate this fold and return it.
 
