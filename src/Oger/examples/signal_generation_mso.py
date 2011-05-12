@@ -12,28 +12,23 @@ if __name__ == "__main__":
     train_signals = Oger.datasets.mso(sample_len=training_sample_length, n_samples=n_training_samples)
     test_signals = Oger.datasets.mso(sample_len=test_sample_length, n_samples=1)
 
-    reservoir = Oger.nodes.LeakyReservoirNode(output_dim=100, leak_rate=0.4, input_scaling=.1, reset_states=False)
+    reservoir = Oger.nodes.LeakyReservoirNode(output_dim=100, reset_states=False)
 
     readout = Oger.nodes.RidgeRegressionNode()
     Oger.utils.enable_washout(Oger.nodes.RidgeRegressionNode, 100)
 
     flow = Oger.nodes.FreerunFlow([reservoir, readout], freerun_steps=freerun_steps)
 
-    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 0.5, .1), 'leak_rate':mdp.numx.arange(0.2, 0.5, .1)}}
+    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 0.4, .1), 'leak_rate':mdp.numx.arange(0.1, 0.4, .1)}}
 
-    internal_gridsearch_parameters = {readout:{'ridge_param': 10 ** mdp.numx.arange(-4, 0, .5)}}
+    internal_gridsearch_parameters = {readout:{'ridge_param': 10 ** mdp.numx.arange(-6, -2, .5)}}
 
     # Instantiate an optimizer
-    loss_function = Oger.utils.nrmse
-    #loss_function = Oger.utils.timeslice(range(training_sample_length - freerun_steps, training_sample_length), Oger.utils.nrmse)
+    loss_function = Oger.utils.timeslice(range(training_sample_length - freerun_steps, training_sample_length), Oger.utils.nrmse)
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, loss_function)
 
     # Add a noise flow during validation, to increase robustness and long term stability
-    suffix_flow = mdp.Flow([mdp.nodes.NormalNoiseNode(noise_args=(0, .0001))])
-
-#    opt.scheduler = Oger.parallel.GridScheduler()
-#    mdp.activate_extension("parallel")
-
+    suffix_flow = mdp.Flow([mdp.nodes.NormalNoiseNode(noise_args=(0, .00001))])
 
     # Do the grid search
     opt.grid_search([[], train_signals], flow,
@@ -41,7 +36,7 @@ if __name__ == "__main__":
                     internal_gridsearch_parameters=internal_gridsearch_parameters,
                     validation_suffix_flow=suffix_flow)
 
-    # Get the optimal flow and run cross-validation with it 
+    #Get the optimal flow and run cross - validation with it
     opt_flow = opt.get_optimal_flow(verbose=True)
 
     print 'Freerun on test_signals signal with the optimal flow...'
