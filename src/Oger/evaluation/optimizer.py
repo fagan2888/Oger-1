@@ -90,11 +90,16 @@ class Optimizer(object):
             current_flow = deepcopy(flow)
 
             # Do the validation
-            validation_errors = Oger.evaluation.validate(data, flow,
+            validation_result = Oger.evaluation.validate(data, flow,
                                                          self.loss_function, cross_validate_function,
                                                          progress=False, internal_gridsearch_parameters=internal_gridsearch_parameters,
                                                          validation_suffix_flow=validation_suffix_flow,
                                                          *args, **kwargs)
+
+            if internal_gridsearch_parameters is not None:
+                validation_errors, current_flow = validation_result
+            else:
+                validation_errors = validation_result
 
             mean_validation_error = mdp.numx.mean(validation_errors)
 

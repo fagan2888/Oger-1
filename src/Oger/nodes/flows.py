@@ -152,3 +152,24 @@ class FreerunFlow(mdp.Flow):
                 res[step] = total_input
                 self.fb_value = self._execute_seq(total_input)
         return mdp.numx.concatenate((x[:-self.freerun_steps, :], res))
+
+    def __add__(self, other):
+        # append other to self
+        if isinstance(other, mdp.Flow):
+            flow_copy = list(self.flow).__add__(other.flow)
+            # check dimension consistency
+            self._check_nodes_consistency(flow_copy)
+            # if no exception was raised, accept the new sequence
+            return self.__class__(flow_copy, freerun_steps=self.freerun_steps)
+        elif isinstance(other, mdp.Node):
+            flow_copy = list(self.flow)
+            flow_copy.append(other)
+            # check dimension consistency
+            self._check_nodes_consistency(flow_copy)
+            # if no exception was raised, accept the new sequence
+            return self.__class__(flow_copy)
+        else:
+            err_str = ('can only concatenate flow or node'
+                       ' (not \'%s\') to flow' % (type(other).__name__))
+            raise TypeError(err_str)
+

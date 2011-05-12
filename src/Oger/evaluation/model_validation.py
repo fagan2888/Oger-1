@@ -90,21 +90,32 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
     '''
     test_error = []
 
-    for f_copy, _, test_sample_list in validate_gen(data, flow, cross_validate_function, internal_gridsearch_parameters, error_measure, progress, validation_suffix_flow, *args, **kwargs):
+    for validate_gen_result in validate_gen(data, flow, cross_validate_function, internal_gridsearch_parameters, error_measure, progress, validation_suffix_flow, *args, **kwargs):
+        if internal_gridsearch_parameters is not None:
+            f_copy, _, test_sample_list, f_untrained = validate_gen_result
+        else:
+            f_copy, _, test_sample_list = validate_gen_result
         # Empty list to store test errors for current fold
         fold_error = []
 
         # Add the suffix flow if requested
         if validation_suffix_flow is not None:
-            f_copy += validation_suffix_flow
+            f_val = f_copy + validation_suffix_flow
+        else:
+            f_val = f_copy
 
         # test on all test samples
         for test_sample in test_sample_list:
-            test = error_measure(f_copy(test_sample[-1][0][0]), test_sample[-1][0][-1])
+            test = error_measure(f_val(test_sample[-1][0][0]), test_sample[-1][0][-1])
             fold_error.append(test)
 
         test_error.append(error_aggregation_function(fold_error))
-    return test_error
+
+
+    if internal_gridsearch_parameters is not None:
+        return test_error, f_untrained
+    else:
+        return test_error
 
 
 
@@ -144,18 +155,21 @@ def validate_gen(data, flow, cross_validate_function=n_fold_random, internal_gri
             active_extensions = mdp.get_active_extensions()
             mdp.deactivate_extension('parallel')
             opt = Oger.evaluation.Optimizer(internal_gridsearch_parameters, error_measure)
-            opt.grid_search(train_data, f_copy, cross_validate_function=cross_validate_function, progress=False, validation_suffix_flow=validation_suffix_flow)
+            opt.grid_search(train_data, flow, cross_validate_function=cross_validate_function, progress=False, validation_suffix_flow=validation_suffix_flow)
             f_copy = opt.get_optimal_flow()
             # Reactivate the parallel extension if needed
             mdp.activate_extensions(active_extensions)
 
-        # train on all training samples
-        if internal_gridsearch_parameters is not None:
-            f_copy.train(train_data)
-        else:
-            f_copy.train(train_data)
         test_sample_list = [data_subset(data, [k]) for k in test_samples[fold]]
-        yield (f_copy, train_data, test_sample_list) # collect everything needed to evaluate this fold and return it.
+
+        if internal_gridsearch_parameters is not None:
+            f_untrained = deepcopy(f_copy)
+            f_copy.train(train_data)
+            yield (f_copy, train_data, test_sample_list, f_untrained) # collect everything needed to evaluate this fold, including the untrained flow and return it.
+        else:
+            # train on all training samples
+            f_copy.train(train_data)
+            yield (f_copy, train_data, test_sample_list) # collect everything needed to evaluate this fold and return it.
 
 def data_subset(data, data_indices):
     '''
