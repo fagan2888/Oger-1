@@ -102,12 +102,13 @@ class FreerunFlow(mdp.Flow):
             if self.verbose:
                 print "Training node #%d (%s)" % (i, str(self.flow[i]))
             if not data_iterables[i] == []:
-                datax = [x[0:-1, :] for x in data_iterables[i][0]]
+                # Delay the input timeseries with len(flow)-1, because every node connection introduces a one timestep delay
+                datax = [x[0:-i, :] for x in data_iterables[i][0]]
                 datay = []
                 for x in data_iterables[i][0]:
                     c = numx.array([True] * x.shape[1])
                     c[external_input_range] = False
-                    datay.append(x[1:, c])
+                    datay.append(x[i:, c])
             else:
                 datax, datay = [], []
             self._train_node(zip(datax, datay), i)
