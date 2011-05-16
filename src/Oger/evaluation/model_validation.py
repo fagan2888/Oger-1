@@ -164,11 +164,17 @@ def validate_gen(data, flow, cross_validate_function=n_fold_random, internal_gri
 
         if internal_gridsearch_parameters is not None:
             f_untrained = deepcopy(f_copy)
-            f_copy.train(train_data)
+
+        f_copy.train(train_data)
+
+        # Collect probe data if it is present
+        for node in f_copy.flow:
+            if hasattr(node, 'probe_data'):
+                flow[f_copy.flow.index(node)].probe_data = node.probe_data
+
+        if internal_gridsearch_parameters is not None:
             yield (f_copy, train_data, test_sample_list, f_untrained) # collect everything needed to evaluate this fold, including the untrained flow and return it.
         else:
-            # train on all training samples
-            f_copy.train(train_data)
             yield (f_copy, train_data, test_sample_list) # collect everything needed to evaluate this fold and return it.
 
 def data_subset(data, data_indices):
