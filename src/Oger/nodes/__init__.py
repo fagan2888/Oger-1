@@ -9,6 +9,7 @@ from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressi
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
 from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, FeedbackShiftNode, ResampleNode, TimeFramesNode2, RescaleZMUSNode, SupervisedLayer, MaxVotingNode)
 from spiking_nodes import (BrianIFReservoirNode, SpikingIFReservoirNode)
+from layers import (SplitOutputLayer, SplitOutputSameInputLayer)
 #from ode_nodes import (OdeNode)
 
 # clean up namespace
