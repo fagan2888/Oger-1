@@ -8,7 +8,11 @@ from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)
 from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressionNode, LogisticRegressionNode)
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
 from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, FeedbackShiftNode, ResampleNode, TimeFramesNode2, RescaleZMUSNode, SupervisedLayer, MaxVotingNode)
-from spiking_nodes import (BrianIFReservoirNode, SpikingIFReservoirNode)
+try:
+    from spiking_nodes import (BrianIFReservoirNode, SpikingIFReservoirNode)
+    del spiking_nodes
+except:
+    pass
 from layers import (SplitOutputLayer, SplitOutputSameInputLayer)
 #from ode_nodes import (OdeNode)
 
@@ -19,7 +23,7 @@ del rbm_nodes
 del linear_nodes
 del nonlinear_nodes
 del utility_nodes
-del spiking_nodes
+
 
 __all__ = ['InspectableFlow', 'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode',
            'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',

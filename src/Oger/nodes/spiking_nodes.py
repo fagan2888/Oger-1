@@ -1,15 +1,9 @@
 import mdp
-try:
-    from pyNN.pcsim import *
-    from pypcsim import *
-except:
-   pass
+from pyNN.pcsim import *
+from pypcsim import *
 
-try:
-    import brian_no_units
-    import brian
-except ImportError:
-    pass
+import brian_no_units
+import brian
 
 from datetime import datetime
 import scipy
