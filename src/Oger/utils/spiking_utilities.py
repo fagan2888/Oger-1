@@ -1,5 +1,6 @@
 import mdp
 from numpy import array, zeros, convolve, swapaxes
+from NeuroTools import stgen
 try:
     from pyNN.pcsim import *
     from pypcsim import *
@@ -9,9 +10,11 @@ except ImportError:
 class poisson_gen:
     '''Container class for a poisson generator signal-to-spiketrain convertor
     '''
-    def __init__(self, rngseed):
+    def __init__(self, rngseed, RateScale = 1e6, Tstep = 10):
         ''' Create a poisson generator, using the given seed for the random number generator
         '''
+        self.RateScale = RateScale
+        self.Tstep = Tstep
         self.rng = NumpyRNG(seed=rngseed)
         self.stgen = stgen.StGen(self.rng)
 
@@ -20,7 +23,7 @@ class poisson_gen:
             PoissonGen(xi) -> spikes
             Return a poisson spike train for the given signal xi
         '''
-        return self.stgen.inh_poisson_generator(RateScale * xi, mdp.numx.arange(0, Tstep * len(xi), Tstep), t_stop=Tstep * len(xi), array=True)
+        return self.stgen.inh_poisson_generator(self.RateScale * xi, mdp.numx.arange(0, self.Tstep * len(xi), self.Tstep), t_stop= self.Tstep * len(xi), array=True)
 
 
 def spikes_to_states(spikes, kernel, steps, Tstep, simDT):
