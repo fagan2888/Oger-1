@@ -11,7 +11,14 @@ from mdp import numx
 #  - http://openopt.org/Welcome
 #  - http://wiki.sagemath.org/optimization
 
-class CGTrainer:
+class ScipyTrainer(object):
+    '''Base class for all scipy-optimize based trainers. Stores constructor args and kwargs for later passing to 
+    the optimization call.'''
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+class CGTrainer(ScipyTrainer):
     """Trainer that uses conjugate gradient to optimize a loss function.
     
     See the documentation of scipy.optimize.fmin_cg for more details. 
@@ -29,9 +36,9 @@ class CGTrainer:
         """
         fobj = lambda x: func(x)[1]
         fprime = lambda x: func(x)[0]
-        return opt.fmin_cg(fobj, x0, fprime)
+        return opt.fmin_cg(fobj, x0, fprime, *self.args, **self.kwargs)
 
-class BFGSTrainer:
+class BFGSTrainer(ScipyTrainer):
     """Trainer that uses BFGS to optimize a loss function.
     
     See the documentation of scipy.optimize.fmin_bfgs for more details. 
@@ -49,18 +56,21 @@ class BFGSTrainer:
         """
         fobj = lambda x: func(x)[1]
         fprime = lambda x: func(x)[0]
-        return opt.fmin_bfgs(fobj, x0, fprime, disp=2)
+        return opt.fmin_bfgs(fobj, x0, fprime, *self.args, **self.kwargs)
 
-class LBFGSBTrainer:
+class LBFGSBTrainer(ScipyTrainer):
     """Trainer that uses L-BFGS-B to optimize a loss function under cosntraints.
     
     See the documentation of scipy.optimize.fmin_l_bfgs_b for more details. 
     """
-    def __init__(self, weight_bounds=(-1, 1)):
+    def __init__(self, weight_bounds=(-1, 1), *args, **kwargs):
+        super(LBFGSBTrainer, self).__init__(args, kwargs)
         if numx.rank(weight_bounds) == 0:
             self.weight_bounds = (-weight_bounds, weight_bounds)
         else:
             self.weight_bounds = weight_bounds
+        self.args = args
+        self.kwargs = kwargs
 
     def train(self, func, x0):
         import scipy.optimize as opt
@@ -76,7 +86,7 @@ class LBFGSBTrainer:
         fobj = lambda x: func(x)[1]
         fprime = lambda x: func(x)[0]
         bounds = [self.weight_bounds, ] * x0.size
-        return opt.fmin_l_bfgs_b(fobj, x0, fprime=fprime, bounds=bounds)[0]
+        return opt.fmin_l_bfgs_b(fobj, x0, fprime=fprime, bounds=bounds, *self.args, **self.kwargs)[0]
 
 class GradientDescentTrainer:
     def __init__(self, learning_rate=.01, momentum=0, epochs=1, decay=0):
