@@ -21,12 +21,12 @@ import types
 copy_reg.pickle(types.MethodType, _pickle_method, _unpickle_method)
 
 
-def make_inspectable(flowclass):
+def make_inspectable(baseclass):
     """
-    This function makes a flow inspectable, i.e. it keeps the outputs of all the nodes during execution for later inspection.     
+    This function makes a flow or node inspectable, i.e. it keeps the outputs produced by execute(). These can later be retrieved with the inspect() method.     
     """
 
-    class InspectableFlow():
+    class InspectableClass():
         def _execute_seq(self, x, nodenr=None):
             """This code is a copy from the code from mdp.Flow, but with additional
             state tracking.
@@ -45,13 +45,17 @@ def make_inspectable(flowclass):
                     self._propagate_exception(e, i)
             return x
 
-        def execute(self, iterable, nodenr=None):
-            self._states = [[] for _ in range(len(self.flow))]
+        def execute(self, iterable, *args, **kwargs):
+            if hasattr(self, 'flow'):
+                self._states = [[] for _ in range(len(self.flow))]
 
-            output = mdp.Flow.execute_no_inspect(self, iterable, nodenr)
+            output = self.execute_no_inspect(iterable, *args, **kwargs)
 
-            for i in range(len(self.flow)):
-                self._states[i] = mdp.numx.concatenate(self._states[i])
+            if hasattr(self, 'flow'):
+                for i in range(len(self.flow)):
+                    self._states[i] = mdp.numx.concatenate(self._states[i])
+            else:
+                self._states = output
 
             return output
 
@@ -72,32 +76,41 @@ def make_inspectable(flowclass):
             return x
 
         def inverse(self, iterable):
-            self._states = [list() for _ in range(len(self.flow))]
+            if hasattr(self, 'flow'):
+                self._states = [list() for _ in range(len(self.flow))]
 
-            output = mdp.Flow.inverse_no_inspect(self, iterable)
+            output = self.inverse_no_inspect(iterable)
 
-            for i in range(len(self.flow)):
-                self._states[i] = mdp.numx.concatenate(self._states[i])
+            if hasattr(self, 'flow'):
+                for i in range(len(self.flow)):
+                    self._states[i] = mdp.numx.concatenate(self._states[i])
+            else:
+                self._states = output
 
             return output
 
-        def inspect(self, node_or_nr):
+        def inspect(self, *args):
             """Return the state of the given node or node number in the flow.
             """
-            if isinstance(node_or_nr, mdp.Node):
-                return self._states[self.flow.index(node_or_nr)]
+            if len(args) > 0:
+                node_or_nr = args[0]
+                if isinstance(node_or_nr, mdp.Node):
+                    return self._states[self.flow.index(node_or_nr)]
+                else:
+                    return self._states[node_or_nr]
             else:
-                return self._states[node_or_nr]
+                return self._states
 
     method_list = ['_execute_seq', 'execute', '_inverse_seq', 'inverse']
 
     for method in method_list:
-        setattr(flowclass, method + '_no_inspect', getattr(flowclass, method))
-        setattr(flowclass, method, getattr(InspectableFlow, method))
+        if hasattr(baseclass, method):
+            setattr(baseclass, method + '_no_inspect', getattr(baseclass, method))
+            setattr(baseclass, method, getattr(InspectableClass, method))
 
-    setattr(flowclass, 'inspect', InspectableFlow.inspect)
+    setattr(baseclass, 'inspect', InspectableClass.inspect)
 
-    flowclass.__bases__ = (InspectableFlow,) + flowclass.__bases__
+    baseclass.__bases__ = (InspectableClass,) + baseclass.__bases__
 
 def enable_washout(washout_class, washout=0, execute_washout=False):
     """
