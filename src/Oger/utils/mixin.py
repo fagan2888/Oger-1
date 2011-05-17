@@ -1,3 +1,5 @@
+import mdp
+
 def _pickle_method(method):
     func_name = method.im_func.__name__
     obj = method.im_self
@@ -19,13 +21,83 @@ import types
 copy_reg.pickle(types.MethodType, _pickle_method, _unpickle_method)
 
 
-def mix_in(washout_class, mixin):
+def make_inspectable(flowclass):
     """
-    This helper function allows to dynamically add a new base class to the given class.
-    It is injected at the top of the base class hierarchy.     
+    This function makes a flow inspectable, i.e. it keeps the outputs of all the nodes during execution for later inspection.     
     """
-    if mixin not in washout_class.__bases__:
-        washout_class.__bases__ = (mixin,) + washout_class.__bases__
+
+    class InspectableFlow():
+        def _execute_seq(self, x, nodenr=None):
+            """This code is a copy from the code from mdp.Flow, but with additional
+            state tracking.
+            """
+            if not hasattr(self, '_states'):
+                self._states = [[] for _ in range(len(self.flow))]
+
+            flow = self.flow
+            if nodenr is None:
+                nodenr = len(flow) - 1
+            for i in range(nodenr + 1):
+                try:
+                    x = flow[i].execute(x)
+                    self._states[i].append(x)
+                except Exception, e:
+                    self._propagate_exception(e, i)
+            return x
+
+        def execute(self, iterable, nodenr=None):
+            self._states = [[] for _ in range(len(self.flow))]
+
+            output = mdp.Flow.execute_no_inspect(self, iterable, nodenr)
+
+            for i in range(len(self.flow)):
+                self._states[i] = mdp.numx.concatenate(self._states[i])
+
+            return output
+
+        def _inverse_seq(self, x):
+            """This code is a copy from the code from mdp.Flow, but with additional
+            state tracking.
+            """
+            if not hasattr(self, '_states'):
+                self._states = [[] for _ in range(len(self.flow))]
+
+            flow = self.flow
+            for i in range(len(flow) - 1, -1, -1):
+                try:
+                    x = flow[i].inverse(x)
+                    self._states[i].append(x)
+                except Exception, e:
+                    self._propagate_exception(e, i)
+            return x
+
+        def inverse(self, iterable):
+            self._states = [list() for _ in range(len(self.flow))]
+
+            output = mdp.Flow.inverse_no_inspect(self, iterable)
+
+            for i in range(len(self.flow)):
+                self._states[i] = mdp.numx.concatenate(self._states[i])
+
+            return output
+
+        def inspect(self, node_or_nr):
+            """Return the state of the given node or node number in the flow.
+            """
+            if isinstance(node_or_nr, mdp.Node):
+                return self._states[self.flow.index(node_or_nr)]
+            else:
+                return self._states[node_or_nr]
+
+    method_list = ['_execute_seq', 'execute', '_inverse_seq', 'inverse']
+
+    for method in method_list:
+        setattr(flowclass, method + '_no_inspect', getattr(flowclass, method))
+        setattr(flowclass, method, getattr(InspectableFlow, method))
+
+    setattr(flowclass, 'inspect', InspectableFlow.inspect)
+
+    flowclass.__bases__ = (InspectableFlow,) + flowclass.__bases__
 
 def enable_washout(washout_class, washout=0, execute_washout=False):
     """
