@@ -106,7 +106,13 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
 
         # test on all test samples
         for test_sample in test_sample_list:
-            test = error_measure(f_val(test_sample[-1][0][0]), test_sample[-1][0][-1])
+            if len(test_sample[-1][0]) == 1:
+                t_i = test_sample[-1][0][0]
+                t_t = test_sample[-1][0][0]
+            else:
+                t_i = test_sample[-1][0][0]
+                t_t = test_sample[-1][0][-1]
+            test = error_measure(f_val(t_i), t_t)
             fold_error.append(test)
 
         test_error.append(error_aggregation_function(fold_error))
