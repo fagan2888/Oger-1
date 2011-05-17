@@ -52,15 +52,24 @@ class PerceptronNode(mdp.Node):
         super(PerceptronNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
 
         self.transfer_func = transfer_func
+        self._is_initialized = False
+        self.w = numpy.array([])
+        self.b = numpy.array([])
+        if (input_dim is not None and output_dim is not None):
+            self.initialize()
 
-        # TODO: it would be nice if the dimensions could be derived automatically:
+    def initialize(self):
         self.w = self._refcast(mdp.numx.random.randn(self.input_dim, self.output_dim) * 0.01)
         self.b = self._refcast(mdp.numx.random.randn(self.output_dim) * 0.01)
+        self._is_initialized = True
 
     def _get_supported_dtypes(self):
         return ['float32', 'float64']
 
     def _execute(self, x):
+        if not self._is_initialized:
+            self.initialize()
+
         n = x.shape[0]
         if n > 1:
             bias = numx.tile(self.b, (n, 1))
