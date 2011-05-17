@@ -67,9 +67,9 @@ class ReservoirNode(mdp.Node):
 
         # Fields for allocating reservoir weight matrix w, input weight matrix w_in
         # and bias weight matrix w_bias
-        self.w_in = []
-        self.w = []
-        self.w_bias = []
+        self.w_in = np.array([])
+        self.w = np.array([])
+        self.w_bias = np.array([])
 
         self.reset_states = reset_states
         self.states = mdp.numx.zeros((1, self.output_dim))
@@ -102,7 +102,7 @@ class ReservoirNode(mdp.Node):
             self.w_in = self.input_scaling * (mdp.numx.random.randint(0, 2, (self.output_dim, self.input_dim)) * 2 - 1)
         else:
             if callable(self.w_in_initial):
-                self.w_in = self.w_in_initial() # If it is a function, call it
+                self.w_in = self.w_in_initial(self.output_dim, self.input_dim) # If it is a function, call it
             else:
                 self.w_in = self.w_in_initial.copy() # else just copy it
         # Check if dimensions of the weight matrix match the dimensions of the node inputs and outputs
@@ -118,7 +118,7 @@ class ReservoirNode(mdp.Node):
             self.w_bias = self.bias_scaling * (mdp.numx.random.rand(self.output_dim) * 2 - 1)
         else:
             if callable(self.w_bias_initial):
-                self.w_bias = self.w_bias_initial() # If it is a function, call it
+                self.w_bias = self.w_bias_initial(self.output_dim) # If it is a function, call it
             else:
                 self.w_bias = self.w_bias_initial.copy()   # else just copy it
 
@@ -136,7 +136,7 @@ class ReservoirNode(mdp.Node):
             self.w *= self.spectral_radius / Oger.utils.get_spectral_radius(self.w)
         else:
             if callable(self.w_initial):
-                self.w = self.w_initial() # If it is a function, call it
+                self.w = self.w_initial(self.output_dim) # If it is a function, call it
             else:
                 self.w = self.w_initial.copy()   # else just copy it
 
