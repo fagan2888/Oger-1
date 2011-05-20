@@ -1,12 +1,10 @@
 import mdp
 from pyNN.pcsim import *
 from pypcsim import *
-
-import brian_no_units
 import brian
 
-from datetime import datetime
 import scipy
+from Oger.utils import spikes_to_states, inputs_to_spikes
 
 class BrianIFReservoirNode(mdp.Node):
     def __init__(self, input_dim, output_dim, dtype, input_scaling=100, input_conn_frac=.5, dt=1, we_scaling=2, wi_scaling=.5, we_sparseness=.1, wi_sparseness=.1):
@@ -323,7 +321,7 @@ class SpatialSpikingReservoirNode(mdp.Node):
         reset()
         run(steps * Tstep)
 
-       # retrieve the spikes
+        # retrieve the spikes
         exc_rec_spikes = self.exc_cells.getSpikes()
         inh_rec_spikes = self.inh_cells.getSpikes()
 
