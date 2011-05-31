@@ -207,14 +207,13 @@ class LeakyReservoirNode(ReservoirNode):
                 - input_scaling: scaling of the input weight matrix, default: 1
                 - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
                 - leak_rate: if 1 it is a standard neuron, lower values give slower dynamics
-            
-            Weight matrices are either generated randomly or passed at construction time.
-            if w, w_in or w_bias are not given in the constructor, they are created randomly:
+
+           Weight matrices are either generated randomly or passed at construction time.  If w, w_in or w_bias are not given in the constructor, they are created randomly:
                 - input matrix : input_scaling * uniform weights in [-1, 1]
                 - bias matrix :  bias_scaling * uniform weights in [-1, 1]
                 - reservoir matrix: gaussian weights rescaled to the desired spectral radius
-            If w, w_in or w_bias were given as a numpy array or a function, these
-            will be used as initialization instead.               
+
+           If w, w_in or w_bias were given as a numpy array or a function, these will be used as initialization instead.
         """
         super(LeakyReservoirNode, self).__init__(*args, **kwargs)
 
@@ -238,14 +237,13 @@ class BandpassReservoirNode(ReservoirNode):
                 - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
                 - b: array of coefficients for the numerator of the IIR filter
                 - a: array of coefficients for the denominator of the IIR filter
-            
-            Weight matrices are either generated randomly or passed at construction time.
-            if w, w_in or w_bias are not given in the constructor, they are created randomly:
-                - input matrix : input_scaling * uniform weights in [-1, 1]
-                - bias matrix :  bias_scaling * uniform weights in [-1, 1]
-                - reservoir matrix: gaussian weights rescaled to the desired spectral radius
-            If w, w_in or w_bias were given as a numpy array or a function, these
-            will be used as initialization instead.               
+           Weight matrices are either generated randomly or passed at construction time.
+           if w, w_in or w_bias are not given in the constructor, they are created randomly:
+               - input matrix : input_scaling * uniform weights in [-1, 1]
+               - bias matrix :  bias_scaling * uniform weights in [-1, 1]
+               - reservoir matrix: gaussian weights rescaled to the desired spectral radius
+           If w, w_in or w_bias were given as a numpy array or a function, these
+           will be used as initialization instead.
         """
         self.a = a
         self.b = b
@@ -259,8 +257,6 @@ class BandpassReservoirNode(ReservoirNode):
         t2 = mdp.numx.sum(self.a * mdp.numx.array(self.output_buffer).T, axis=1)
         states[timestep + 1, :] = t1 - t2
         self.output_buffer.appendleft(states[timestep, :])
-
-
 
 class TrainableReservoirNode(ReservoirNode):
     """A reservoir node that allows on-line training of the internal connections. Use
@@ -297,6 +293,59 @@ class HebbReservoirNode(TrainableReservoirNode):
         self.w_in -= 0.01 * mdp.utils.mult(states[timestep + 1:timestep + 2, :].T, input[timestep:timestep + 1, :])
         self.w_bias -= 0.01 * states[timestep + 1, :];
 
+
+class GaussianIPReservoirNode(TrainableReservoirNode):
+    ''' This ReservoirNode is adaptable using IP. Only works for tanh nonlinearities.
+        This node is trainable. Can be used for pre-adaptation.
+        See Verstraeten, D., 'Reservoir Computing: computation with dynamical Systems', PhD Thesis, Ghent University for theory.
+        
+        Constructor parameters (in addition to the standard reservoir ones):
+            - mu: desired mean of the output distribution (default: 0)
+            - sigma_squared: desired variance of the output distribution (default: .04)
+            - eta: learning rate (default: .0001)
+    '''
+    def __init__(self, eta=.0001, mu=0, sigma_squared=.04, keep_parameter_history=True, *args, **kwargs):
+        super(GaussianIPReservoirNode, self).__init__(*args, **kwargs)
+        self.a = np.ones(self.output_dim)
+        self.keep_parameter_history = keep_parameter_history
+        self.eta = eta
+        self.mu = mu
+        self.sigma_squared = sigma_squared
+
+        if self.keep_parameter_history:
+            self.aa = []
+            self.daa = []
+            self.dbb = []
+            self.bb = []
+
+    def _post_train_update_hook(self, states, input, timestep):
+        ''' Compute the new a (gain) and b (bias) parameters for the reservoir, and apply to w and w_bias
+        '''
+        # Store the original w_res to be able to apply a
+        if not hasattr(self, 'w_orig'):
+            self.w_orig = self.w
+
+        # Store some variables for easy access
+        y = states[timestep + 1, :]
+        x = np.arctanh(y)
+        m = self.mu
+        s = self.sigma_squared
+
+        # Compute parameter deltas
+        db = self.eta * (m / s - y / s * (2 * s + 1 - y ** 2 + m * y))
+        da = self.eta / self.a + db * x
+
+        # Apply parameter changes
+        self.a += da
+        self.w = self.w_orig * self.a
+        self.w_bias += db
+
+        # Should we store the history of the parameters?
+        if self.keep_parameter_history:
+            self.aa.append(self.a.copy())
+            self.daa.append(da)
+            self.dbb.append(db)
+            self.bb.append(self.w_bias.copy())
 
 def get_specrad(Ac):
         """Get spectral radius of A using the power method."""
