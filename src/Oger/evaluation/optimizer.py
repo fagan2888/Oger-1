@@ -14,10 +14,10 @@ class Optimizer(object):
     def __init__(self, optimization_dict, loss_function):
         ''' Construct an Optimizer object.
             optimization_dict: a dictionary of dictionaries. 
-                In the top-level dictionary, every key is a node, and the corresponding item is again a dictionary 
-                where the key is the parameter name to be optimize and the corresponding item is a list of values for the parameter
-                Example: to gridsearch the spectral radius and input scaling of reservoirnode1, and the input scaling of reservoirnode2 over the range .1:.1:1 this would be:
-                opt_dict = {reservoirnode1: {'spec_radius', np.arange(.1,1,.1)}, 'input_scaling', np.arange(.1,1,.1)}}, reservoirnode2: {'input_scaling', np.arange(.1,1,.1)}}
+            In the top-level dictionary, every key is a node, and the corresponding item is again a dictionary 
+            where the key is the parameter name to be optimize and the corresponding item is a list of values for the parameter
+            Example: to gridsearch the spectral radius and input scaling of reservoirnode1, and the input scaling of reservoirnode2 over the range .1:.1:1 this would be:
+            opt_dict = {reservoirnode1: {'spec_radius': np.arange(.1,1,.1), 'input_scaling': np.arange(.1,1,.1)}, reservoirnode2: {'input_scaling': np.arange(.1,1,.1)}}
             loss_function: the function used to compute the loss
         '''
         # Initialize attributes
@@ -200,14 +200,13 @@ class Optimizer(object):
             
             Works for 1D and 2D linear sweeps, yielding a 2D resp. 3D plot of the parameter(s) vs. the error.
             Arguments:
-            - node_param_list: a list of (node, param_string) tuples. Before plotting, the mean will be taken over all these node.param_string combinations,
-            which is useful to plot/reduce multi-dimensional parameter sweeps.
-            - vmin/vmax: can be used to truncate the errors between lower and upper bounds before plotting.
-            - cmap: passed as a matplotlib colormap when plotting 2D images.
-            - log_x: boolean to indicate if a 1D plot should use a log scale for the x-axis.
-            - axes: optional Axes object to use for plotting
-            - title: optional title for the plot
-            - plot_variance: should variance be plotted in case of taking the mean over certain parameters. Default True. 
+                - node_param_list: a list of (node, param_string) tuples. Before plotting, the mean will be taken over all these node.param_string combinations, which is useful to plot/reduce multi-dimensional parameter sweeps.
+                - vmin/vmax: can be used to truncate the errors between lower and upper bounds before plotting.
+                - cmap: passed as a matplotlib colormap when plotting 2D images.
+                - log_x: boolean to indicate if a 1D plot should use a log scale for the x-axis.
+                - axes: optional Axes object to use for plotting
+                - title: optional title for the plot
+                - plot_variance: should variance be plotted in case of taking the mean over certain parameters. Default True. 
         '''
 
         try:

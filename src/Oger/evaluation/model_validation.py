@@ -130,10 +130,9 @@ def validate_gen(data, flow, cross_validate_function=n_fold_random, internal_gri
     validate_gen(data, flow, cross_validate_function=n_fold_random, progress=True, validation_suffix_flow=None, *args, **kwargs) -> test_output
     
     This generator performs cross-validation on a flow. It splits the data into folds according to the supplied cross_validate_function, and then for each fold, trains the flow and yields the trained flow, the training data, and a list of test data samples.
-    Use it like this:    
-    for flow, train_data, test_sample_list in validate_gen(...):
-        ...
-        
+    Use it like this:
+    >>> for flow, train_data, test_sample_list in validate_gen(...):
+    ...
     See 'validate' for more information about the function signature.
     '''
     # Get the number of samples 
