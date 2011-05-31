@@ -9,15 +9,12 @@ from mdp import numx
 class FreerunFlow(mdp.Flow):
     ''' This flow enables freerun execution, e.g. for signal generation tasks. The constructor takes an additional argument freerun_steps.
         The constructor takes two additional arguments:
-        - freerun_steps: the number of timesteps to run in freerun mode (i.e. non-teacher-forced). This needs to be set explicitly.
-        - external_input_range (optional): a numpy array denoting the subset of the input dimensions which are provided externally (i.e. not fed back). If this is None (default), all signals are fed back. 
-          This range should start at zero.
+            - freerun_steps: the number of timesteps to run in freerun mode (i.e. non-teacher-forced). This needs to be set explicitly.
+            - external_input_range (optional): a numpy array denoting the subset of the input dimensions which are provided externally (i.e. not fed back). If this is None (default), all signals are fed back.  This range should start at zero.
    
         Its functionality differs from the standard flow in two ways:
-        - The train function internally generates (x,y) training pairs from the input argument x, where y is shifted one timestep to the right w.r.t. x for one-step-ahead prediction
-        - The execute function takes a numpy array as input, whereby the timesteps up to N-freerun_steps are used to warmup the flow (i.e. teacher forcing), and the final
-          freerun_steps timesteps are executed in freerun mode, i.e. the output of the flow is fed back as input. The return argument of the execute function is a concatenation of the
-          warmup (teacher forced) signals with the freerun (generated) signals. It has the same length as the input.
+            - The train function internally generates (x,y) training pairs from the input argument x, where y is shifted one timestep to the right w.r.t. x for one-step-ahead prediction
+            - The execute function takes a numpy array as input, whereby the timesteps up to N-freerun_steps are used to warmup the flow (i.e. teacher forcing), and the final freerun_steps timesteps are executed in freerun mode, i.e. the output of the flow is fed back as input. The return argument of the execute function is a concatenation of the warmup (teacher forced) signals with the freerun (generated) signals. It has the same length as the input.
     '''
     def __init__(self, flow, crash_recovery=False, verbose=False, freerun_steps=None, external_input_range=None):
         super(FreerunFlow, self).__init__(flow, crash_recovery, verbose)

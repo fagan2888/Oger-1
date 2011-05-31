@@ -16,12 +16,10 @@ class OdeNode(mdp.Node):
     """
 
     def __init__(self, input_dim=1, output_dim=None, odeproblem = None, dt = None, init_dt = None, dt_min = None, dt_max = None, dtype='float64'):
-        """ Initializes and constructs a reservoir in continuous time, using differential equations.
-            dt is the external timestep after which we save the states.
-        init_dt is the starting dt for which the ode-problem is solved. Internally, the dt can be different (it's adaptive timestepping).
+        """ Initializes and constructs a reservoir in continuous time, using differential equations. dt is the external timestep after which we save the states.
+            init_dt is the starting dt for which the ode-problem is solved. Internally, the dt can be different (it's adaptive timestepping).
 
-        output_dim -- the number of outputs, which is also the number of
-                          neurons in the reservoir.
+                - output_dim: the number of outputs, which is also the number of neurons in the reservoir.
         """
         super(OdeNode, self).__init__(input_dim, output_dim, dtype)
 

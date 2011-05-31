@@ -11,8 +11,8 @@ class ThresholdNode(mdp.Node):
     Compute a threshold function of the input.
     This node returns output_values[0] if x < threshold, and output_values[1] if x => threshold.
     The constructor takes the arguments:
-    - threshold (default 0): the threshold to apply to the input of the node
-    - output_values (default (-1, 1)): a tuple of two values onto which the thresholded values will be mapped.
+        - threshold (default 0): the threshold to apply to the input of the node
+        - output_values (default (-1, 1)): a tuple of two values onto which the thresholded values will be mapped.
     
     """
 
@@ -166,13 +166,12 @@ class LogisticRegressionNode (_LogisticRegressionBaseNode):
     Node implementing logistic regression
     
     Examples of gradient training methods (gtrainer):
-        Oger.gradient.CGTrainer(), 
-        Oger.gradient.BFGSTrainer(),
-        Oger.gradient.GradientDescentTrainer(epochs=30000),
-        Oger.gradient.RPROPTrainer(epochs=30000), 
-        Oger.gradient.LBFGSBTrainer(weight_bounds=10)
-    Parameters of the gtrainer that need to be optimized can be set using the gtrainer_arg and 
-    gtrainer_arg_val variables
+        - Oger.gradient.CGTrainer(), 
+        - Oger.gradient.BFGSTrainer(),
+        - Oger.gradient.GradientDescentTrainer(epochs=30000),
+        - Oger.gradient.RPROPTrainer(epochs=30000), 
+        - Oger.gradient.LBFGSBTrainer(weight_bounds=10)
+    Parameters of the gtrainer that need to be optimized can be set using the gtrainer_arg and gtrainer_arg_val variables
     
     Training of this node can be very memory intensive because all train data is saved and processed later
     Some trainers only support single output

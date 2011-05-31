@@ -19,14 +19,18 @@ from layers import (SplitOutputLayer, SplitOutputSameInputLayer)
 # clean up namespace
 del flows
 del reservoir_nodes
-del rbm_nodes
 del linear_nodes
 del nonlinear_nodes
+del rbm_nodes
 del utility_nodes
+del layers
 
 
-__all__ = ['InspectableFlow', 'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode',
-           'RidgeRegressionNode', 'ParallelLinearRegressionNode', 'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
+__all__ = [ 'FreerunFlow',
+            'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode', 'BandpassReservoirNode','CUDAReservoirNode'
+           'RidgeRegressionNode', 'ParallelLinearRegressionNode',
+           'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
            'ERBMNode', 'CRBMNode', 'CUDACRBMNode', 'CUDAReservoirNode', 'CUDATRMNode',
-           'FeedbackNode', 'WashoutNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZMUSNode', 'SupervisedLayer', 'MaxVotingNode',
-           'TimeFramesNode2', 'SpikingIFReservoirNode']
+           'FeedbackNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZMUSNode', 'SupervisedLayer', 'MaxVotingNode',
+           'TimeFramesNode2', 'SplitOutputLayer', 'SplitOutputSameInputLayer']
+

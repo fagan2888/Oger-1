@@ -30,10 +30,9 @@ class ERBMNode(RBMNode):
     def __init__(self, visible_dim, hidden_dim, gaussian=False, dtype=None):
         """
         Arguments:
-
-        hidden_dim -- number of hidden variables
-        visible_dim -- number of observed variables
-        gaussian -- use gaussian visible units (default is binary)
+            - hidden_dim: number of hidden variables
+            - visible_dim:  number of observed variables
+            - gaussian: use gaussian visible units (default is binary)
         """
         super(RBMNode, self).__init__(visible_dim, hidden_dim, dtype)
         self._initialized = False
@@ -50,14 +49,13 @@ class ERBMNode(RBMNode):
 
     def train(self, v, n_updates=1, epsilon=0.1, decay=0., momentum=0.):
         """Update the internal structures according to the input data 'v'.
-        The training is performed using Contrastive Divergence (CD).
+           The training is performed using Contrastive Divergence (CD).
 
-        v -- a binary matrix having different variables on different columns
-             and observations on the rows
-        n_updates -- number of CD iterations. Default value: 1
-        epsilon -- learning rate. Default value: 0.1
-        decay -- weight decay term. Default value: 0.
-        momentum -- momentum term. Default value: 0.
+               - v: a binary matrix having different variables on different columns and observations on the rows
+               - n_updates: number of CD iterations. Default value: 1
+               - epsilon: learning rate. Default value: 0.1
+               - decay: weight decay term. Default value: 0.
+               - momentum: momentum term. Default value: 0.
         """
 
         if not self.is_training():
@@ -72,12 +70,11 @@ class ERBMNode(RBMNode):
         """Update the internal structures according to the input data 'v'.
         The training is performed using Contrastive Divergence (CD).
 
-        v -- a binary matrix having different variables on different columns
-             and observations on the rows
-        n_updates -- number of CD iterations. Default value: 1
-        epsilon -- learning rate. Default value: 0.1
-        decay -- weight decay term. Default value: 0.
-        momentum -- momentum term. Default value: 0.
+            - v: a binary matrix having different variables on different columns and observations on the rows
+            - n_updates: number of CD iterations. Default value: 1
+            - epsilon: learning rate. Default value: 0.1
+            - decay: weight decay term. Default value: 0.
+            - momentum: momentum term. Default value: 0.
         """
 
         if not self._initialized:
@@ -109,9 +106,8 @@ class ERBMNode(RBMNode):
     def get_CD_gradient(self, v, n_updates=1):
         """Use Gibbs sampling to estimate the contrastive divergence gradient.
 
-        v -- a binary matrix having different variables on different columns
-             and observations on the rows
-        n_updates -- number of CD iterations. Default value: 1
+            - v: a binary matrix having different variables on different columns and observations on the rows
+            - n_updates: number of CD iterations. Default value: 1
 
         Returns a tuple (dw, dbv, dbh) that contains the gradients of the
         weights and the biases of the visibles and the hidden respectively.
@@ -207,10 +203,10 @@ class CRBMNode(ERBMNode):
         """
         Arguments:
 
-        hidden_dim -- number of hidden variables
-        visible_dim -- number of observed variables
-        context_dim -- number of context variables
-        gaussian -- use gaussian visible units (default is binary)
+            - hidden_dim: number of hidden variables
+            - visible_dim: number of observed variables
+            - context_dim: number of context variables
+            - gaussian: use gaussian visible units (default is binary)
         """
         super(RBMNode, self).__init__(hidden_dim, visible_dim + context_dim, dtype)
         self._input_dim = visible_dim + context_dim
@@ -268,14 +264,12 @@ class CRBMNode(ERBMNode):
         """Update the parameters according to the input 'v' and context 'x'.
         The training is performed using Contrastive Divergence (CD).
 
-        v -- a binary matrix having different variables on different columns
-             and observations on the rows.
-        x -- a matrix having different variables on different columns and
-             observations on the rows.
-        n_updates -- number of CD iterations. Default value: 1
-        epsilon -- learning rate. Default value: 0.1
-        decay -- weight decay term. Default value: 0.
-        momentum -- momentum term. Default value: 0.
+            - v: a binary matrix having different variables on different columns and observations on the rows.
+            - x: a matrix having different variables on different columns and observations on the rows.
+            - n_updates: number of CD iterations. Default value: 1
+            - epsilon: learning rate. Default value: 0.1
+            - decay: weight decay term. Default value: 0.
+            - momentum: momentum term. Default value: 0.
         """
 
         if not self.is_training():
@@ -290,9 +284,8 @@ class CRBMNode(ERBMNode):
     def get_CD_gradient(self, x, n_updates=1):
         """Use Gibbs sampling to estimate the contrastive divergence gradient.
 
-        x -- a binary matrix having different variables on different columns
-             and observations on the rows (concatenation of visibles and context)
-        n_updates -- number of CD iterations. Default value: 1
+            - x: a binary matrix having different variables on different columns and observations on the rows (concatenation of visibles and context)
+            - n_updates: number of CD iterations. Default value: 1
 
         Returns a tuple (dw, dbv, dbh, da, db) that contains the gradients of the
         weights and the biases of the visibles and the hidden respectively and
@@ -344,14 +337,12 @@ class CRBMNode(ERBMNode):
         """Update the parameters according to the input 'v' and context 'x'.
         The training is performed using Contrastive Divergence (CD).
 
-        v -- a binary matrix having different variables on different columns
-             and observations on the rows.
-        x -- a matrix having different variables on different columns and
-             observations on the rows.
-        n_updates -- number of CD iterations. Default value: 1
-        epsilon -- learning rate. Default value: 0.1
-        decay -- weight decay term. Default value: 0.
-        momentum -- momentum term. Default value: 0.
+            - v: a binary matrix having different variables on different columns and observations on the rows.
+            - x: a matrix having different variables on different columns and observations on the rows.
+            - n_updates: number of CD iterations. Default value: 1
+            - epsilon: learning rate. Default value: 0.1
+            - decay: weight decay term. Default value: 0.
+            - momentum: momentum term. Default value: 0.
         """
         if not self._initialized:
             self._init_weights()
@@ -463,12 +454,11 @@ class CUDACRBMNode(ERBMNode):
                  gaussian=False, dtype=None, max_batch_size=1500):
         """
         Arguments:
-
-        hidden_dim -- number of hidden variables
-        visible_dim -- number of observed variables
-        context_dim -- number of context variables
-        gaussian -- use gaussian visible units (default is binary)
-        max_batch_size -- number of datapoints to process simultaneously
+            - hidden_dim: number of hidden variables
+            - visible_dim: number of observed variables
+            - context_dim: number of context variables
+            - gaussian: use gaussian visible units (default is binary)
+            - max_batch_size: number of datapoints to process simultaneously
 
 
 
@@ -583,14 +573,12 @@ class CUDACRBMNode(ERBMNode):
         """Update the parameters according to the input 'v' and context 'x'.
         The training is performed using Contrastive Divergence (CD).
 
-        v -- a binary matrix having different variables on different columns
-             and observations on the rows.
-        x -- a matrix having different variables on different columns and
-             observations on the rows.
-        n_updates -- number of CD iterations. Default value: 1
-        epsilon -- learning rate. Default value: 0.1
-        decay -- weight decay term. Default value: 0.
-        momentum -- momentum term. Default value: 0.
+            - v: a binary matrix having different variables on different columns and observations on the rows.
+            - x: a matrix having different variables on different columns and observations on the rows.
+            - n_updates: number of CD iterations. Default value: 1
+            - epsilon: learning rate. Default value: 0.1
+            - decay: weight decay term. Default value: 0.
+            - momentum: momentum term. Default value: 0.
         """
 
         if not self.is_training():
@@ -603,9 +591,8 @@ class CUDACRBMNode(ERBMNode):
     def get_CD_gradient(self, x, n_updates=1):
         """Use Gibbs sampling to estimate the contrastive divergence gradient.
 
-        x -- a cuda matrix having different variables on different columns
-             and observations on the rows (context)
-        n_updates -- number of CD iterations. Default value: 1
+            - x: a cuda matrix having different variables on different columns and observations on the rows (context)
+            - n_updates: number of CD iterations. Default value: 1
 
         Returns a tuple (dw, dbv, dbh, da, db) that contains the gradients of the
         weights and the biases of the visibles and the hidden respectively and
@@ -677,12 +664,11 @@ class CUDACRBMNode(ERBMNode):
         """Update the parameters according to the input 'v' and context 'x'.
         The training is performed using Contrastive Divergence (CD).
 
-        x -- a cuda matrix having different variables on different columns and
-             observations on the rows.
-        n_updates -- number of CD iterations. Default value: 1
-        epsilon -- learning rate. Default value: 0.1
-        decay -- weight decay term. Default value: 0.
-        momentum -- momentum term. Default value: 0.
+            - x: a cuda matrix having different variables on different columns and observations on the rows.
+            - n_updates: number of CD iterations. Default value: 1
+            - epsilon: learning rate. Default value: 0.1
+            - decay: weight decay term. Default value: 0.
+            - momentum: momentum term. Default value: 0.
         """
         if not self._initialized:
             self._init_weights()
@@ -743,14 +729,11 @@ class CUDATRMNode(ERBMNode):
                  gaussian=False, dtype=None, max_batch_size=500):
         """
         Arguments:
-
-        hidden_dim -- number of hidden variables
-        visible_dim -- number of observed variables
-        context_dim -- number of context variables
-        gaussian -- use gaussian visible units (default is binary)
-        max_batch_size -- number of datapoints to process simultaneously
-
-
+            - hidden_dim: number of hidden variables
+            - visible_dim: number of observed variables
+            - context_dim: number of context variables
+            - gaussian: use gaussian visible units (default is binary)
+            - max_batch_size: number of datapoints to process simultaneously
 
         The max batch size is required to be able to optimize the adding of
         bias vectors by preallocating a vector of ones and taking the outer
@@ -877,14 +860,12 @@ class CUDATRMNode(ERBMNode):
         """Update the parameters according to the input 'v' and context 'x'.
         The training is performed using Contrastive Divergence (CD).
 
-        v -- a binary matrix having different variables on different columns
-             and observations on the rows.
-        x -- a matrix having different variables on different columns and
-             observations on the rows.
-        n_updates -- number of CD iterations. Default value: 1
-        epsilon -- learning rate. Default value: 0.1
-        decay -- weight decay term. Default value: 0.
-        momentum -- momentum term. Default value: 0.
+            - v: a binary matrix having different variables on different columns and observations on the rows.
+            - x: a matrix having different variables on different columns and observations on the rows.
+            - n_updates: number of CD iterations. Default value: 1
+            - epsilon: learning rate. Default value: 0.1
+            - decay: weight decay term. Default value: 0.
+            - momentum: momentum term. Default value: 0.
         """
 
         if not self.is_training():
@@ -897,9 +878,8 @@ class CUDATRMNode(ERBMNode):
     def get_gradient(self, x, n_updates=1):
         """Use Gibbs sampling to estimate the contrastive divergence gradient.
 
-        x -- a cuda matrix having different variables on different columns
-             and observations on the rows (context)
-        n_updates -- number of CD iterations. Default value: 1
+            - x: a cuda matrix having different variables on different columns and observations on the rows (context)
+            - n_updates: number of CD iterations. Default value: 1
 
         Returns a tuple (dw, dbv, dbh, da, db) that contains the gradients of the
         weights and the biases of the visibles and the hidden respectively and
@@ -1043,12 +1023,11 @@ class CUDATRMNode(ERBMNode):
         """Update the parameters according to the input 'v' and context 'x'.
         The training is performed using Contrastive Divergence (CD).
 
-        x -- a cuda matrix having different variables on different columns and
-             observations on the rows.
-        n_updates -- number of CD iterations. Default value: 1
-        epsilon -- learning rate. Default value: 0.1
-        decay -- weight decay term. Default value: 0.
-        momentum -- momentum term. Default value: 0.
+            - x: a cuda matrix having different variables on different columns and observations on the rows.
+            - n_updates: number of CD iterations. Default value: 1
+            - epsilon: learning rate. Default value: 0.1
+            - decay: weight decay term. Default value: 0.
+            - momentum: momentum term. Default value: 0.
         """
         if not self._initialized:
             self._init_weights()

@@ -150,14 +150,9 @@ class ResampleNode(mdp.Node):
 
     def __init__(self, input_dim=None, ratio=0.5, dtype='float64', window=None):
         """ Initializes and constructs a random reservoir.
-                
-        input_dim -- the number of inputs (output dimension is always
-                     the same as input dimension)
-    
-        ratio     -- ratio of up or down sampling
-                     (e.g. 0.5 means downsampling to half the samplingrate)
-        
-        window    -- see window parameter in scipy.signal.resample
+                - input_dim: the number of inputs (output dimension is always the same as input dimension)
+                - ratio: ratio of up or down sampling (e.g. 0.5 means downsampling to half the samplingrate)
+                - window: see window parameter in scipy.signal.resample
         """
         super(ResampleNode, self).__init__(input_dim, input_dim, dtype)
         self.ratio = ratio
