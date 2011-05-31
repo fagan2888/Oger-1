@@ -50,7 +50,6 @@ if __name__ == "__main__":
 
     pylab.figure()
     #pylab.plot(y)
-    reservoir.reset_states = False
 
 
     #pylab.subplot(313)
@@ -59,4 +58,6 @@ if __name__ == "__main__":
     pylab.plot(z[0][-2 * freerun_steps:, 0])
     pylab.plot(z[0][-2 * freerun_steps:, 1])
 
+    pylab.subplot(212)
+    pylab.plot(training_states)
     pylab.show()

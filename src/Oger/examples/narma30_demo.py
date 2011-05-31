@@ -1,5 +1,6 @@
 import Oger
 import pylab
+import mdp
 
 
 """ This example demonstrates a very simple reservoir+readout setup on the 30th order NARMA task.
@@ -12,7 +13,8 @@ reservoir = Oger.nodes.ReservoirNode(output_dim=100, input_scaling=0.05)
 readout = Oger.nodes.RidgeRegressionNode()
 
 # build network with MDP framework
-flow = Oger.nodes.InspectableFlow([reservoir, readout], verbose=1)
+flow = mdp.Flow([reservoir, readout], verbose=1)
+Oger.utils.make_inspectable(Oger.nodes.ReservoirNode)
 
 data = [None, zip(x[0:-1], y[0:-1])]
 
@@ -42,5 +44,5 @@ pylab.plot(testout, 'r')
 pylab.plot(y[-1], 'b')
 
 pylab.subplot(nx, ny, 4)
-pylab.plot(flow.inspect(reservoir))
+pylab.plot(reservoir.inspect()[-1])
 pylab.show()

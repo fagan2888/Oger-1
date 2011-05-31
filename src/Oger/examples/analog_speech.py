@@ -30,7 +30,10 @@ if __name__ == "__main__":
     reservoir = Oger.nodes.LeakyReservoirNode(input_dim=input_dim, output_dim=100, input_scaling=.1, leak_rate=.3)
     readout = Oger.nodes.RidgeRegressionNode()
 
-    flow = Oger.nodes.InspectableFlow([reservoir, readout])
+    flow = mdp.Flow([reservoir, readout])
+
+    # Tell the reservoir to save its states for later plotting 
+    Oger.utils.make_inspectable(Oger.nodes.LeakyReservoirNode)
 
     # Plot an example input to the reservoir 
     pylab.subplot(n_subplots_x, n_subplots_y, 1)
@@ -49,7 +52,7 @@ if __name__ == "__main__":
         ytest.append(flow(xtest))
 
     pylab.subplot(n_subplots_x, n_subplots_y, 2)
-    pylab.plot(flow.inspect(reservoir))
+    pylab.plot(reservoir.inspect()[0])
     pylab.title("Sample reservoir states")
     pylab.xlabel("Timestep")
     pylab.ylabel("Activation")

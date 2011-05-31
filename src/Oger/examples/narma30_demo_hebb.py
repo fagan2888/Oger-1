@@ -1,5 +1,6 @@
 import Oger
 import pylab
+import mdp
 
 if __name__ == "__main__":
     """ This useless example demonstrates how you can train/adapt reservoir weights during training. In this case 
@@ -19,17 +20,18 @@ if __name__ == "__main__":
     readout = Oger.nodes.RidgeRegressionNode()
 
     # build network with MDP framework
-    flow = Oger.nodes.InspectableFlow([reservoir, readout], verbose=1)
-    
+    flow = mdp.Flow([reservoir, readout], verbose=1)
+    Oger.utils.make_inspectable(Oger.nodes.HebbReservoirNode)
+
     for epoch in range(10):
         for datapoint in x:
             reservoir.train(datapoint)
-    
+
     data = [x[0:-1], zip(x[0:-1], y[0:-1])]
-    
+
     # train the flow 
     flow.train(data)
-    
+
     #apply the trained flow to the training data and test data
     trainout = flow(x[0])
     testout = flow(x[9])
@@ -39,7 +41,7 @@ if __name__ == "__main__":
     #plot the input
     pylab.subplot(nx, ny, 1)
     pylab.plot(x[0])
-    
+
     #plot everything
     pylab.subplot(nx, ny, 2)
     pylab.plot(trainout, 'r')
@@ -48,9 +50,8 @@ if __name__ == "__main__":
     pylab.subplot(nx, ny, 3)
     pylab.plot(testout, 'r')
     pylab.plot(y[9], 'b')
-    
+
     pylab.subplot(nx, ny, 4)
-#    pylab.plot(flow.inspect(0))
-    pylab.plot(flow.inspect(reservoir))
+    pylab.plot(reservoir.inspect()[0])
     pylab.show()
-    
+
