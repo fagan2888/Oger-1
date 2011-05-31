@@ -16,7 +16,7 @@ del spiking_utilities
 del confusion_matrix
 
 __all__ = ['get_spectral_radius', 'empty_n_d_list', 'butter_coefficients', 'ConcatenatingIterator', 'LinearFunction', 'TanhFunction', 'LogisticFunction', 'SoftmaxFunction', 'SignFunction',
-           'nrmse', 'nmse', 'rmse', 'mse', 'loss_01', 'cosine', 'ce', 'mem_capacity', 'threshold_before_error', 'ber', 'f_score', '_conf_table', '_ber', '_f_beta',
-           'mix_in', 'optimize_parameters', 'select_inputs', 'enable_washout', 'make_inspectable',
+           'timeslice', 'nrmse', 'nmse', 'rmse', 'mse', 'loss_01', 'cosine', 'ce', 'mem_capacity', 'threshold_before_error', 'ber', 'f_score', '_conf_table', '_ber', '_f_beta',
+           'enable_washout', 'make_inspectable', 'disable_washout',
            'poisson_gen', 'spikes_to_states', 'inputs_to_spikes', 'exp_kernel', 'gauss_kernel', 'deltasigma', 'HSA', 'BSA'
            'ConfusionMatrix', 'BinaryConfusionMatrix', 'plot_conf']
