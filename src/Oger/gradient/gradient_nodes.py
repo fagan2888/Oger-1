@@ -13,21 +13,21 @@ from mdp.utils import mult
 
 def traverseHinet(item):
     # TODO: could be implemented with a generetor
-    
+
     previous = []
-    
+
     if isinstance(item, mdp.Flow):
         for child in item:
-            previous += traverseHinet(child)            
+            previous += traverseHinet(child)
     elif isinstance(item, mdp.hinet.Layer):
         for child in item:
-            previous += traverseHinet(child)        
+            previous += traverseHinet(child)
     elif isinstance(item, mdp.hinet.FlowNode):
         for child in item.flow:
-            previous += traverseHinet(child)      
+            previous += traverseHinet(child)
     else:
         previous += [item, ]
-        
+
     return previous
 
 class GradientExtensionNode(mdp.ExtensionNode):
@@ -66,7 +66,7 @@ class GradientExtensionNode(mdp.ExtensionNode):
         """Make sure that a node which is trainable, is made untrainable
         so that we can run execute on a possible untrained node."""
         return False
-    
+
     def get_current_train_phase(self):
         """Make sure that a node which is trainable, is made untrainable
         so that we can run execute on a possible untrained node."""
@@ -116,18 +116,15 @@ class BackpropNode(mdp.Node):
         """Create a BackpropNode that encapsulates a flow of gradient nodes.
 
         Arguments:
-
-            gflow -- The flow of gradient supported nodes to use.
-            gtrainer -- A trainer object to use for training the flow.
-            loss_func -- A scalar returning loss function.
-            derror -- The gradient of the loss function with respect to the
-                outputs.  By default this will taken to be 'y - t' where y is the
-                output and t the desired value.
+            - gflow: The flow of gradient supported nodes to use.
+            - gtrainer: A trainer object to use for training the flow.
+            - loss_func: A scalar returning loss function.
+            - derror: The gradient of the loss function with respect to the outputs.  By default this will taken to be 'y - t' where y is the output and t the desired value.
         """
 
         self.gflow = gflow
         self.gtrainer = gtrainer
-        
+
         # TODO: can this combination be in an object
         self.loss_func = loss_func
         self.derror = derror
@@ -135,26 +132,26 @@ class BackpropNode(mdp.Node):
         if self.derror is None:
             #self.derror = lambda x, t: x - t
             self.derror = self.derror_linear
-            
+
         input_dim = gflow[0].get_input_dim()
         output_dim = gflow[-1].get_output_dim()
-        
+
         self._n_epochs = n_epochs
 
         super(BackpropNode, self).__init__(input_dim, output_dim, dtype)
 
     def derror_linear(self, x, t):
-        return x-t
+        return x - t
 
     @mdp.with_extension('gradient')
     def _train(self, x, *args, **kwargs):
         """Update the parameters according to the input 'x' and target output 't'."""
-        
+
         # Extract target values and delete them so they don't interfere with
         # the train method call below.
         # TODO: Perhaps the use of target values should be optional to allow
         # for unsupervised algorithms etc.
-        if (len(args) > 0): 
+        if (len(args) > 0):
             t = args[0]
         else:
             t = kwargs.get('t')
@@ -179,12 +176,12 @@ class BackpropNode(mdp.Node):
             self._set_params(params)
 
         y = self.gflow.execute(x)
-        
+
         if self.loss_func:
             loss = self.loss_func(y, t)
         else:
             loss = None
-        
+
         delta = self.derror(y, t)
 
         self.gflow.inverse(delta)
@@ -201,7 +198,7 @@ class BackpropNode(mdp.Node):
         gradient = numx.array([])
 
         for n in traverseHinet(self.gflow):
-            if hasattr(n, '_param_size') and n._param_size() > 0: 
+            if hasattr(n, '_param_size') and n._param_size() > 0:
                 gradient = numx.concatenate((gradient, n.gradient()))
 
         return gradient
@@ -212,7 +209,7 @@ class BackpropNode(mdp.Node):
         params = numx.array([])
 
         for n in traverseHinet(self.gflow):
-            if hasattr(n, '_param_size') and n._param_size() > 0: 
+            if hasattr(n, '_param_size') and n._param_size() > 0:
                 params = numx.concatenate((params, n.params()))
 
         return params
@@ -223,7 +220,7 @@ class BackpropNode(mdp.Node):
         counter = 0
 
         for n in traverseHinet(self.gflow):
-            if hasattr(n, '_param_size') and n._param_size() > 0: 
+            if hasattr(n, '_param_size') and n._param_size() > 0:
                 length = n._param_size()
                 n.set_params(params[counter:counter + length])
                 counter += length
@@ -290,4 +287,4 @@ class GradientRBMNode(GradientExtensionNode, Oger.nodes.ERBMNode):
     def inverse(self, y):
         """Calls _gradient_inverse instead of the default _inverse."""
         return self._calculate_gradient(y)
-    
+

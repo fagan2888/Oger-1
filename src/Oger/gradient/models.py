@@ -10,7 +10,6 @@ import trainers
 
 class MLPNode(mdp.Node):
     """Defines a multilayer perceptron with a hidden layer of tanh units.r
-    
     """
 
     def __init__(self, input_dim, output_dim, hidden_dim=100,
@@ -19,14 +18,11 @@ class MLPNode(mdp.Node):
 
         Arguments:
         
-        input_dim -- input dimensionality
-        output_dim -- output dimensionality
-        hidden_dim -- number of hidden units
-        trainer -- gradient based trainer to use, default: GradientDescentTrainer
-        loss -- type of loss to minimize. Setting this to 'mse' will use linear
-                outputs and minimize the mean squared error and setting this to 'ce'
-                will use softmax outputs and minimize cross-entropy error.
-
+            - input_dim: input dimensionality
+            - output_dim: output dimensionality
+            - hidden_dim: number of hidden units
+            - trainer: gradient based trainer to use, default: GradientDescentTrainer
+            - loss: type of loss to minimize. Setting this to 'mse' will use linear outputs and minimize the mean squared error and setting this to 'ce' will use softmax outputs and minimize cross-entropy error.
         """
 
 

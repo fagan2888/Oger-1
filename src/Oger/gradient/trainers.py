@@ -28,9 +28,8 @@ class CGTrainer(ScipyTrainer):
         """Optimize parameters to minimze loss.
 
         Arguments:
-            func -- A function of the parameters that returns a tuple with the
-                    gradient and the loss respectively.
-            x0 -- Parameters to use as starting point.
+            - func: A function of the parameters that returns a tuple with the gradient and the loss respectively.
+            - x0: Parameters to use as starting point.
 
         Returns the parameters that minimize the loss.
         """
@@ -48,9 +47,8 @@ class BFGSTrainer(ScipyTrainer):
         """Optimize parameters to minimze loss.
 
         Arguments:
-            func -- A function of the parameters that returns a tuple with the
-                    gradient and the loss respectively.
-            x0 -- Parameters to use as starting point.
+            - func: A function of the parameters that returns a tuple with the gradient and the loss respectively.
+            - x0: Parameters to use as starting point.
 
         Returns the parameters that minimize the loss.
         """
@@ -77,9 +75,8 @@ class LBFGSBTrainer(ScipyTrainer):
         """Optimize parameters to minimze loss.
 
         Arguments:
-            func -- A function of the parameters that returns a tuple with the
-                    gradient and the loss respectively.
-            x0 -- Parameters to use as starting point.
+            - func: A function of the parameters that returns a tuple with the gradient and the loss respectively.
+            - x0: Parameters to use as starting point.
 
         Returns the parameters that minimize the loss.
         """
@@ -91,13 +88,10 @@ class LBFGSBTrainer(ScipyTrainer):
 class GradientDescentTrainer:
     def __init__(self, learning_rate=.01, momentum=0, epochs=1, decay=0):
         """
-            learning_rate -- size of the gradient steps (default = .001)
-            
-            momentum -- momentum term (default = 0)
-    
-            epochs -- number of times to do updates on the same data (default = 1)
-    
-            decay -- weight decay term (default = 0)
+            - learning_rate: size of the gradient steps (default = .001)
+            - momentum: momentum term (default = 0)
+            - epochs: number of times to do updates on the same data (default = 1)
+            - decay: weight decay term (default = 0)
         """
         self.learning_rate = learning_rate
         self.momentum = momentum
@@ -110,9 +104,8 @@ class GradientDescentTrainer:
         """Optimize parameters to minimze loss.
 
         Arguments:
-            func -- A function of the parameters that returns a tuple with the
-                    gradient and the loss respectively.
-            x0 -- Parameters to use as starting point.
+            - func: A function of the parameters that returns a tuple with the gradient and the loss respectively.
+            - x0: Parameters to use as starting point.
 
         Returns the parameters that minimize the loss.
         """
@@ -146,9 +139,8 @@ class RPROPTrainer:
         """Optimize parameters to minimze loss.
 
         Arguments:
-            func -- A function of the parameters that returns a tuple with the
-                    gradient and the loss respectively.
-            x0 -- Parameters to use as starting point.
+            - func: A function of the parameters that returns a tuple with the gradient and the loss respectively.
+            - x0: Parameters to use as starting point.
 
         Returns the parameters that minimize the loss.
         """
