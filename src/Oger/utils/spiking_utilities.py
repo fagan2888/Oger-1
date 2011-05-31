@@ -31,11 +31,11 @@ def spikes_to_states(spikes, kernel, steps, Tstep, simDT):
         spikes_to_states(spikes, kernel, steps, Tstep, simDT) -> states
         Convert spikes to liquid states using a given convolution kernel
         Input arguments: 
-        - spikes: the spike train to be converted
-        - kernel: the convolution kernel (a function of a vector which returns a vector)
-        - steps: number of timesteps in the resulting vector in the analog domain
-        - Tstep: timestep (sampling period) of the resulting vector in the analog domain
-        - simDt: simulation timestep
+            - spikes: the spike train to be converted
+            - kernel: the convolution kernel (a function of a vector which returns a vector)
+            - steps: number of timesteps in the resulting vector in the analog domain
+            - Tstep: timestep (sampling period) of the resulting vector in the analog domain
+            - simDt: simulation timestep
     '''
     spikes_bin = np.zeros((len(spikes), int(steps * Tstep / simDT)))
 
@@ -53,8 +53,8 @@ def inputs_to_spikes(x, inp2spikes_conversion, *args):
         inputs_to_spikes(x, inp2spikes_conversion) -> in_spikes
         Convert an N-d analog signal to spiketrains, using the given spiketrain conversion function
         Input arguments:
-        - x: the dataset to be converted (a numpy array)
-        - inp2spikes_conversion: the function that performs the spike conversion
+            - x: the dataset to be converted (a numpy array)
+            - inp2spikes_conversion: the function that performs the spike conversion
     '''
     n_inputs = x.shape[1]
     in_spikes = []
@@ -68,7 +68,7 @@ def deltasigma(input):
         Apply a delta-sigma modulator the input to generate spikes.
         
         Input arguments:
-        - input: the signal to be converted (a numpy array)
+            - input: the signal to be converted (a numpy array)
         
         See: Benjamin Schrauwen Towards applicable spiking neural networks Doctoraatsproefschrift Faculteit Ingenieurswetenschappen, Universiteit Gent, pp. (2008) 
     '''
@@ -88,9 +88,9 @@ def HSA(input, filter, threshold):
         Apply the Hough Spiker algorithm to the input to generate spikes using the given filter and threshold
         
         Input arguments:
-        - input: the signal to be converted (a numpy array)
-        - filter: the decoding filter
-        - threshold: the threshold based on which to generate the spikes
+            - input: the signal to be converted (a numpy array)
+            - filter: the decoding filter
+            - threshold: the threshold based on which to generate the spikes
         See: Benjamin Schrauwen Towards applicable spiking neural networks Doctoraatsproefschrift Faculteit Ingenieurswetenschappen, Universiteit Gent, pp. (2008) 
     '''
 
@@ -113,9 +113,9 @@ def BSA(input, filter, threshold):
         Apply the Bens Spiker algorithm to the input to generate spikes using the given filter and threshold
         
         Input arguments:
-        - input: the signal to be converted (a numpy array)
-        - filter: the decoding filter
-        - threshold: the threshold based on which to generate the spikes
+            - input: the signal to be converted (a numpy array)
+            - filter: the decoding filter
+            - threshold: the threshold based on which to generate the spikes
         See: Benjamin Schrauwen Towards applicable spiking neural networks Doctoraatsproefschrift Faculteit Ingenieurswetenschappen, Universiteit Gent, pp. (2008) 
     '''
     N = input.shape[0];

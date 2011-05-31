@@ -8,21 +8,15 @@ def timeslice(range, function):
     Can be used to eg. apply an error metric only to a part of the data.
     """
     return lambda x, y: function(x[range, :], y[range, :])
-    
+
 def nrmse(input_signal, target_signal):
-    """ 
+    """
     nrmse(input_signal, target_signal)-> error
     NRMSE calculation.
-    
-    Calculates the normalized root mean square error (NRMSE)
-    of the input signal compared to the target signal.
-    
+    Calculates the normalized root mean square error (NRMSE) of the input signal compared to the target signal.
     Parameters:
-    -----------
-        input_signal : array
-            the input_signal signal
-        target_signal : array
-            the target signal
+        - input_signal : array
+        - target_signal : array
     """
     input_signal = input_signal.flatten()
     target_signal = target_signal.flatten()
@@ -40,25 +34,19 @@ def nmse(input_signal, target_signal):
     """ 
     nmse(input_signal, target_signal)->error
     NMSE calculation.
-    
-    Calculates the normalized mean square error (NMSE)
-    of the input signal compared to the target signal.
-    
+    Calculates the normalized mean square error (NMSE) of the input signal compared to the target signal.
     Parameters:
-    -----------
-        input_signal : array
-            the input signal
-        target_signal : array
-            the target signal
+        - input_signal : array
+        - target_signal : array
     """
     input_signal = input_signal.flatten()
     targetsignal = target_signal.flatten()
-        
+
     if(targetsignal.size != input_signal.size):
         raise RuntimeError('Length of target_signal signal is not equal to length of generated signal.')
-    
+
     var = targetsignal.std()**2
-    
+ 
     error = (targetsignal - input_signal) ** 2
     return error.mean() / var
     
@@ -67,15 +55,11 @@ def rmse(input_signal, target_signal):
     rmse(input_signal, target_signal)->error 
     RMSE calculation.
     
-    Calculates the root mean square error (RMSE)
-    of the input signal compared target target signal.
+    Calculates the root mean square error (RMSE) of the input signal compared target target signal.
     
     Parameters:
-    -----------
-        input_signal : array
-            the input signal
-        target_signal : array
-            the target signal
+        - input_signal : array
+        - target_signal : array
     """
   
     error = (target_signal.flatten() - input_signal.flatten()) ** 2
@@ -90,11 +74,8 @@ def mse(input_signal, target_signal):
     of the input signal compared target signal.
     
     Parameters:
-    -----------
-        input_signal : array
-            the input_signal signal
-        targetsignal : array
-            the target_signal signal
+        - input_signal : array
+        - target_signal : array
     """   
     
     error = (target_signal.flatten() - input_signal.flatten()) ** 2
@@ -108,11 +89,8 @@ def loss_01(input_signal, target_signal):
     Returns the fraction of timesteps where input_signal is unequal to target_signal
     
     Parameters:
-    -----------
-        input_signal : array
-            the input_signal signal
-        target_signal : array
-            the target_signal signal
+        - input_signal : array
+        - target_signal : array
     """
     if input_signal.shape != target_signal.shape:
         raise RuntimeError("Input and target_signal should have the same shape")
@@ -138,11 +116,8 @@ def ce(input, target):
     the input values.
 
     Parameters:
-    -----------
-        input : array
-            the input signal
-        target : array
-            the target signal
+        - input : array
+        - target : array
     """
     if input.shape != target.shape:
         raise RuntimeError("Input and target should have the same shape")
@@ -194,7 +169,7 @@ def threshold_before_error(input, target, error_measure=loss_01, thresh=None):
     The threshold is estimated as the mean of the target maximum and minimum unless a threshold 'thresh' is specified
     
     Useful for classification error estimation. Example:
-        error_measure = lambda x,y: Oger.utils.threshold_before_error(x, y, Oger.utils.loss_01)
+    error_measure = lambda x,y: Oger.utils.threshold_before_error(x, y, Oger.utils.loss_01)
     """
     if thresh == None:
         thresh = (max(target) + min(target)) / 2
@@ -210,11 +185,8 @@ def ber(input, target):
     Only compatible with 2 classes (TODO multiclass)
     
     Parameters:
-    -----------
-        input : array
-            the input signal
-        target : array
-            the target signal
+        - input : array
+        - target : array
     """
     (tp, fp, tn, fn) = _conf_table(input, target)
     
@@ -227,11 +199,8 @@ def f_score(input, target, beta=1.0):
     Compute 1 minus F-beta score, for beta=1 it computes the 1 minus F1 score 
     
     Parameters:
-    -----------
-        input : array
-            the input signal
-        target : array
-            the target signal
+        - input : array
+        - target : array
     """
     (tp, fp, tn, fn) = _conf_table(input, target)
     
@@ -241,10 +210,10 @@ def f_score(input, target, beta=1.0):
 def _conf_table(input, target):
     '''
     Helper function to determine the number of:
-        True Positives
-        False Positives
-        True Negatives
-        False Negatives
+        - True Positives
+        - False Positives
+        - True Negatives
+        - False Negatives
     '''
     if input.shape != target.shape:
         raise RuntimeError("Input and target_signal should have the same shape")

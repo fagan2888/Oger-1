@@ -16,10 +16,10 @@ import numpy as np
 #
 # Usage example:
 # 
-#   c = ConfusionMatrix.from_samples(num_classes, predictions, targets, labels)
-#   print "BER: %f" % c.ber
-#   print "Error rates per class: %s" % repr(c.error_rates) 
-#   plot_conf(c.balance())
+#   >>> c = ConfusionMatrix.from_samples(num_classes, predictions, targets, labels)
+#   >>> print "BER: %f" % c.ber
+#   >>> print "Error rates per class: %s" % repr(c.error_rates) 
+#   >>> plot_conf(c.balance())
 #
 # Note: a ConfusionMatrix wraps a numpy ARRAY, not a numpy MATRIX.
 
@@ -128,14 +128,11 @@ class ConfusionMatrix(object):
         
         num_classes: see ConfusionMatrix.from_data
         
-        output_classes_list: iterable containing prediction data (see ConfusionMatrix.from_data
-                            for the correct format).
+        output_classes_list: iterable containing prediction data (see ConfusionMatrix.from_data for the correct format).
                             
-        target_classes_list: iterable containing target class labels (see ConfusionMatrix.from_data
-                             for the correct format)
+        target_classes_list: iterable containing target class labels (see ConfusionMatrix.from_data for the correct format)
                              
-        normalisation: defaults to True. If this parameter is set to False, no normalisation occurs
-                       and the confusion matrices corresponding to the samples are just added together.
+        normalisation: defaults to True. If this parameter is set to False, no normalisation occurs and the confusion matrices corresponding to the samples are just added together.
                        
         labels: the class labels that were used. Defaults to 0, 1, 2, ..., num_classes-1.
         """
@@ -160,8 +157,8 @@ class ConfusionMatrix(object):
         Returns a function that constructs a confusion matrix and then computes the desired metric.
 
         For example:
-            ber = ConfusionMatrix.error_measure('ber', 2)
-            print ber(input_signal, target_signal)
+            >>> ber = ConfusionMatrix.error_measure('ber', 2)
+            >>> print ber(input_signal, target_signal)
         
         If from_samples is set to True, the returned function will use from_samples instead of
         from_data to construct the confusion matrix.
@@ -386,8 +383,8 @@ class BinaryConfusionMatrix(ConfusionMatrix):
         Returns a function that constructs a confusion matrix and then computes the desired metric.
 
         For example:
-            recall = ConfusionMatrix.error_measure('recall')
-            print recall(input_signal, target_signal)
+            >>> recall = ConfusionMatrix.error_measure('recall')
+            >>> print recall(input_signal, target_signal)
         
         If from_samples is set to True, the returned function will use from_samples instead of
         from_data to construct the confusion matrix.

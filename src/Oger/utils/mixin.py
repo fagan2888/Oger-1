@@ -1,4 +1,5 @@
 import mdp
+import inspect
 
 def _pickle_method(method):
     func_name = method.im_func.__name__
@@ -25,7 +26,6 @@ def make_inspectable(baseclass):
     """
     This function makes a flow or node inspectable, i.e. it keeps the outputs produced by execute(). These can later be retrieved with the inspect() method.     
     """
-
     class InspectableClass():
         def _execute_seq(self, x, nodenr=None):
             """This code is a copy from the code from mdp.Flow, but with additional
@@ -48,6 +48,8 @@ def make_inspectable(baseclass):
         def execute(self, iterable, *args, **kwargs):
             if hasattr(self, 'flow'):
                 self._states = [[] for _ in range(len(self.flow))]
+            else:
+                self._states = []
 
             output = self.execute_no_inspect(iterable, *args, **kwargs)
 
@@ -55,7 +57,7 @@ def make_inspectable(baseclass):
                 for i in range(len(self.flow)):
                     self._states[i] = mdp.numx.concatenate(self._states[i])
             else:
-                self._states = output
+                self._states.append(output)
 
             return output
 
@@ -101,16 +103,24 @@ def make_inspectable(baseclass):
             else:
                 return self._states
 
+    if not inspect.isclass(baseclass):
+        print 'Warning: make_inspectable() should be applied to classes, not to objects.'
+        return
+
+    if hasattr(baseclass, 'inspect'):
+        print 'Class ' + baseclass.__name__ + ' is already inspectable.'
+        return
+
     method_list = ['_execute_seq', 'execute', '_inverse_seq', 'inverse']
 
     for method in method_list:
         if hasattr(baseclass, method):
             setattr(baseclass, method + '_no_inspect', getattr(baseclass, method))
-            setattr(baseclass, method, getattr(InspectableClass, method))
+            setattr(baseclass, method, getattr(InspectableClass, method).im_func)
 
     setattr(baseclass, 'inspect', InspectableClass.inspect)
 
-    baseclass.__bases__ = (InspectableClass,) + baseclass.__bases__
+    baseclass.__bases__ = baseclass.__bases__ + (InspectableClass,)
 
 def enable_washout(washout_class, washout=0, execute_washout=False):
     """
