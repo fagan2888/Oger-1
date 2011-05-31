@@ -22,9 +22,12 @@ class ParallelFlow(mdp.parallel.ParallelFlow):
         except StopIteration:
             return None
 
-class GridScheduler(mdp.parallel.Scheduler):
+class CondorGridScheduler(mdp.parallel.Scheduler):
     def __init__(self, ppserver=None, max_queue_length=1,
-                 result_container=mdp.parallel.ListResultContainer(), ppservers=None,
+                 result_container=mdp.parallel.ListResultContainer(),
+                 pp_cmd=None,
+                 fsdomain = None,
+                 ppservers=None,
                  verbose=False):
         super(GridScheduler, self).__init__(result_container=result_container,
                                           verbose=verbose)
@@ -37,12 +40,12 @@ class GridScheduler(mdp.parallel.Scheduler):
         # List of tuples instead of a dictionary because the order of the commands
         # is apparently important for condor
         self.condor_options = [
-        ['cmd', '/opt/Python-2.6.4/bin/ppserver.py'], \
+        ['cmd', pp_cmd], \
         ['args', ''], \
-        ['requirements', 'OpSys=="*" || Arch=="*" || FileSystemDomain == "elis.ugent.be"'], \
-        ['output', '/mnt/snn_gluster/Oger_jobs/dvrstrae/out.$(cluster)'], \
-        ['error', '/mnt/snn_gluster/Oger_jobs/dvrstrae/err.$(cluster).$(Process)'], \
-        ['log', '/mnt/snn_gluster/Oger_jobs/dvrstrae/log.$(cluster).$(Process)'], \
+        ['requirements', 'OpSys=="*" || Arch=="*" || FileSystemDomain == ' + fsdomain], \
+        ['output', outdir + 'out.$(cluster)'], \
+        ['error', outdir + 'err.$(cluster).$(Process)'], \
+        ['log', outdir + + 'log.$(cluster).$(Process)'], \
         ['universe', 'vanilla'], \
         ['environment', '"MPLCONFIGDIR=/tmp/"'], \
         ['Notification', 'Error'], \
@@ -52,48 +55,7 @@ class GridScheduler(mdp.parallel.Scheduler):
         ['InitialDir', '/mnt/snn_gluster/usr/' + self.whoami], \
         ]
 
-        if ppservers is None:
-            self.ppservers = ('clsnn001:60002',
-                 'clsnn002:60002',
-                 'clsnn003:60002',
-                 'clsnn004:60002',
-                 'clsnn005:60002',
-                 'clsnn006:60002',
-                 'clsnn007:60002',
-                 'clsnn008:60002',
-                 'clsnn009:60002',
-                 'clsnn010:60002',
-                 'clsnn011:60002',
-                 'clsnn012:60002',
-                 'clsnn013:60002',
-                 'clsnn014:60002',
-                 'clsnn015:60002',
-                 'clsnn016:60002',
-                 'clsnn017:60002',
-                 'clsnn018:60002',
-                 'clsnn019:60002',
-                 'clsnn020:60002',
-                 'clsnn021:60002',
-                 'clsnn022:60002',
-                 'clsnn023:60002',
-                 'clsnn024:60002',
-                 'clsnn025:60002',
-                 'clsnn026:60002',
-                 'clsnn027:60002',
-                 'clsnn028:60002',
-                 'clsnn029:60002',
-                 'clsnn030:60002',
-                 'digilab01:60002',
-                 'digilab02:60002',
-                 'digilab03:60002',
-                 'digilab04:60002',
-                 'digilab05:60002',
-                 'digilab06:60002',
-                 'digilab07:60002',
-                 'digilab08:60002',
-                 )
-        else:
-            self.ppservers = ppservers
+        self.ppservers = ppservers
 
         self.reset()
 

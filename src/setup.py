@@ -36,6 +36,6 @@ setup(name = 'Oger', version = '1.0',
       description = short_description,
       long_description = long_description,
       classifiers = classifiers,
-      packages = ['Oger', 'Oger.datasets', 'Oger.evaluation', 'Oger.gradient', 'Oger.utils', 'Oger.nodes'],
+      packages = ['Oger', 'Oger.datasets', 'Oger.evaluation', 'Oger.gradient', 'Oger.utils', 'Oger.nodes', 'Oger.parallel'],
       package_data={'Oger': ['examples/*.py', 'examples/java_python_interface/*']},
       )
