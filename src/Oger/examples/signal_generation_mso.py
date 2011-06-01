@@ -9,8 +9,8 @@ if __name__ == "__main__":
     n_training_samples = 3
     test_sample_length = 5000
 
-    train_signals = Oger.datasets.mackey_glass(sample_len=training_sample_length, n_samples=n_training_samples)
-    test_signals = Oger.datasets.mackey_glass(sample_len=test_sample_length, n_samples=1)
+    train_signals = Oger.datasets.mso(sample_len=training_sample_length, n_samples=n_training_samples)
+    test_signals = Oger.datasets.mso(sample_len=test_sample_length, n_samples=1)
 
     reservoir = Oger.nodes.LeakyReservoirNode(output_dim=100, reset_states=False)
 
@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     flow = Oger.nodes.FreerunFlow([reservoir, readout], freerun_steps=freerun_steps)
 
-    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 0.4, .1), 'leak_rate':10 ** mdp.numx.arange(-3, .5, -1)}}
+    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 0.4, .1), 'leak_rate':mdp.numx.arange(.1, .4, .1)}}
 
     internal_gridsearch_parameters = {readout:{'ridge_param': 10 ** mdp.numx.arange(-6, -2, .5)}}
 
