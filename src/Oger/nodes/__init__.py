@@ -3,7 +3,7 @@ This subpackage contains a number of Oger-related nodes. It contains several add
 """
 
 from flows import (FreerunFlow)
-from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, BandpassReservoirNode, CUDAReservoirNode)
+from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, GaussianIPReservoirNode, BandpassReservoirNode, CUDAReservoirNode)
 from linear_nodes import (RidgeRegressionNode, ParallelLinearRegressionNode)
 from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressionNode, LogisticRegressionNode)
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
@@ -27,7 +27,7 @@ del layers
 
 
 __all__ = [ 'FreerunFlow',
-            'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode', 'BandpassReservoirNode','CUDAReservoirNode'
+            'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode',  'GaussianIPReservoirNode' ,'BandpassReservoirNode','CUDAReservoirNode'
            'RidgeRegressionNode', 'ParallelLinearRegressionNode',
            'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
            'ERBMNode', 'CRBMNode', 'CUDACRBMNode', 'CUDAReservoirNode', 'CUDATRMNode',
