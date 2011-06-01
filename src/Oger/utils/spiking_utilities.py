@@ -1,7 +1,7 @@
 import mdp
 import numpy as np
-from NeuroTools import stgen
 try:
+    from NeuroTools import stgen
     from pyNN.pcsim import *
     from pypcsim import *
 except ImportError:

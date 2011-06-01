@@ -1,8 +1,12 @@
 import mdp.parallel
-import pp
 import subprocess
 import getpass
 from datetime import datetime
+
+try:
+    import pp
+except ImportError:
+    pass
 
 class ParallelFlow(mdp.parallel.ParallelFlow):
     def __init__(self, flow, data, verbose=False, **kwargs):
