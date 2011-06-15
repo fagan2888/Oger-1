@@ -1,7 +1,13 @@
 import mdp
-from pyNN.pcsim import *
-from pypcsim import *
-import brian
+try:
+    from pyNN.pcsim import *
+    from pypcsim import *
+except ImportError:
+    pass
+try:
+    import brian
+except ImportError:
+    pass
 
 import scipy
 from Oger.utils import spikes_to_states, inputs_to_spikes
@@ -214,7 +220,13 @@ class SpikingRandomIFDynSynReservoirNode(GenericSpikingReservoirNode):
                  exc_frac, exc_w, inh_w,
                  input_w, cell_params, syn_delay,
                  Cprob_exc, Cprob_inh, Cprob_inp, kernel, inp2spikes_conversion,
-                 syn_dynamics={ 'e2e': SynapseDynamics(
+                 syn_dynamics = None,
+                 inp_syn_dynamics={ '2exc': None,
+                                     '2inh': None }):
+        """ Create the spiking neural network in PyNN
+        """
+        if syn_dynamics is None:
+            syn_dynamics = { 'e2e': SynapseDynamics(
                                         fast=TsodyksMarkramMechanism(U=0.5, tau_rec=1100.0, tau_facil=50.0)),
                                   'e2i': SynapseDynamics(
                                         fast=TsodyksMarkramMechanism(U=0.05, tau_rec=125.0, tau_facil=1200.0)),
@@ -222,11 +234,7 @@ class SpikingRandomIFDynSynReservoirNode(GenericSpikingReservoirNode):
                                         fast=TsodyksMarkramMechanism(U=0.25, tau_rec=700.0, tau_facil=20.0)),
                                   'i2i': SynapseDynamics(
                                         fast=TsodyksMarkramMechanism(U=0.32, tau_rec=144.0, tau_facil=60.0))
-                                },
-                inp_syn_dynamics={ '2exc': None,
-                                     '2inh': None }):
-        """ Create the spiking neural network in PyNN
-        """
+                                }
         super(SpikingRandomIFDynSynReservoirNode, self).__init__(input_dim=input_dim, size=size, dtype=dtype, rngseed=rngseed,
                              exc_frac=exc_frac, exc_cell_type=IF_curr_exp, exc_cell_params=cell_params,
                              inh_cell_type=IF_curr_exp, inh_cell_params=cell_params,

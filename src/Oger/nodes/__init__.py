@@ -9,7 +9,7 @@ from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressi
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
 from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, FeedbackShiftNode, ResampleNode, TimeFramesNode2, RescaleZMUSNode, SupervisedLayer, MaxVotingNode)
 try:
-    from spiking_nodes import (BrianIFReservoirNode)
+    from spiking_nodes import (BrianIFReservoirNode, GenericSpikingReservoirNode, SpikingRandomIFReservoirNode, SpikingRandomIFDynSynReservoirNode, SpatialSpikingReservoirNode)
     del spiking_nodes
 except:
     pass
@@ -32,5 +32,7 @@ __all__ = [ 'FreerunFlow',
            'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
            'ERBMNode', 'CRBMNode', 'CUDACRBMNode', 'CUDAReservoirNode', 'CUDATRMNode',
            'FeedbackNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZMUSNode', 'SupervisedLayer', 'MaxVotingNode',
+            'GenericSpikingReservoirNode', 'SpikingRandomIFReservoirNode', 'SpikingRandomIFDynSynReservoirNode', 'SpatialSpikingReservoirNode',
            'TimeFramesNode2', 'SplitOutputLayer', 'SplitOutputSameInputLayer']
+
 
