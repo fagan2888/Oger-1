@@ -115,7 +115,7 @@ class ReservoirNode(mdp.Node):
         # Initialize bias weight matrix
         if self.w_bias_initial is None:
             # Initialize it to uniform random values using input_scaling
-            self.w_bias = self.bias_scaling * (mdp.numx.random.rand(self.output_dim) * 2 - 1)
+            self.w_bias = self.bias_scaling * (mdp.numx.random.rand(1,self.output_dim) * 2 - 1)
         else:
             if callable(self.w_bias_initial):
                 self.w_bias = self.w_bias_initial(self.output_dim) # If it is a function, call it
@@ -123,7 +123,7 @@ class ReservoirNode(mdp.Node):
                 self.w_bias = self.w_bias_initial.copy()   # else just copy it
 
         # Check if dimensions of the weight matrix match the dimensions of the node inputs and outputs
-        if self.w_bias.shape != (self.output_dim,):
+        if self.w_bias.shape != (1, self.output_dim):
             exception_str = 'Shape of given w_bias does not match input/output dimensions of node. '
             exception_str += 'Input dim: ' + str(self.input_dim) + ', output dim: ' + str(self.output_dim) + '. '
             exception_str += 'Shape of w_bias: ' + str(self.w_bias.shape)

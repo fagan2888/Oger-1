@@ -416,7 +416,7 @@ class MaxVotingNode(mdp.Node):
     def __init__(self, labels=None, input_dim=None, dtype='float64'):
         super(MaxVotingNode, self).__init__(input_dim, 1, dtype) # output_dim is always 1
         if labels is None:
-            self.labels = np.arange(self.input_dim) # default labels = channel indices
+            self.labels = None
         else:
             self.labels = np.asarray(labels)
 
@@ -430,6 +430,8 @@ class MaxVotingNode(mdp.Node):
         return ['float32', 'float64']
 
     def _execute(self, x):
+        if self.labels is None:
+            self.labels = np.arange(self.input_dim) # default labels = channel indices
         indices = np.atleast_2d(np.argmax(x, 1)).T
         return self.labels[indices]
 

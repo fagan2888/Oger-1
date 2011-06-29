@@ -1,6 +1,10 @@
 import mdp
 import numpy as np
 
+def check_signal_dimensions(input_signal, target_signal):
+    if input_signal.shape != target_signal.shape:
+        raise RuntimeError("Input shape (%s) and target_signal shape (%s) should be the same."% (input_signal.shape, target_signal.shape))
+    
 def timeslice(range, function):
     """
     timeslice(range, function) -> function
@@ -18,11 +22,10 @@ def nrmse(input_signal, target_signal):
         - input_signal : array
         - target_signal : array
     """
+    check_signal_dimensions(input_signal, target_signal)
+    
     input_signal = input_signal.flatten()
     target_signal = target_signal.flatten()
-    
-    if(target_signal.size != input_signal.size):
-        raise RuntimeError('Length of target signal is not equal to length of generated signal.')
     
     # Use normalization with N-1, as in matlab
     var = target_signal.std(ddof=1) ** 2
@@ -39,11 +42,11 @@ def nmse(input_signal, target_signal):
         - input_signal : array
         - target_signal : array
     """
+    
+    check_signal_dimensions(input_signal, target_signal)
+    
     input_signal = input_signal.flatten()
     targetsignal = target_signal.flatten()
-
-    if(targetsignal.size != input_signal.size):
-        raise RuntimeError('Length of target_signal signal is not equal to length of generated signal.')
 
     var = targetsignal.std()**2
  
@@ -61,7 +64,8 @@ def rmse(input_signal, target_signal):
         - input_signal : array
         - target_signal : array
     """
-  
+    check_signal_dimensions(input_signal, target_signal)
+    
     error = (target_signal.flatten() - input_signal.flatten()) ** 2
     return mdp.numx.sqrt(error.mean())
     
@@ -77,6 +81,7 @@ def mse(input_signal, target_signal):
         - input_signal : array
         - target_signal : array
     """   
+    check_signal_dimensions(input_signal, target_signal)
     
     error = (target_signal.flatten() - input_signal.flatten()) ** 2
     return error.mean()
@@ -92,9 +97,8 @@ def loss_01(input_signal, target_signal):
         - input_signal : array
         - target_signal : array
     """
-    if input_signal.shape != target_signal.shape:
-        raise RuntimeError("Input and target_signal should have the same shape")
-
+    check_signal_dimensions(input_signal, target_signal)
+    
     return (input_signal.flatten() != target_signal.flatten()).mean()
 
 def cosine(input_signal, target_signal):
@@ -105,40 +109,41 @@ def cosine(input_signal, target_signal):
     This error measure measures the extent to which two vectors point in the same direction. 
     A value of 1 means complete alignment, a value of 0 means the vectors are orthogonal.
     '''
+    check_signal_dimensions(input_signal, target_signal)
+    
     return float(mdp.numx.dot(input_signal, target_signal)) / (mdp.numx.linalg.norm(input_signal) * mdp.numx.linalg.norm(target_signal))
 
-def ce(input, target):
+def ce(input_signal, target_signal):
     """ 
-    ce(input, target)-> cross-entropy
+    ce(input_signal, target_signal)-> cross-entropy
     Compute cross-entropy loss function
 
-    Returns the negative log-likelyhood of the target labels as predicted by
-    the input values.
+    Returns the negative log-likelyhood of the target_signal labels as predicted by
+    the input_signal values.
 
     Parameters:
-        - input : array
-        - target : array
+        - input_signal : array
+        - target_signal : array
     """
-    if input.shape != target.shape:
-        raise RuntimeError("Input and target should have the same shape")
+    check_signal_dimensions(input_signal, target_signal)
     
-    if np.rank(target)>1 and target.shape[1]>1:
-        error = mdp.numx.sum(-mdp.numx.log(input[target == 1]))
+    if np.rank(target_signal)>1 and target_signal.shape[1]>1:
+        error = mdp.numx.sum(-mdp.numx.log(input_signal[target_signal == 1]))
         
         if mdp.numx.isnan(error):
-            inp = input[target == 1]
-            inp[inp==0] = float(np.finfo(input.dtype).tiny)
+            inp = input_signal[target_signal == 1]
+            inp[inp==0] = float(np.finfo(input_signal.dtype).tiny)
             error = -mdp.numx.sum(mdp.numx.log(inp))
     else:
-        error = -mdp.numx.sum(mdp.numx.log(input[target == 1]))
-        error -= mdp.numx.sum(mdp.numx.log(1 - input[target == 0]))
+        error = -mdp.numx.sum(mdp.numx.log(input_signal[target_signal == 1]))
+        error -= mdp.numx.sum(mdp.numx.log(1 - input_signal[target_signal == 0]))
         
         if mdp.numx.isnan(error):
-            inp = input[target == 1]
-            inp[inp==0] = float(np.finfo(input.dtype).tiny)
+            inp = input_signal[target_signal == 1]
+            inp[inp==0] = float(np.finfo(input_signal.dtype).tiny)
             error = -mdp.numx.sum(mdp.numx.log(inp))
-            inp = 1 - input[target == 0]
-            inp[inp==0] = float(np.finfo(input.dtype).tiny)
+            inp = 1 - input_signal[target_signal == 0]
+            inp[inp==0] = float(np.finfo(input_signal.dtype).tiny)
             error -= mdp.numx.sum(mdp.numx.log(inp))
     
     return error
@@ -146,7 +151,7 @@ def ce(input, target):
 
 # TODO: if we add container object for the error metrics, we should add a field that
 # signifies if we need to minimize or maximize the measure
-def mem_capacity(input, target):
+def mem_capacity(input_signal, target_signal):
     """Computes the memory capacity defined by Jaeger in 
     H. Jaeger (2001): Short term memory in echo state networks. GMD Report 
     152, German National Research Center for Information Technology, 2001
@@ -154,95 +159,26 @@ def mem_capacity(input, target):
     WARNING: currently this returns the negative of the memory capacity so 
     we can keep on using the minimization code.
     """
-
+    check_signal_dimensions(input_signal, target_signal)
+    
     score = []
-    for k in range(target.shape[1]):
-        covariance_matrix = mdp.numx.cov(mdp.numx.concatenate((input[:, k:k + 1].T, target[:, k:k + 1].T)))
+    for k in range(target_signal.shape[1]):
+        covariance_matrix = mdp.numx.cov(mdp.numx.concatenate((input_signal[:, k:k + 1].T, target_signal[:, k:k + 1].T)))
         score.append(covariance_matrix[0, 1] ** 2 / (covariance_matrix[0, 0] * covariance_matrix[1, 1]))
     
     return - mdp.numx.sum(score)
 
 
-def threshold_before_error(input, target, error_measure=loss_01, thresh=None):
+def threshold_before_error(input_signal, target_signal, error_measure=loss_01, thresh=None):
     """
-    First applies a threshold to input and target and then determines the error using the error_measure function.
-    The threshold is estimated as the mean of the target maximum and minimum unless a threshold 'thresh' is specified
+    First applies a threshold to input_signal and target_signal and then determines the error using the error_measure function.
+    The threshold is estimated as the mean of the target_signal maximum and minimum unless a threshold 'thresh' is specified
     
     Useful for classification error estimation. Example:
     error_measure = lambda x,y: Oger.utils.threshold_before_error(x, y, Oger.utils.loss_01)
     """
+    check_signal_dimensions(input_signal, target_signal)
+    
     if thresh == None:
-        thresh = (max(target) + min(target)) / 2
-    return error_measure(input > thresh, target > thresh)
-    
-
-def ber(input, target):
-    """ 
-    ber(input, target)->error
-    Compute Balanced Error Rate 
-    
-    Returns the average of the fraction of timesteps where input_signal is unequal to target_signal for each class
-    Only compatible with 2 classes (TODO multiclass)
-    
-    Parameters:
-        - input : array
-        - target : array
-    """
-    (tp, fp, tn, fn) = _conf_table(input, target)
-    
-    return _ber(tp, fp, tn, fn)
-
-
-def f_score(input, target, beta=1.0):
-    """ 
-    f_score(input, target, beta=1)->error
-    Compute 1 minus F-beta score, for beta=1 it computes the 1 minus F1 score 
-    
-    Parameters:
-        - input : array
-        - target : array
-    """
-    (tp, fp, tn, fn) = _conf_table(input, target)
-    
-    return _f_beta(tp, fp, tn, fn, beta)
-
-
-def _conf_table(input, target):
-    '''
-    Helper function to determine the number of:
-        - True Positives
-        - False Positives
-        - True Negatives
-        - False Negatives
-    '''
-    if input.shape != target.shape:
-        raise RuntimeError("Input and target_signal should have the same shape")
-    
-    tp = np.sum(np.logical_and(input.flatten() > 0, target.flatten() > 0))
-    fp = np.sum(np.logical_and(input.flatten() > 0, target.flatten() <= 0))
-    tn = np.sum(np.logical_and(input.flatten() <= 0, target.flatten() <= 0))
-    fn = np.sum(np.logical_and(input.flatten() <= 0, target.flatten() > 0))
-    return np.array([tp, fp, tn, fn])
-
-
-def _ber(tp, fp, tn, fn):
-    '''
-    Helper function to determine the BER score
-    Useful for direct estimation of the BER if the conf_table is known
-    '''
-    if (tn + fp == 0):
-        return (fn / (0.0 + fn + tp))
-    elif (fn + tp == 0):
-        return (fp / (0.0 + tn + fp))
-    else:
-        return 1.0 / 2 * (fp / (0.0 + tn + fp) + fn / (0.0 + fn + tp))
-
-
-def _f_beta(tp, fp, tn, fn, beta=1.0):
-    '''
-    Helper function to determine the 1 minus F-beta score
-    By default beta is 1 wich results in the F1 score
-    Useful for direct estimation of the F-score if the conf_table is known
-    '''
-    return 1.0 - (1.0 + beta ** 2) * tp / ((1.0 + beta ** 2) * tp + beta ** 2 * fn + fp)
-
+        thresh = (max(target_signal) + min(target_signal)) / 2
+    return error_measure(input_signal > thresh, target_signal > thresh)
