@@ -224,7 +224,6 @@ class Optimizer(object):
         if vmax != None:
             errors_to_plot[errors_to_plot > vmax] = vmax
 
-        pylab.ion()
         # If we have ranged over only one parameter
         if len(parameters) == 1:
             # Get the index of the remaining parameter to plot using the correct 
@@ -261,7 +260,7 @@ class Optimizer(object):
             (x, y) = mdp.numx.meshgrid(self.parameter_ranges[p1], self.parameter_ranges[p2])
 
             # Create an interpolation grid
-            zi = pylab.griddata(x.flatten(), y.flatten(), errors_to_plot.flatten('F'), xi, yi).T
+            zi = mdp.numx.fliplr(pylab.griddata(x.flatten(), y.flatten(), errors_to_plot.flatten('F'), xi, yi)).T
 
             pylab.imshow(zi, cmap=pylab.jet(), interpolation='nearest',
              extent=self.get_extent(parameters), aspect="auto", axes=axes)
