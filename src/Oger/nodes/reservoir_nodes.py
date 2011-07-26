@@ -21,7 +21,7 @@ class ReservoirNode(mdp.Node):
     """
 
     def __init__(self, input_dim=None, output_dim=None, spectral_radius=0.9,
-                 nonlin_func=Oger.utils.TanhFunction.f, reset_states=True, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
+                 nonlin_func=np.tanh, reset_states=True, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
                  w_in=None, w=None, w_bias=None):
         """ Initializes and constructs a random reservoir.
         Parameters are:

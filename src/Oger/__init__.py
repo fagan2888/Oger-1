@@ -21,5 +21,21 @@ import evaluation
 #print 'Warning: importing parallel subpackage - still in development!'
 import parallel
 
+import copy_reg
+import numpy
+
+def ufunc_pickler(ufunc):
+    return ufunc.__name__
+
+def ufunc_unpickler(name):
+    import numpy
+    return getattr(numpy, name)
+
+copy_reg.pickle(numpy.ufunc, ufunc_pickler, ufunc_unpickler)
+del copy_reg
+del ufunc_pickler
+del ufunc_unpickler
+del numpy
+
 
 __all__ = ['utils', 'nodes', 'datasets', 'gradient', 'evaluation', 'parallel']
