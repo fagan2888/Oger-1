@@ -157,7 +157,7 @@ class Optimizer(object):
         # Initialize a CMA instance
         es = cma.CMAEvolutionStrategy(x0, 1, options)
 
-        while not es.stop:
+        while not es.stop():
             print 'Iteration ' + str(iteration)
             # Ask the next generation of parameter vectors from the optimization algorithm
             parameter_vectors = es.ask()
