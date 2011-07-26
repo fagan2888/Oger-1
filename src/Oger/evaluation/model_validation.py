@@ -201,5 +201,7 @@ def data_subset(data, data_indices):
             if not data[node] == []:
                 for data_index in data_indices:
                     tmp_data.append(data[node][data_index])
+            else:
+                tmp_data.append([])
             subset.append(tmp_data)
     return subset

@@ -27,7 +27,7 @@ del layers
 
 
 __all__ = [ 'FreerunFlow',
-            'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode',  'GaussianIPReservoirNode' ,'BandpassReservoirNode','CUDAReservoirNode'
+            'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode',  'GaussianIPReservoirNode' ,'BandpassReservoirNode','CUDAReservoirNode',
            'RidgeRegressionNode', 'ParallelLinearRegressionNode',
            'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
            'ERBMNode', 'CRBMNode', 'CUDACRBMNode', 'CUDAReservoirNode', 'CUDATRMNode',

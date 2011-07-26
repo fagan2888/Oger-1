@@ -99,7 +99,7 @@ def loss_01(input_signal, target_signal):
     """
     check_signal_dimensions(input_signal, target_signal)
     
-    return (input_signal.flatten() != target_signal.flatten()).mean()
+    return np.mean(np.any(input_signal!= target_signal, 1))
 
 def cosine(input_signal, target_signal):
     ''' 
