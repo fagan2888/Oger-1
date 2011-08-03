@@ -6,7 +6,7 @@ import random
 from Oger.utils import ConfusionMatrix, plot_conf
 
 def loss_01_time(x, y):
-    return Oger.utils.loss_01(sp.argmax(mdp.numx.atleast_2d(mdp.numx.mean(x, axis=0))), sp.argmax(mdp.numx.mean(y, axis=0)))
+    return Oger.utils.loss_01(mdp.numx.atleast_2d(sp.argmax(mdp.numx.mean(x,axis=0))), mdp.numx.atleast_2d(sp.argmax(mdp.numx.mean(y, axis=0))))
 
 if __name__ == "__main__":
 
