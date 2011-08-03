@@ -5,13 +5,19 @@ def check_signal_dimensions(input_signal, target_signal):
     if input_signal.shape != target_signal.shape:
         raise RuntimeError("Input shape (%s) and target_signal shape (%s) should be the same."% (input_signal.shape, target_signal.shape))
     
-def timeslice(range, function):
+class timeslice():
     """
     timeslice(range, function) -> function
     Apply the given function only to the given time range of the data.
     Can be used to eg. apply an error metric only to a part of the data.
     """
-    return lambda x, y: function(x[range, :], y[range, :])
+    def __init__(self,range, function):
+        from functools import update_wrapper
+        self.function = function
+        self.range = range
+        update_wrapper(self, function)
+    def __call__(self,x,y):
+        return self.function(x[self.range, :], y[self.range, :])
 
 def nrmse(input_signal, target_signal):
     """
