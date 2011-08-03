@@ -80,6 +80,16 @@ class ReservoirNode(mdp.Node):
             # Call the initialize function to create the weight matrices
             self.initialize()
 
+
+    # Override the standard output_dim getter and setter property, 
+    # to enable changing the output_dim (i.e. the number
+    # of neurons) afterwards during optimization
+    def get_output_dim(self): 
+            return self._output_dim
+    def set_output_dim(self, value): 
+            self._output_dim = value
+    output_dim = property(get_output_dim, set_output_dim, doc="Output dimensions")
+
     def is_trainable(self):
         return False
 
