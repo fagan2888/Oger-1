@@ -188,3 +188,26 @@ def threshold_before_error(input_signal, target_signal, error_measure=loss_01, t
     if thresh == None:
         thresh = (max(target_signal) + min(target_signal)) / 2
     return error_measure(input_signal > thresh, target_signal > thresh)
+    
+    
+def calcROC(Yh,Y):
+    eps = 10**-10
+    thrRange = np.fliplr(np.atleast_2d(np.unique(np.sort(np.hstack( (np.array([np.min(Yh)-eps,np.max(Yh)+eps]),Yh) ),))))[0,:]
+    fpr = np.zeros(thrRange.shape)
+    tpr = np.zeros(thrRange.shape)
+    Yp = Yh[Y==1]
+    Yf = Yh[Y!=1]
+    for k in range(thrRange.shape[0]):
+        thr = thrRange[k]
+        fpr[k] = np.sum(1.0*Yf>=thr)/(1.0*Yf.shape[0])
+        tpr[k] = np.sum(1.0*Yp>=thr)/(1.0*Yp.shape[0])
+    AUC=np.sum((fpr[1:]-fpr[:-1])*(tpr[1:]+tpr[:-1]))/2.
+
+    return AUC,fpr,tpr
+
+#   error
+#     
+def auc_error(input_signal, target_signal):
+    auc,fpr,tpr = calcROC(input_signal.flatten(), target_signal.flatten())
+    return auc
+
