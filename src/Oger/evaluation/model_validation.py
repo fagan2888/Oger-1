@@ -56,7 +56,7 @@ def n_fold_random(n_samples, n_folds):
         raise Exception('Number of folds should be larger than one.')
 
     if n_folds > n_samples:
-        raise Exception('Number of folds cannot be larger than the number of samples.')
+        raise Exception('Number of folds (%d) cannot be larger than the number of samples (%d).'%(n_folds, n_samples))
 
 
     # Create random permutation of number of samples
@@ -202,6 +202,6 @@ def data_subset(data, data_indices):
                 for data_index in data_indices:
                     tmp_data.append(data[node][data_index])
             else:
-                tmp_data.append([])
+                tmp_data.extend([])
             subset.append(tmp_data)
     return subset

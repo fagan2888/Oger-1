@@ -58,7 +58,6 @@ class ReservoirNode(mdp.Node):
         # Non-linear function
         self.nonlin_func = nonlin_func
 
-        self.initial_state = mdp.numx.zeros((1, self.output_dim))
 
         # Store any externally passed initialization values for w, w_in and w_bias
         self.w_in_initial = w_in
@@ -72,11 +71,10 @@ class ReservoirNode(mdp.Node):
         self.w_bias = np.array([])
 
         self.reset_states = reset_states
-        self.states = mdp.numx.zeros((1, self.output_dim))
 
         self._is_initialized = False
 
-        if input_dim is not None:
+        if input_dim is not None and output_dim is not None:
             # Call the initialize function to create the weight matrices
             self.initialize()
 
@@ -86,6 +84,7 @@ class ReservoirNode(mdp.Node):
     # of neurons) afterwards during optimization
     def get_output_dim(self): 
             return self._output_dim
+
     def set_output_dim(self, value): 
             self._output_dim = value
     output_dim = property(get_output_dim, set_output_dim, doc="Output dimensions")
@@ -97,15 +96,29 @@ class ReservoirNode(mdp.Node):
         return False
 
     def initialize(self):
-        """ Initialize the weight matrices of the reservoir node. If no 
+        """ Initialize the weight matrices of the reservoir node. If no
         arguments for w, w_in and w_bias matrices were given at construction
         time, they will be created as follows:
-            - input matrix : input_scaling * uniform weights in [-1, 1]
+            - input matrix : input_scaling * weights randomly drawn from
+              the set {-1, 1}
             - bias matrix :  bias_scaling * uniform weights in [-1, 1]
             - reservoir matrix: gaussian weights rescaled to the desired spectral radius
-        If w, w_in or w_bias were given as a numpy array or a function, these
-        will be used as initialization instead.
+
+        For more control over the weight matrix creation, you can also specify the
+        w, w_in or w_bias as numpy arrays or as callables (i.e. functions). In the latter
+        case, the functions for w, w_in, w_bias should accept the following arguments:
+        - w = w_init_function(output_dim)
+        - w_in = w_in_init_function(output_dim, input_dim)
+        - w_bias = w_bias_init_function(output_dim)
+        The weight matrices are created either at instantiation (if input_dim and output_dim are
+        both given to the constructor), or during the first call to execute.
         """
+        if self.input_dim is None:
+            raise mdp.NodeException('Cannot initialize weight matrices: input_dim is not set.')
+
+        if self.output_dim is None:
+            raise mdp.NodeException('Cannot initialize weight matrices: output_dim is not set.')
+
         # Initialize input weight matrix
         if self.w_in_initial is None:
             # Initialize it to uniform random values using input_scaling
@@ -156,6 +169,9 @@ class ReservoirNode(mdp.Node):
             exception_str += 'Output dim: ' + str(self.output_dim) + '. '
             exception_str += 'Shape of w: ' + str(self.w_in.shape)
             raise mdp.NodeException(exception_str)
+
+        self.initial_state = mdp.numx.zeros((1, self.output_dim))
+        self.states = mdp.numx.zeros((1, self.output_dim))
 
         self._is_initialized = True
 
