@@ -21,9 +21,9 @@ def narma10(n_samples=10, sample_len=1000):
         inputs.append(mdp.numx.random.rand(sample_len, 1) * .5)
         inputs[sample].shape = (-1, 1)
         outputs.append(mdp.numx.zeros((sample_len, 1)))
-        for k in range(system_order, sample_len - 1):
+        for k in range(system_order-1, sample_len - 1):
             outputs[sample][k + 1] = .3 * outputs[sample][k] + .05 * \
-            outputs[sample][k] * mdp.numx.sum(outputs[sample][k - 9:k]) + \
+            outputs[sample][k] * mdp.numx.sum(outputs[sample][k - (system_order-1):k+1]) + \
             1.5 * inputs[sample][k - 9] * inputs[sample][k] + .1
     return inputs, outputs 
 
@@ -41,9 +41,9 @@ def narma30(n_samples=10, sample_len=1000):
         inputs.append(mdp.numx.random.rand(sample_len, 1) * .5)
         inputs[sample].shape = (-1, 1)
         outputs.append(mdp.numx.zeros((sample_len, 1)))
-        for k in range(system_order, sample_len - 1):
+        for k in range(system_order-1, sample_len - 1):
             outputs[sample][k + 1] = .2 * outputs[sample][k] + .04 * \
-            outputs[sample][k] * mdp.numx.sum(outputs[sample][k - 29:k]) + \
+            outputs[sample][k] * mdp.numx.sum(outputs[sample][k - (system_order-1):k+1]) + \
             1.5 * inputs[sample][k - 29] * inputs[sample][k] + .001
     return inputs, outputs 
 
