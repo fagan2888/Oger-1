@@ -5,7 +5,7 @@ import scipy as sp
 
 class ReservoirNode_lyapunov(Oger.nodes.ReservoirNode):
     def __init__ (self, input_dim=1, output_dim=None, spectral_radius=0.9,
-                 nonlin_func=Oger.utils.TanhFunction, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
+                 nonlin_func=sp.tanh, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
                  w_in=None, w=None, w_bias=None, lyapunov_skip=1):
         ''' Note the additional parameter lyapunov_skip, which determines the number of timesteps to skip before
             recomputing the local lyapunov exponents
