@@ -49,7 +49,8 @@ def make_inspectable(baseclass):
             if hasattr(self, 'flow'):
                 self._states = [[] for _ in range(len(self.flow))]
             else:
-                self._states = []
+                if not hasattr(self, '_states'):
+                    self._states = []
 
             output = self.execute_no_inspect(iterable, *args, **kwargs)
 
@@ -87,7 +88,7 @@ def make_inspectable(baseclass):
                 for i in range(len(self.flow)):
                     self._states[i] = mdp.numx.concatenate(self._states[i])
             else:
-                self._states = output
+                self._states.append(output)
 
             return output
 

@@ -36,7 +36,7 @@ class FreerunFlow(mdp.Flow):
         for i in range(len(self.flow)):
             if self.verbose:
                 print "Training node #%d (%s)" % (i, str(self.flow[i]))
-            if not data_iterables[i] == []:
+            if not (data_iterables[i] == [] or data_iterables[i] is None):
                 # Delay the input timeseries with len(flow)-1, because every node connection introduces a one timestep delay
                 datax = [x[0:-i, :] for x in data_iterables[i][0]]
                 datay = []
@@ -108,4 +108,38 @@ class FreerunFlow(mdp.Flow):
             err_str = ('can only concatenate flow or node'
                        ' (not \'%s\') to flow' % (type(other).__name__))
             raise TypeError(err_str)
+
+class OnlineFreerunFlow(FreerunFlow):
+    ''' TODO: fill in docstring
+    '''
+
+    def train(self, data_iterables):
+        data_iterables = self._train_check_iterables(data_iterables)
+
+        if self.external_input_range is None:
+            external_input_range = []
+        else:
+            external_input_range = self.external_input_range
+
+        # train each Node successively
+        for i in range(len(self.flow)):
+            if self.verbose:
+                print "Training node #%d (%s)" % (i, str(self.flow[i]))
+            if not (data_iterables[i] == [] or data_iterables[i] is None):
+                # Delay the input timeseries with len(flow)-1, because every node connection introduces a one timestep delay
+                datax = [x[0:-i, :] for x in data_iterables[i][0]]
+                datay = []
+                for x in data_iterables[i][0]:
+                    c = numx.array([True] * x.shape[1])
+                    c[external_input_range] = False
+                    datay.append(x[i:, c])
+            else:
+                datax, datay = [], []
+            for datax_p, datay_p in zip(datax, datay):
+                for datax_t, datay_t in zip(datax_p, datay_p): 
+                    self._train_node(((datax_t[:,numx.newaxis], datay_t[:,numx.newaxis]),), i)
+            if self.verbose:
+                print "Training finished"
+
+        self._close_last_node()
 
