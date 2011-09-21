@@ -8,6 +8,7 @@ from linear_nodes import (RidgeRegressionNode, ClassReweightedRidgeRegressionNod
 from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressionNode, LogisticRegressionNode)
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
 from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, FeedbackShiftNode, ResampleNode, TimeFramesNode2, RescaleZMUSNode, SupervisedLayer, MaxVotingNode)
+from csp_nodes import CSPNode
 try:
     from spiking_nodes import (BrianIFReservoirNode, GenericSpikingReservoirNode, SpikingRandomIFReservoirNode, SpikingRandomIFDynSynReservoirNode, SpatialSpikingReservoirNode)
     del spiking_nodes
@@ -24,15 +25,17 @@ del nonlinear_nodes
 del rbm_nodes
 del utility_nodes
 del layers
+del csp_nodes
 
 
 __all__ = [ 'FreerunFlow', 'OnlineFreerunFlow',
             'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode',  'GaussianIPReservoirNode' ,'BandpassReservoirNode','CUDAReservoirNode',
-           'RidgeRegressionNode', 'ClassReweightedRidgeRegressionNode', 'BFSRidgeRegressionNode', 'BFSClassReweightedRidgeRegressionNode', 'FFSRidgeRegressionNode', 'FFSClassReweightedRidgeRegressionNode', 'LARSNode', 'ClassReweightedLARSNode', 'OPRidgeRegressionNode', 'ClassReweightedOPRidgeRegressionNode',
-           'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
-           'ERBMNode', 'CRBMNode', 'CUDACRBMNode', 'CUDAReservoirNode', 'CUDATRMNode',
-           'FeedbackNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZMUSNode', 'SupervisedLayer', 'MaxVotingNode',
+            'RidgeRegressionNode', 'ClassReweightedRidgeRegressionNode', 'BFSRidgeRegressionNode', 'BFSClassReweightedRidgeRegressionNode', 'FFSRidgeRegressionNode', 'FFSClassReweightedRidgeRegressionNode', 'LARSNode', 'ClassReweightedLARSNode', 'OPRidgeRegressionNode', 'ClassReweightedOPRidgeRegressionNode',
+            'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
+            'ERBMNode', 'CRBMNode', 'CUDACRBMNode', 'CUDAReservoirNode', 'CUDATRMNode',
+            'FeedbackNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZMUSNode', 'SupervisedLayer', 'MaxVotingNode',
             'GenericSpikingReservoirNode', 'SpikingRandomIFReservoirNode', 'SpikingRandomIFDynSynReservoirNode', 'SpatialSpikingReservoirNode',
-           'TimeFramesNode2', 'SplitOutputLayer', 'SplitOutputSameInputLayer']
+            'TimeFramesNode2', 'SplitOutputLayer', 'SplitOutputSameInputLayer'
+            'CSPNode']
 
 

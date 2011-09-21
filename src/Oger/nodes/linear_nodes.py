@@ -298,7 +298,7 @@ class BFSRidgeRegressionNode(RidgeRegressionNode):
         for o in range(self._output_dim):
             W_t = D_t * xTy_Ct[:,o:o+1]
             CW = np.dot(C_t, W_t)
-            if len(self._ridge_params) < len(s) - self.with_bias:
+            if len(self._ridge_params) < len(s) - self.with_bias and not self.low_memory:
                 #less straight-forward but faster than the next...
                 for r in range(len(self._ridge_params)):
                     D_r = D_t[:,r:r+1] #pre-fetch data
@@ -366,7 +366,6 @@ class FFSRidgeRegressionNode(BFSRidgeRegressionNode):
             self._selected_inputs = [self._input_dim] #select bias
         else:
             self._selected_inputs = [] #selected inputs
-        self.error = None
         train_samples, val_samples = self.cross_validate_function(n_samples=len(self._xTx_list), *self._args, **self._kwargs)
         while len(self._selected_inputs) < (self._input_dim + self.with_bias):
             errors = np.zeros((len(self._ridge_params), self._input_dim + self.with_bias - len(self._selected_inputs)))
@@ -376,14 +375,14 @@ class FFSRidgeRegressionNode(BFSRidgeRegressionNode):
 
             r, f = np.where(errors == np.nanmin(errors))
             r, f = r[-1], f[0]
-            if len(self._selected_inputs)==0 or (self.with_bias and len(self._selected_inputs)==1) or errors[r,f] < self.error:
-                self.error = errors[r,f]
+            if len(self._selected_inputs)==0 or (self.with_bias and len(self._selected_inputs)==1) or errors[r,f] < self.val_error:
+                self.val_error = errors[r,f]
                 self.ridge_param = self._ridge_params[r]
                 us = range(self._input_dim + self.with_bias) #unselected inputs
                 for i in self._selected_inputs:
                     us.remove(i)
                 self._selected_inputs.append(us[f])
-                print 'Selected input', us[f], 'and ridge_param', self.ridge_param, ' with a val. error of', self.error, 'Total nr. of selected inputs =', len(self._selected_inputs)-self.with_bias
+                print 'Selected input', us[f], 'and ridge_param', self.ridge_param, ' with a val. error of', self.val_error, 'Total nr. of selected inputs =', len(self._selected_inputs)-self.with_bias
             else:
                 self._selected_inputs.sort()
                 break
