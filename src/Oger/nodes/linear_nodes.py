@@ -10,7 +10,7 @@ class RidgeRegressionNode(mdp.Node):
     '''
     Ridge Regression Node that also optimizes the regularization parameter
     '''
-    def __init__(self, ridge_param=mdp.numx.power(10, mdp.numx.arange(-15,5,0.2)), eq_noise_var=0, other_error_measure=None, cross_validate_function=Oger.evaluation.leave_one_out, low_memory=False, plot_errors=False, with_bias=True, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
+    def __init__(self, ridge_param=mdp.numx.power(10, mdp.numx.arange(-15,5,0.2)), eq_noise_var=0, other_error_measure=None, cross_validate_function=None, low_memory=False, plot_errors=False, with_bias=True, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
         '''
 
         ridge_params contains the list of regularization parameters to be tested. If it is set to [0] no regularization
@@ -43,6 +43,8 @@ class RidgeRegressionNode(mdp.Node):
         self.low_memory = low_memory
         self.plot_errors = plot_errors
         self.with_bias = with_bias
+        if cross_validate_function == None:
+            cross_validate_function = Oger.evaluation.leave_one_out
         self.cross_validate_function = cross_validate_function
         self._args, self._kwargs = args, kwargs
 
