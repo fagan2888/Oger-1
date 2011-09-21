@@ -18,7 +18,7 @@ class RidgeRegressionNode(mdp.Node):
 
         It is also possible to define an equivalent noise variance: the ridge parameter is set such that a
         regularization equal to a given added noise variance is achieved. Note that setting the ridge_param has
-        precedence to the eq_noise_var.
+        precedence to the eq_noise_var and that optimizing the eq_noise_var is not yet supported.
 
         If an other_error_measure is used processing is slower! For classification for example one can use:
         other_error_measure = Oger.utils.threshold_before_error(Oger.utils.loss_01). Default None.
@@ -35,7 +35,8 @@ class RidgeRegressionNode(mdp.Node):
         with_bias=True adds an additional bias term. Default True.
         '''
         super(RidgeRegressionNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
-        if not type(ridge_param) is list:
+        if not type(ridge_param) is list and not type(ridge_param) is np.ndarray:
+            print type(ridge_param)
             ridge_param = [ridge_param]
         self._ridge_params = ridge_param
         self._eq_noise_var = eq_noise_var
@@ -52,9 +53,6 @@ class RidgeRegressionNode(mdp.Node):
         if other_error_measure:
             self._x_list = []
             self._y_list = []
-        # avoid numerical errors with high condition number
-        self._rp_added = 0
-        self._ridge_params -= self._rp_added
 
     def _train(self, x, y):
         y = y.astype(self.dtype) #avoid True + True != 2
@@ -90,8 +88,7 @@ class RidgeRegressionNode(mdp.Node):
             for o in range(self._output_dim):
                 r = mdp.numx.where(errors == np.nanmin(errors[:,o]))[0][-1]
                 self.val_error.append(errors[r,o])
-                self.ridge_param.append(self._ridge_params[r] + self._rp_added)
-            self._ridge_params += self._rp_added
+                self.ridge_param.append(self._ridge_params[r])
 
             print 'Total time:', time.time()-t_start, 's'
 
@@ -101,6 +98,8 @@ class RidgeRegressionNode(mdp.Node):
                 pylab.plot(np.log10(self._ridge_params),errors)
                 pylab.show()
         else:
+            print len(self._ridge_params)
+            print self._ridge_params
             if self._ridge_params[0] > 0:
                 self.ridge_param = self._ridge_params[0]
             else:
