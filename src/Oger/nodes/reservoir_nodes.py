@@ -167,7 +167,7 @@ class ReservoirNode(mdp.Node):
         if self.w.shape != (self.output_dim, self.output_dim):
             exception_str = 'Shape of given w does not match input/output dimensions of node. '
             exception_str += 'Output dim: ' + str(self.output_dim) + '. '
-            exception_str += 'Shape of w: ' + str(self.w_in.shape)
+            exception_str += 'Shape of w: ' + str(self.w.shape)
             raise mdp.NodeException(exception_str)
 
         self.initial_state = mdp.numx.zeros((1, self.output_dim))
