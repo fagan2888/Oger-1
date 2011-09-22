@@ -110,11 +110,16 @@ class ConfusionMatrix(object):
         if labels is None:
             labels = range(0, num_classes)
         
-        conf = np.zeros((num_classes, num_classes))
-        for output_label, target_label in zip(output_classes, target_classes):
-            o = labels.index(output_label)
-            t = labels.index(target_label)
-            conf[t, o] += 1 # targets = rows, predictions = columns
+
+        # the confusion matrix can be obtained easily by multiplying 'one hot' representations\
+        # of outputs and targets. Previously, a for-loop was used to count occurrences, but by
+        # first computing one-hot representations, this is no longer necessary.
+        # This should improve performance.
+        l = np.atleast_2d(labels)
+        outputs_1hot = (np.tile(output_classes, (1, num_classes)) == l).astype(int)
+        targets_1hot = (np.tile(target_classes, (1, num_classes)) == l).astype(int)
+        
+        conf = np.dot(targets_1hot.T, outputs_1hot)
            
         return ConfusionMatrix(conf, labels)
         
