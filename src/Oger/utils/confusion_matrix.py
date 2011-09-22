@@ -111,9 +111,9 @@ class ConfusionMatrix(object):
             labels = range(0, num_classes)
         
 
-        # the confusion matrix can be obtained easily by multiplying 'one hot' representations\
+        # the confusion matrix can be obtained easily by multiplying 'one hot' representations
         # of outputs and targets. Previously, a for-loop was used to count occurrences, but by
-        # first computing one-hot representations, this is no longer necessary.
+        # first computing one-hot representations, this can be avoided.
         # This should improve performance.
         l = np.atleast_2d(labels)
         outputs_1hot = (np.tile(output_classes, (1, num_classes)) == l).astype(int)
