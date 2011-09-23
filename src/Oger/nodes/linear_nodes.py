@@ -54,6 +54,9 @@ class RidgeRegressionNode(mdp.Node):
             self._x_list = []
             self._y_list = []
 
+    def _get_supported_dtypes(self):
+        return ['float32', 'float64']
+
     def _train(self, x, y):
         y = y.astype(self.dtype) #avoid True + True != 2
         if self.with_bias:
