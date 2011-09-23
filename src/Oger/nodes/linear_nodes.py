@@ -944,5 +944,3 @@ class BayesianWeightedRegressionNode(RidgeRegressionNode):
             self.w = w
             self.b = 0
         self._clear_memory()
-
-        print self.beta
