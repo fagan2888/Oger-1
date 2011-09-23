@@ -4,7 +4,7 @@ This subpackage contains a number of Oger-related nodes. It contains several add
 
 from flows import (FreerunFlow, OnlineFreerunFlow)
 from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, GaussianIPReservoirNode, BandpassReservoirNode, CUDAReservoirNode)
-from linear_nodes import (RidgeRegressionNode, ClassReweightedRidgeRegressionNode, BFSRidgeRegressionNode, BFSClassReweightedRidgeRegressionNode, FFSRidgeRegressionNode, FFSClassReweightedRidgeRegressionNode, LARSNode, ClassReweightedLARSNode, OPRidgeRegressionNode, ClassReweightedOPRidgeRegressionNode)
+from linear_nodes import (RidgeRegressionNode, ClassReweightedRidgeRegressionNode, BFSRidgeRegressionNode, BFSClassReweightedRidgeRegressionNode, FFSRidgeRegressionNode, FFSClassReweightedRidgeRegressionNode, LARSNode, ClassReweightedLARSNode, OPRidgeRegressionNode, ClassReweightedOPRidgeRegressionNode, BayesianWeightedRegressionNode)
 from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressionNode, LogisticRegressionNode)
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
 from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, FeedbackShiftNode, ResampleNode, TimeFramesNode2, RescaleZMUSNode, SupervisedLayer, MaxVotingNode)
@@ -30,7 +30,7 @@ del csp_nodes
 
 __all__ = [ 'FreerunFlow', 'OnlineFreerunFlow',
             'ReservoirNode', 'LeakyReservoirNode', 'TrainableReservoirNode', 'HebbReservoirNode',  'GaussianIPReservoirNode' ,'BandpassReservoirNode','CUDAReservoirNode',
-            'RidgeRegressionNode', 'ClassReweightedRidgeRegressionNode', 'BFSRidgeRegressionNode', 'BFSClassReweightedRidgeRegressionNode', 'FFSRidgeRegressionNode', 'FFSClassReweightedRidgeRegressionNode', 'LARSNode', 'ClassReweightedLARSNode', 'OPRidgeRegressionNode', 'ClassReweightedOPRidgeRegressionNode',
+            'RidgeRegressionNode', 'ClassReweightedRidgeRegressionNode', 'BFSRidgeRegressionNode', 'BFSClassReweightedRidgeRegressionNode', 'FFSRidgeRegressionNode', 'FFSClassReweightedRidgeRegressionNode', 'LARSNode', 'ClassReweightedLARSNode', 'OPRidgeRegressionNode', 'ClassReweightedOPRidgeRegressionNode', 'BayesianWeightedRegressionNode',
             'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
             'ERBMNode', 'CRBMNode', 'CUDACRBMNode', 'CUDAReservoirNode', 'CUDATRMNode',
             'FeedbackNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZMUSNode', 'SupervisedLayer', 'MaxVotingNode',

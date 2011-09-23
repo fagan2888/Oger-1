@@ -903,3 +903,43 @@ class ClassReweightedOPRidgeRegressionNode(OPRidgeRegressionNode, ClassReweighte
     pass
 
 
+class BayesianWeightedRegressionNode(RidgeRegressionNode):
+
+    def __init__(self, mu=None, threshold=0.00001, max_iter=100, with_bias=True, input_dim=None, output_dim=None, dtype=None):
+        super(BayesianWeightedRegressionNode, self).__init__(with_bias=with_bias, input_dim=input_dim, output_dim=output_dim, dtype=dtype)
+        self.mu = mu
+        self.threshold=threshold
+        self.max_iter = max_iter
+
+    def _get_one(self, name, i):
+        return self.beta[i] * super(BayesianWeightedRegressionNode, self)._get_one(name, i)
+
+    def _stop_training(self):
+        self.alpha = 0
+        self.beta = np.ones((len(self._xTx_list)))
+
+        w = np.zeros((self.output_dim,1))
+        w_prev = np.zeros((self.output_dim,1))
+        if self.mu is None:
+            self.mu = np.zeros((self.output_dim,1))
+
+        n_iter = 0
+        while n_iter < self.max_iter or np.mean(np.abs(w - w_prev) / np.abs(w_prev)) > self.threshold:
+            w_prev = w
+            S_n = la.inv(self.alpha * np.eye(self._input_dim + self.with_bias) + self._get('xTx', range(len(self._xTx_list))))
+            w = np.dot(S_n, self._get('xTy', range(len(self._xTx_list))))
+            self.alpha = (self.input_dim + self.with_bias) / (np.trace(S_n) + np.dot((w - self.mu).T, w - self.mu))
+            for i in range(len(self._xTx_list)):
+                e = self._get_one('yTy',i) + np.dot(w.T, np.dot(self._get_one('xTx',i), w) - 2 * self._get_one('xTy',i))
+                self.beta[i] = self._len_list[i] / (np.trace(np.dot(S_n, self._get_one('xTx', i) / self.beta[i])) + e / self.beta[i])
+            n_iter += 1
+
+        if self.with_bias:
+            self.w = w[:-1]
+            self.b = w[-1]
+        else:
+            self.w = w
+            self.b = 0
+        self._clear_memory()
+
+        print self.beta
