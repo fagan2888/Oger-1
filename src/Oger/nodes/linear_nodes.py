@@ -36,7 +36,6 @@ class RidgeRegressionNode(mdp.Node):
         '''
         super(RidgeRegressionNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
         if not type(ridge_param) is list and not type(ridge_param) is np.ndarray:
-            print type(ridge_param)
             ridge_param = [ridge_param]
         self._ridge_params = ridge_param
         self._eq_noise_var = eq_noise_var
@@ -101,8 +100,6 @@ class RidgeRegressionNode(mdp.Node):
                 pylab.plot(np.log10(self._ridge_params),errors)
                 pylab.show()
         else:
-            print len(self._ridge_params)
-            print self._ridge_params
             if self._ridge_params[0] > 0:
                 self.ridge_param = self._ridge_params[0]
             else:
