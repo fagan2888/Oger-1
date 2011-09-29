@@ -9,6 +9,7 @@ from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressi
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
 from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, FeedbackShiftNode, ResampleNode, TimeFramesNode2, RescaleZMUSNode, SupervisedLayer, MaxVotingNode)
 from csp_nodes import CSPNode
+from elm_nodes import ELMNode
 try:
     from spiking_nodes import (BrianIFReservoirNode, GenericSpikingReservoirNode, SpikingRandomIFReservoirNode, SpikingRandomIFDynSynReservoirNode, SpatialSpikingReservoirNode)
     del spiking_nodes
@@ -26,6 +27,7 @@ del rbm_nodes
 del utility_nodes
 del layers
 del csp_nodes
+del elm_nodes
 
 
 __all__ = [ 'FreerunFlow', 'OnlineFreerunFlow',
@@ -36,6 +38,7 @@ __all__ = [ 'FreerunFlow', 'OnlineFreerunFlow',
             'FeedbackNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZMUSNode', 'SupervisedLayer', 'MaxVotingNode',
             'GenericSpikingReservoirNode', 'SpikingRandomIFReservoirNode', 'SpikingRandomIFDynSynReservoirNode', 'SpatialSpikingReservoirNode',
             'TimeFramesNode2', 'SplitOutputLayer', 'SplitOutputSameInputLayer'
-            'CSPNode']
+            'CSPNode',
+            'ELMNode']
 
 
