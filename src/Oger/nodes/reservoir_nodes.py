@@ -266,7 +266,7 @@ class SparseReservoirNode(ReservoirNode):
         """
     def __init__(self, input_dim=None, output_dim=None, spectral_radius=0.9,
              nonlin_func=np.tanh, reset_states=True, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
-             w_in=None, w_bias=None, fan_in_w = 10, fan_in_i = 1):
+             w_bias=None, fan_in_w = 10, fan_in_i = 1):
 
         # Use sparse matrices for generating the weights
         import scipy.sparse
@@ -340,6 +340,30 @@ class SparseReservoirNode(ReservoirNode):
 
         # Return the whole state matrix except the initial state
         return self.states
+
+class SparseLeakyReservoirNode(SparseReservoirNode, LeakyReservoirNode):
+    """ Initializes and constructs a random reservoir with sparse uniformly random weight matrices in [-1, 1].
+        Parameters are:
+            - input_dim: input dimensionality
+            - output_dim: output_dimensionality, i.e. reservoir size
+            - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
+            - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
+            - input_scaling: scaling of the input weight matrix, default: 1
+            - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
+            - reset_states: should the reservoir states be reset to zero at each call of execute? Default True, set to False for use in FeedbackFlow
+            - fan_in_w: average number of non-zero incoming weights in the reservoir weight matrix. Default value 10.
+            - fan_in_i: average number of non-zero incoming weights in the input weight matrix. Default value 1.
+            - leak_rate: if 1 it is a standard neuron, lower values give slower dynamics
+        In case reset_states = False, note that because state needs to be stored in the Node object,
+        This Node type is not parallelizable using threads.
+        """
+    def __init__(self, input_dim=None, output_dim=None, spectral_radius=0.9,
+             nonlin_func=np.tanh, reset_states=True, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
+             w_in=None, w_bias=None, fan_in_w = 10, fan_in_i = 1, leak_rate = 1):
+        # Leak rate, if 1 it is a standard neuron, lower values give slower dynamics 
+        super(SparseLeakyReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim, spectral_radius=spectral_radius, nonlin_func=nonlin_func, reset_states=reset_states, bias_scaling=bias_scaling, input_scaling=input_scaling, dtype=dtype, _instance=_instance, w_bias=w_bias, fan_in_w = fan_in_w, fan_in_i = fan_in_i )
+        self.leak_rate = leak_rate
+
 
 class BandpassReservoirNode(ReservoirNode):
     """Reservoir node with bandpass neurons (an Nth-order band-pass filter added to the output of a standard neuron).
