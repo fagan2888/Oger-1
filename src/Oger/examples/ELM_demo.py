@@ -1,5 +1,7 @@
-# This is a demo for an ELM and OP-ELM that tries to model a sinc function
-# OP-ELM often performs better but not always BFS is slower but should perform even better...
+# This is a demo for an ELM, OP-ELM and RBFS-ELM that tries to model a sinc function
+# Extreme Learning Machine is fastest
+# Optimally Pruned ELM often performs better but not always
+# Regularized Backward Feature Selection ELM is slower but should perform even better...
 
 import mdp
 import Oger
@@ -44,14 +46,14 @@ yh_t_opelm = flow(x_t) #OP-ELM test output
 #Backward Feature Selection training using BFSRidgeRegressionNode (with regularization)
 readout = Oger.nodes.BFSRidgeRegressionNode()
 flow = mdp.Flow([elm, readout],verbose=True)
-print '\nTraining Backward Feature Selection with regularization...\n'
+print '\nTraining Backward Feature Selection with Regularization...\n'
 flow.train([x, zip(x,y)])
 yh_t_bfs = flow(x_t) #OP-ELM test output
 
 
 print '\nELM: Test NRMSE =', Oger.utils.nrmse(yh_t_elm, y_t)
 print 'OP-ELM: Test NRMSE =', Oger.utils.nrmse(yh_t_opelm, y_t)
-print 'BFS with regularization: Test NRMSE =', Oger.utils.nrmse(yh_t_bfs, y_t), '\n'
+print 'BFS with Regularization: Test NRMSE =', Oger.utils.nrmse(yh_t_bfs, y_t), '\n'
 
 
 pylab.scatter(X,Y, c='k', marker='+')
@@ -69,5 +71,5 @@ pylab.figure()
 pylab.scatter(X,Y, c='k', marker='+')
 pylab.plot(X_orr, Y_orr, linewidth=2)
 pylab.scatter(x_t,yh_t_opelm,c='r',linewidths=2)
-pylab.title('Backward Feature Selection with regularization')
+pylab.title('Backward Feature Selection with Regularization')
 pylab.show()
