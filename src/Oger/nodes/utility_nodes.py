@@ -248,14 +248,14 @@ class RescaleZMUSNode(mdp.Node):
         return True
 
     def _train(self, x):
-        self._mean += mdp.numx.mean(x) * len(x)
+        self._mean += mdp.numx.sum(x)
         self._std += mdp.numx.sum(x ** 2) - mdp.numx.sum(x) ** 2
         self._len += len(x)
 
     def _stop_training(self):
         self._mean /= self._len
         self._std /= self._len
-        if self._use_var:
+        if not self._use_var:
             self._std = mdp.numx.sqrt(self._std)
 
     def _execute(self, x):
