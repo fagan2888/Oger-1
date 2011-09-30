@@ -229,7 +229,7 @@ class FeedbackShiftNode(mdp.Node):
         self._output_dim = n
 
 
-class RescaleZMUSNode(mdp.Node):
+class RescaleZeroMeanUnitVarianceNode(mdp.Node):
     '''
     Rescales the output with the mean and standard deviation seen during training
     
@@ -237,29 +237,29 @@ class RescaleZMUSNode(mdp.Node):
     
     Currently for 1 input only!!
     '''
-    def __init__(self, use_var=False, input_dim=None, dtype=None):
-        super(RescaleZMUSNode, self).__init__(input_dim=input_dim, dtype=dtype)
+    def __init__(self, use_std=False, input_dim=None, dtype=None):
+        super(RescaleZeroMeanUnitVarianceNode, self).__init__(input_dim=input_dim, dtype=dtype)
         self._mean = 0
-        self._std = 0
+        self._var = 0
         self._len = 0
-        self._use_var = use_var
+        self.use_std = use_std
 
     def is_trainable(self):
         return True
 
     def _train(self, x):
         self._mean += mdp.numx.sum(x)
-        self._std += mdp.numx.sum(x ** 2) - mdp.numx.sum(x) ** 2
+        self._var += mdp.numx.sum(x ** 2) - mdp.numx.sum(x) ** 2
         self._len += len(x)
 
     def _stop_training(self):
         self._mean /= self._len
-        self._std /= self._len
-        if not self._use_var:
-            self._std = mdp.numx.sqrt(self._std)
+        self._var /= self._len
+        if self.use_std:
+            self._var = mdp.numx.sqrt(self._var)
 
     def _execute(self, x):
-        return (x - self._mean) / self._std
+        return (x - self._mean) / self._var
 
 
 class SupervisedLayer(mdp.hinet.Layer):

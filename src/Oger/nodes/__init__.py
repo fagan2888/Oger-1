@@ -7,7 +7,7 @@ from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, SparseReservoirN
 from linear_nodes import (RidgeRegressionNode, ClassReweightedRidgeRegressionNode, BFSRidgeRegressionNode, BFSClassReweightedRidgeRegressionNode, FFSRidgeRegressionNode, FFSClassReweightedRidgeRegressionNode, LARSNode, ClassReweightedLARSNode, OPRidgeRegressionNode, ClassReweightedOPRidgeRegressionNode, BayesianWeightedRegressionNode)
 from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressionNode, LogisticRegressionNode)
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
-from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, FeedbackShiftNode, ResampleNode, TimeFramesNode2, RescaleZMUSNode, SupervisedLayer, MaxVotingNode)
+from utility_nodes import (FeedbackNode, MeanAcrossTimeNode, WTANode, ShiftNode, FeedbackShiftNode, ResampleNode, TimeFramesNode2, RescaleZeroMeanUnitVarianceNode, SupervisedLayer, MaxVotingNode)
 from csp_nodes import CSPNode
 from elm_nodes import ELMNode
 try:
@@ -35,7 +35,7 @@ __all__ = [ 'FreerunFlow', 'OnlineFreerunFlow',
             'RidgeRegressionNode', 'ClassReweightedRidgeRegressionNode', 'BFSRidgeRegressionNode', 'BFSClassReweightedRidgeRegressionNode', 'FFSRidgeRegressionNode', 'FFSClassReweightedRidgeRegressionNode', 'LARSNode', 'ClassReweightedLARSNode', 'OPRidgeRegressionNode', 'ClassReweightedOPRidgeRegressionNode', 'BayesianWeightedRegressionNode',
             'ThresholdNode', 'PerceptronNode', 'IRLSLogisticRegressionNode', 'LogisticRegressionNode',
             'ERBMNode', 'CRBMNode', 'CUDACRBMNode', 'CUDAReservoirNode', 'CUDATRMNode',
-            'FeedbackNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZMUSNode', 'SupervisedLayer', 'MaxVotingNode',
+            'FeedbackNode', 'MeanAcrossTimeNode', 'WTANode', 'ShiftNode', 'FeedbackShiftNode', 'ResampleNode', 'RescaleZeroMeanUnitVarianceNode', 'SupervisedLayer', 'MaxVotingNode',
             'GenericSpikingReservoirNode', 'SpikingRandomIFReservoirNode', 'SpikingRandomIFDynSynReservoirNode', 'SpatialSpikingReservoirNode',
             'TimeFramesNode2', 'SplitOutputLayer', 'SplitOutputSameInputLayer'
             'CSPNode',
