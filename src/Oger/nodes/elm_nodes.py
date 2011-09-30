@@ -46,9 +46,9 @@ class ELMNode(mdp.Node):
             elif len(self._x) + len(x) > self._max_mem and self._n_batches > 2:
                 # reduce memory use, originates from Matlab toolbox
                 self._n_batches += 1
-                self._x = self._x[np.random.permutation(len(self._x)),:][0:self._max_mem,:]
+                self._x = self._x[np.random.permutation(len(self._x))[0:self._max_mem],:]
                 n = np.round(0.0 + self._max_mem / self._n_batches)
-                self._x[-n:,:] = x[np.random.permutation(len(x)),:][0:n,:]
+                self._x[-n:,:] = x[np.random.permutation(len(x))[0:n],:]
             else:
                 self._x = np.concatenate((self._x, x), axis=0)
                 self._n_batches += 1
