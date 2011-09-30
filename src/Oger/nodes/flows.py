@@ -54,25 +54,25 @@ class FreerunFlow(mdp.Flow):
 
 
     def execute(self, x, nodenr=None):
-        if not isinstance(x, mdp.numx.ndarray):
-            errstr = ("FreerunFlows can only be executed using numpy arrays as input.")
-            raise mdp.FlowException(errstr)
-
-        if self.freerun_steps >= x.shape[0]:
-            errstr = ("Number of freerun steps (%d) should be less than the number of timesteps in x (%d)" % (self.freerun_steps, x.shape[0]))
-            raise mdp.FlowException(errstr)
-
-        # Run the flow for warmup
-        if self.freerun_steps > x.shape[0]:
-            errstr = ("The number of freerun steps (%d) is larger than the input (%d):" % (self.freerun_steps, x.shape[0]))
-            raise mdp.FlowException(errstr)
+        if type(x) is numx.ndarray:
+            if self.freerun_steps > x.shape[0]:
+                errstr = ("Number of freerun steps (%d) should be less than or equal to the number of timesteps in x (%d)" % (self.freerun_steps, x.shape[0]))
+                raise mdp.FlowException(errstr)
+    
+            # Run the flow for warmup
+            if self.freerun_steps > x.shape[0]:
+                errstr = ("The number of freerun steps (%d) is larger than the input (%d):" % (self.freerun_steps, x.shape[0]))
+                raise mdp.FlowException(errstr)
 
         if self.external_input_range is None:
             external_input_range = []
         else:
             external_input_range = self.external_input_range
 
-        self._execute_seq(x[:-self.freerun_steps, :])
+        # Warmup phase
+        if self.freerun_steps != x.shape[0]:
+            self._execute_seq(x[:-self.freerun_steps, :])
+
         freerun_range = mdp.numx.setdiff1d(range(x.shape[1]), external_input_range)
         self.fb_value = mdp.numx.atleast_2d(x[-self.freerun_steps, freerun_range])
 
