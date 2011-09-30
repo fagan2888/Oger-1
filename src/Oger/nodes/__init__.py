@@ -3,7 +3,7 @@ This subpackage contains a number of Oger-related nodes. It contains several add
 """
 
 from flows import (FreerunFlow)
-from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, SparseReservoirNode, TrainableReservoirNode, HebbReservoirNode, GaussianIPReservoirNode, BandpassReservoirNode, CUDAReservoirNode)
+from reservoir_nodes import (ReservoirNode, LeakyReservoirNode, SparseReservoirNode, SparseLeakyReservoirNode, TrainableReservoirNode, HebbReservoirNode, GaussianIPReservoirNode, BandpassReservoirNode, CUDAReservoirNode)
 from linear_nodes import (RidgeRegressionNode, ClassReweightedRidgeRegressionNode, BFSRidgeRegressionNode, BFSClassReweightedRidgeRegressionNode, FFSRidgeRegressionNode, FFSClassReweightedRidgeRegressionNode, LARSNode, ClassReweightedLARSNode, OPRidgeRegressionNode, ClassReweightedOPRidgeRegressionNode, BayesianWeightedRegressionNode)
 from nonlinear_nodes import (ThresholdNode, PerceptronNode, IRLSLogisticRegressionNode, LogisticRegressionNode)
 from rbm_nodes import (ERBMNode, CRBMNode, CUDACRBMNode, CUDATRMNode)
