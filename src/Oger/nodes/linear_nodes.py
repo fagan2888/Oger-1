@@ -124,14 +124,14 @@ class RidgeRegressionNode(mdp.Node):
 
     def _get_one(self, name, i):
         t = getattr(self, '_' + name + '_list')
-        if self.low_memory and not name.count('yTy'):
+        if self.low_memory and not name.count('yTy') and not name.count('len'):
             t[i].seek(0)
             return pickle.load(t[i])
         else:
             return t[i]
 
     def _set(self,name,t,i=None):
-        if self.low_memory and not name.count('yTy'):
+        if self.low_memory and not name.count('yTy') and not name.count('len'):
             f = os.tmpfile()
             pickle.dump(t, f, protocol=-1)
             t = f
