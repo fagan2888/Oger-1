@@ -107,9 +107,9 @@ class ReservoirNode(mdp.Node):
         For more control over the weight matrix creation, you can also specify the
         w, w_in or w_bias as numpy arrays or as callables (i.e. functions). In the latter
         case, the functions for w, w_in, w_bias should accept the following arguments:
-        - w = w_init_function(output_dim)
-        - w_in = w_in_init_function(output_dim, input_dim)
-        - w_bias = w_bias_init_function(output_dim)
+        - w = w_init_function(output_dim, spectral_radius)
+        - w_in = w_in_init_function(output_dim, input_dim, input_scaling)
+        - w_bias = w_bias_init_function(output_dim, bias_scaling)
         The weight matrices are created either at instantiation (if input_dim and output_dim are
         both given to the constructor), or during the first call to execute.
         """
@@ -125,7 +125,7 @@ class ReservoirNode(mdp.Node):
             self.w_in = self.input_scaling * (mdp.numx.random.randint(0, 2, (self.output_dim, self.input_dim)) * 2 - 1)
         else:
             if callable(self.w_in_initial):
-                self.w_in = self.w_in_initial(self.output_dim, self.input_dim) # If it is a function, call it
+                self.w_in = self.w_in_initial(self.output_dim, self.input_dim, self.input_scaling) # If it is a function, call it
             else:
                 self.w_in = self.w_in_initial.copy() # else just copy it
         # Check if dimensions of the weight matrix match the dimensions of the node inputs and outputs
@@ -141,7 +141,7 @@ class ReservoirNode(mdp.Node):
             self.w_bias = self.bias_scaling * (mdp.numx.random.rand(1,self.output_dim) * 2 - 1)
         else:
             if callable(self.w_bias_initial):
-                self.w_bias = self.w_bias_initial(self.output_dim) # If it is a function, call it
+                self.w_bias = self.w_bias_initial(self.output_dim, self.bias_scaling) # If it is a function, call it
             else:
                 self.w_bias = self.w_bias_initial.copy()   # else just copy it
 
@@ -159,7 +159,7 @@ class ReservoirNode(mdp.Node):
             self.w *= self.spectral_radius / Oger.utils.get_spectral_radius(self.w)
         else:
             if callable(self.w_initial):
-                self.w = self.w_initial(self.output_dim) # If it is a function, call it
+                self.w = self.w_initial(self.output_dim, self.spectral_radius) # If it is a function, call it
             else:
                 self.w = self.w_initial.copy()   # else just copy it
 
@@ -249,8 +249,100 @@ class LeakyReservoirNode(ReservoirNode):
     def _post_update_hook(self, states, input, timestep):
         states[timestep + 1, :] = (1 - self.leak_rate) * states[timestep, :] + self.leak_rate * states[timestep + 1, :]
 
+class SparseReservoirNode(ReservoirNode):
+    """ Initializes and constructs a random reservoir with sparse uniformly random weight matrices in [-1, 1].
+        Parameters are:
+            - input_dim: input dimensionality
+            - output_dim: output_dimensionality, i.e. reservoir size
+            - nonlin_func: string representing the non-linearity to be applied, default: 'tanh'
+            - bias_scaling: scaling of the bias, a constant input to each neuron, default: 0 (no bias)
+            - input_scaling: scaling of the input weight matrix, default: 1
+            - spectral_radius: scaling of the reservoir weight matrix, default value: 0.9
+            - reset_states: should the reservoir states be reset to zero at each call of execute? Default True, set to False for use in FeedbackFlow
+            - fan_in_w: average number of non-zero incoming weights in the reservoir weight matrix. Default value 10.
+            - fan_in_i: average number of non-zero incoming weights in the input weight matrix. Default value 1.
+        In case reset_states = False, note that because state needs to be stored in the Node object,
+        This Node type is not parallelizable using threads.
+        """
+    def __init__(self, input_dim=None, output_dim=None, spectral_radius=0.9,
+             nonlin_func=np.tanh, reset_states=True, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
+             w_in=None, w_bias=None, fan_in_w = 10, fan_in_i = 1):
+
+        # Use sparse matrices for generating the weights
+        import scipy.sparse
+        from scipy.sparse.linalg import eigs
+        def sparse_w(out_size, fan_in, specrad):
+            converged = False
+            # Initialize reservoir weight matrix
+            nrentries = mdp.numx.int32(out_size*fan_in)
+            # Keep generating random matrices until convergence
+            while not converged:
+                try:
+                    #$%ij = mdp.numx.zeros((2,nrentries))
+                    ij = mdp.numx.random.randint(0,out_size,(2,nrentries))
+                    datavec =  mdp.numx.random.randn(nrentries)
+                    w = scipy.sparse.csc_matrix((datavec, ij),dtype=self._dtype, shape=(out_size, out_size))
+                    we = eigs(w,return_eigenvectors=False,k=3)
+                    converged = True
+                    w *= (specrad / mdp.numx.amax(mdp.numx.absolute(we)))
+                except:
+                    pass
+            return w
+
+        def sparse_w_in(out_size, in_size, fan_in, scaling):
+            # Initialize reservoir weight matrix
+            nrentries = mdp.numx.int32(out_size*fan_in_i)
+            # Keep generating random matrices until convergence
+            ij = mdp.numx.zeros((2,nrentries))
+            ij[0,:] = mdp.numx.random.randint(0,out_size,(1,nrentries))
+            ij[1,:] = mdp.numx.random.randint(0,in_size,(1,nrentries))
+            datavec =  mdp.numx.random.rand(nrentries)
+            w = scaling * scipy.sparse.csc_matrix((datavec, ij),dtype=self._dtype, shape=(out_size, in_size))
+            return w
+
+        w = lambda output_dim, specrad: sparse_w(output_dim, fan_in_w, specrad, )
+        w_in = lambda output_dim, input_dim, input_scaling: sparse_w_in(output_dim, input_dim, fan_in_i, input_scaling, )
+
+        # Call the parent init function to set the weight matrix generation functions
+        super(SparseReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim, spectral_radius=spectral_radius,
+                 nonlin_func=nonlin_func, reset_states=reset_states, bias_scaling=bias_scaling, input_scaling=input_scaling, dtype=dtype, _instance=_instance,
+                 w_in=w_in, w_bias=w_bias, w=w)
+
+    def _execute(self, x):
+        """ Executes simulation with input vector x.
+        """
+        # Check if the weight matrices are intialized, otherwise create them
+        if not self._is_initialized:
+            self.initialize()
+
+        # Set the initial state of the reservoir
+        # if self.reset_states is true, initialize to zero,
+        # otherwise initialize to the last time-step of the previous execute call (for freerun)
+        if self.reset_states:
+            self.initial_state = mdp.numx.zeros((1, self.output_dim))
+        else:
+            self.initial_state = mdp.numx.atleast_2d(self.states[-1, :])
+
+        steps = x.shape[0]
+
+        # Pre-allocate the state vector, adding the initial state
+        states = mdp.numx.concatenate((self.initial_state, mdp.numx.zeros((steps, self.output_dim))))
+
+        nonlinear_function_pointer = self.nonlin_func
+
+        # Loop over the input data and compute the reservoir states
+        for n in range(steps):
+            states[n + 1, :] = nonlinear_function_pointer(self.w*states[n, :] + self.w_in* x[n, :] + self.w_bias)
+            self._post_update_hook(states, x, n)
+
+        # Save the state for re-initialization in case reset_states = False
+        self.states = states[1:, :]
+
+        # Return the whole state matrix except the initial state
+        return self.states
+
 class BandpassReservoirNode(ReservoirNode):
-    """Reservoir node with bandpass neurons (an Nth-order band-pass filter added to the output of a standard neuron). 
+    """Reservoir node with bandpass neurons (an Nth-order band-pass filter added to the output of a standard neuron).
     """
     def __init__(self, b=mdp.numx.array([[1]]), a=mdp.numx.array([[0]]), *args, **kwargs):
         """Initializes and constructs a random reservoir with band-pass neurons.
