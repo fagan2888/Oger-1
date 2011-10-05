@@ -13,7 +13,7 @@ class RidgeRegressionNode(mdp.Node):
     def __init__(self, ridge_param=mdp.numx.power(10, mdp.numx.arange(-15,5,0.2)), eq_noise_var=0, other_error_measure=None, cross_validate_function=None, low_memory=False, plot_errors=False, with_bias=True, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
         '''
 
-        ridge_params contains the list of regularization parameters to be tested. If it is set to [0] no regularization
+        ridge_params contains the list of regularization parameters to be tested. If it is set to 0 no regularization
         or the eq_noise_var is used. Default 10^[-15:5:0.2].
 
         It is also possible to define an equivalent noise variance: the ridge parameter is set such that a
@@ -35,11 +35,9 @@ class RidgeRegressionNode(mdp.Node):
         with_bias=True adds an additional bias term. Default True.
         '''
         super(RidgeRegressionNode, self).__init__(input_dim=input_dim, output_dim=output_dim, dtype=dtype)
-        if not type(ridge_param) is list and not type(ridge_param) is np.ndarray:
-            ridge_param = [ridge_param]
-        self._ridge_params = ridge_param
-        self._eq_noise_var = eq_noise_var
-        self._other_error_measure = other_error_measure
+        self.ridge_param = ridge_param
+        self.eq_noise_var = eq_noise_var
+        self.other_error_measure = other_error_measure
         self.low_memory = low_memory
         self.plot_errors = plot_errors
         self.with_bias = with_bias
@@ -67,13 +65,13 @@ class RidgeRegressionNode(mdp.Node):
         self._set('xTy', np.dot(x.T, y))
         self._yTy_list.append(np.sum(y**2, axis=0))
         self._len_list.append(len(y))
-        if self._other_error_measure:
+        if self.other_error_measure:
             self._set('x', x)
             self._set('y', y)
 
     def _stop_training(self):
-        if len(self._ridge_params) > 1:
-            if self._other_error_measure:
+        if (type(self.ridge_param) is list or type(self.ridge_param) is np.ndarray) and len(self._xTx_list)>1:
+            if self.other_error_measure:
                 calc_error = self._calc_other_error
             else:
                 calc_error = self._calc_mse
@@ -100,10 +98,12 @@ class RidgeRegressionNode(mdp.Node):
                 pylab.plot(np.log10(self._ridge_params),errors)
                 pylab.show()
         else:
-            if self._ridge_params[0] > 0:
-                self.ridge_param = self._ridge_params[0]
-            else:
-                self.ridge_param = self._eq_noise_var**2 * np.sum(self._len_list)
+            if len(self._xTx_list)==1 and (type(self.ridge_param) is list or type(self.ridge_param) is np.ndarray) and len(self.ridge_param)>1:
+                import warnings
+                warnings.warn('Only one fold found, optimization is not supported. Instead no regularization or eq_noise_var is used!')
+                self.ridge_param = 0
+            if self.ridge_param == 0:
+                self.ridge_param = self.eq_noise_var**2 * np.sum(self._len_list)
             self.ridge_param = self.ridge_param * np.ones((self._output_dim,))
 
         self._final_training()
@@ -112,7 +112,7 @@ class RidgeRegressionNode(mdp.Node):
     def _execute(self, x):
         return np.dot(x, self.w).reshape((-1,self._output_dim)) + self.b
 
-    def _get(self,name,l=[]):
+    def _get(self,name,l=None):
         l = list(l)
         ret = copy.copy(self._get_one(name, l.pop()))
         for i in l:
@@ -158,17 +158,19 @@ class RidgeRegressionNode(mdp.Node):
             errors[:,o] += np.sum(W_Ct * (np.dot(xTx_Cv, W_Ct) - xTy_Cv[:,o:o+1]), axis=0)
         return (errors + self._get('yTy', val)) / self._get('len', val)
 
-    def _calc_other_error(self, train, val):
+    def _calc_other_error(self, train, val, s=None):
         # Calculate error for this validation set using other error measure
+        if s==None:
+            s=range(self._input_dim + self.with_bias)
         errors = np.zeros((len(self._ridge_params), self._output_dim))
-        xTx_t = self._get('xTx', train)
-        xTy_t = self._get('xTy', train)
-        x = self._get('x', val)
+        xTx_t = self._get('xTx', train)[s,:][:,s]
+        xTy_t = self._get('xTy', train)[s,:]
+        x = self._get('x', val)[:,s]
         y = self._get('y', val)
         for r in range(len(self._ridge_params)):
             output = np.dot(x, la.solve(xTx_t + self._ridge_params[r] * np.eye(len(xTx_t)), xTy_t))
             for o in range(self._output_dim):
-                errors[r,o] = self._other_error_measure(output[:,o], y[:,o])
+                errors[r,o] = self.other_error_measure(output[:,o], y[:,o])
         return errors
 
     def _final_training(self):
@@ -215,7 +217,7 @@ class ClassReweightedRidgeRegressionNode(RidgeRegressionNode):
         if self.with_bias:
             x = np.concatenate((x, np.ones((x.shape[0], 1), dtype=self.dtype)), axis=1)
         self._len_list.append(len(y))
-        if self._other_error_measure:
+        if self.other_error_measure:
             self._set('x', x)
             self._set('y', y)
 
@@ -240,11 +242,15 @@ class ClassReweightedRidgeRegressionNode(RidgeRegressionNode):
 
 class BFSRidgeRegressionNode(RidgeRegressionNode):
     def _stop_training(self):
+        if not type(self.ridge_param) is list and not type(self.ridge_param) is np.ndarray:
+            self._ridge_params = [self.ridge_param]
+        else:
+            self._ridge_params = self.ridge_param
         import time
         t_start = time.time()
         self._selected_inputs = range(self._input_dim + self.with_bias)
         train_samples, val_samples = self.cross_validate_function(n_samples=len(self._xTx_list), *self._args, **self._kwargs)
-        if self._other_error_measure:
+        if self.other_error_measure:
             calc_error = self._calc_other_error
         else:
             calc_error = self._calc_mse
@@ -257,7 +263,7 @@ class BFSRidgeRegressionNode(RidgeRegressionNode):
         self.ridge_param = self._ridge_params[j]
         print 'Found a ridge_par =', self.ridge_param, 'with a val. error of:', self.val_error, 'Total nr. of selected inputs =', len(self._selected_inputs)-self.with_bias
 
-        if self._other_error_measure:
+        if self.other_error_measure:
             calc_error = self._calc_other_error_bfs
         else:
             calc_error = self._calc_mse_bfs
@@ -325,9 +331,8 @@ class BFSRidgeRegressionNode(RidgeRegressionNode):
             for r in range(len(self._ridge_params)):
                 output = np.dot(x[:,a], la.solve(xTx_t[a,:][:,a] + self._ridge_params[r] * np.eye(len(a)), xTy_t[a,:]))
                 for o in range(self._output_dim):
-                    errors[r,i] += self._other_error_measure(output[:,o], y)
+                    errors[r,i] += self.other_error_measure(output[:,o], y[:,o])
         errors[np.where(errors<0)] = np.nan
-        print errors
         return errors / self._output_dim
 
     def _final_training(self):
@@ -356,9 +361,14 @@ class FFSRidgeRegressionNode(BFSRidgeRegressionNode):
     Multiple outputs are not independently optimized...
     '''
     def _stop_training(self):
+        if not type(self.ridge_param) is list and not type(self.ridge_param) is np.ndarray:
+            self._ridge_params = [self.ridge_param]
+        else:
+            self._ridge_params = self.ridge_param
+
         import time
         t_start = time.time()
-        if self._other_error_measure:
+        if self.other_error_measure:
             calc_error = self._calc_other_error_ffs
         else:
             calc_error = self._calc_mse_ffs
@@ -465,7 +475,7 @@ class FFSRidgeRegressionNode(BFSRidgeRegressionNode):
                 try:
                     output = np.dot(x[:,a], la.solve(xTx_t[a,:][:,a] + self._ridge_params[r] * np.eye(len(a)), xTy_t[a,:]))
                     for o in range(self._output_dim):
-                        errors[r,i] += self._other_error_measure(output[:,o], y[:,o])
+                        errors[r,i] += self.other_error_measure(output[:,o], y[:,o])
                 except la.LinAlgError: #avoids singular matrix inversion errors
                     errors[r,i] = np.nan
         return errors / self._output_dim
@@ -769,8 +779,8 @@ class LARSNode(RidgeRegressionNode):
         For other arguments see RidgeRegressionNode.
         '''
         super(LARSNode,self).__init__(*args, **kwargs)
-        if not self._other_error_measure and method=='lasso':
-            self._other_error_measure = 'mse_lasso'
+        if not self.other_error_measure and method=='lasso':
+            self.other_error_measure = 'mse_lasso'
             self._x_list = []
             self._y_list = []
         if not method == 'lar' or method == 'lasso':
@@ -780,7 +790,7 @@ class LARSNode(RidgeRegressionNode):
         self.method = method
 
     def _stop_training(self):
-        if self._other_error_measure and not isinstance(self._other_error_measure, str):
+        if self.other_error_measure and not isinstance(self.other_error_measure, str):
             calc_error = self._calc_other_error_lars
         else:
             calc_error = self._calc_mse_lars
@@ -821,7 +831,7 @@ class LARSNode(RidgeRegressionNode):
         for o in range(self._output_dim):
             output = np.dot(x,coef_paths[o])
             for i in range(self._input_dim + self.with_bias):
-                errors[i,o] = self._other_error_measure(output[:,i], y[o])
+                errors[i,o] = self.other_error_measure(output[:,i], y[o])
         return errors
 
     def _lars_path(self, train):
@@ -860,9 +870,14 @@ class OPRidgeRegressionNode(BFSRidgeRegressionNode, LARSNode):
     '''
 
     def _stop_training(self):
+        if not type(self.ridge_param) is list and not type(self.ridge_param) is np.ndarray:
+            self._ridge_params = [self.ridge_param]
+        else:
+            self._ridge_params = self.ridge_param
+
         if self._output_dim > 1:
             raise Exception('Only one output is supported')
-        if self._other_error_measure:
+        if self.other_error_measure:
             calc_error = self._calc_other_error
         else:
             calc_error = self._calc_mse

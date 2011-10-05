@@ -1,6 +1,5 @@
 # This is a demo for an ELM, OP-ELM and RBFS-ELM that tries to model a sinc function
-# Extreme Learning Machine is fastest
-# Optimally Pruned ELM often performs better but not always
+# OP-ELM often performs better but not always
 # Regularized Backward Feature Selection ELM is slower but should perform even better...
 
 import mdp
