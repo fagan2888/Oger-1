@@ -71,6 +71,7 @@ class RidgeRegressionNode(mdp.Node):
 
     def _stop_training(self):
         if (type(self.ridge_param) is list or type(self.ridge_param) is np.ndarray) and len(self._xTx_list)>1:
+            self._ridge_params = self.ridge_param
             if self.other_error_measure:
                 calc_error = self._calc_other_error
             else:
