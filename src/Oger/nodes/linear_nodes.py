@@ -90,6 +90,9 @@ class RidgeRegressionNode(mdp.Node):
                 r = mdp.numx.where(errors == np.nanmin(errors[:,o]))[0][-1]
                 self.val_error.append(errors[r,o])
                 self.ridge_param.append(self._ridge_params[r])
+                if r==0 or r==len(self._ridge_params)-1:
+                    import warnings
+                    warnings.warn('The ridge parameter selected for output ' + str(o) + ' is ' + str(self.ridge_param[-1]) + '. This is the largest or smallest possible value from the list provided. Use larger or smaller ridge parameters to avoid this warning!')
 
             print 'Total time:', time.time()-t_start, 's'
 
