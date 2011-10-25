@@ -10,7 +10,7 @@ class RidgeRegressionNode(mdp.Node):
     '''
     Ridge Regression Node that also optimizes the regularization parameter
     '''
-    def __init__(self, ridge_param=mdp.numx.power(10, mdp.numx.arange(-15,5,0.2)), eq_noise_var=0, other_error_measure=None, cross_validate_function=None, low_memory=False, plot_errors=False, with_bias=True, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
+    def __init__(self, ridge_param=mdp.numx.power(10, mdp.numx.arange(-15,15,0.2)), eq_noise_var=0, other_error_measure=None, cross_validate_function=None, low_memory=False, verbose=False, plot_errors=False, with_bias=True, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
         '''
 
         ridge_params contains the list of regularization parameters to be tested. If it is set to 0 no regularization
@@ -30,6 +30,8 @@ class RidgeRegressionNode(mdp.Node):
         low_memory=True Limits memory use to twice the size of the covariance matrix. It saves data in files instead of
         keeping them in memory, this is possible for up to 128 training examples. Default False
 
+        verbose=True gives additional information about the optimization progress
+
         plot_errors=True gives a plot of the validation errors in function of log10(ridge_param). Default False
 
         with_bias=True adds an additional bias term. Default True.
@@ -39,6 +41,7 @@ class RidgeRegressionNode(mdp.Node):
         self.eq_noise_var = eq_noise_var
         self.other_error_measure = other_error_measure
         self.low_memory = low_memory
+        self.verbose = verbose
         self.plot_errors = plot_errors
         self.with_bias = with_bias
         if cross_validate_function == None:
@@ -81,7 +84,10 @@ class RidgeRegressionNode(mdp.Node):
             t_start = time.time()
             train_samples, val_samples = self.cross_validate_function(n_samples=len(self._xTx_list), *self._args, **self._kwargs)
             errors = np.zeros((len(self._ridge_params), self._output_dim))
-            for k in mdp.utils.progressinfo(range(len(train_samples)), style='timer'):
+            val_sets = range(len(train_samples))
+            if self.verbose:
+                val_sets = mdp.utils.progressinfo(val_sets, style='timer')
+            for k in val_sets:
                 errors += calc_error(train_samples[k], val_samples[k])
             errors /= len(train_samples)
 
@@ -94,9 +100,9 @@ class RidgeRegressionNode(mdp.Node):
                     import warnings
                     warnings.warn('The ridge parameter selected for output ' + str(o) + ' is ' + str(self.ridge_param[-1]) + '. This is the largest or smallest possible value from the list provided. Use larger or smaller ridge parameters to avoid this warning!')
 
-            print 'Total time:', time.time()-t_start, 's'
-
-            print 'Found a ridge_param(s) =', self.ridge_param, 'with a validation error(s) of:', self.val_error
+            if self.verbose:
+                print 'Total time:', time.time()-t_start, 's'
+                print 'Found a ridge_param(s) =', self.ridge_param, 'with a validation error(s) of:', self.val_error
             if self.plot_errors:
                 import pylab
                 pylab.plot(np.log10(self._ridge_params),errors)
@@ -245,6 +251,16 @@ class ClassReweightedRidgeRegressionNode(RidgeRegressionNode):
 
 
 class BFSRidgeRegressionNode(RidgeRegressionNode):
+    ''' Node that performs backward feature selection while optimizing the regularization parameter
+    '''
+
+    def __init__(self, ridge_param=mdp.numx.power(10, mdp.numx.arange(-15,15,0.5)), verbose=True, *args, **kwargs):
+        '''
+        see RidgeRegressionNode
+        '''
+        super(BFSRidgeRegressionNode, self).__init__(ridge_param=ridge_param, verbose=verbose, *args, **kwargs)
+
+
     def _stop_training(self):
         if not type(self.ridge_param) is list and not type(self.ridge_param) is np.ndarray:
             self._ridge_params = [self.ridge_param]
@@ -259,13 +275,17 @@ class BFSRidgeRegressionNode(RidgeRegressionNode):
         else:
             calc_error = self._calc_mse
         errors = np.zeros((len(self._ridge_params), self._output_dim))
-        for k in mdp.utils.progressinfo(range(len(self._xTx_list)), style='timer'):
+        val_sets = range(len(train_samples))
+        if self.verbose:
+            val_sets = mdp.utils.progressinfo(val_sets, style='timer')
+        for k in val_sets:
             errors += calc_error(train_samples[k], val_samples[k])
         errors = np.mean(errors, axis=1) / len(self._xTx_list)
         j = mdp.numx.where(errors == np.nanmin(errors))[0][-1]
         self.val_error = errors[j]
         self.ridge_param = self._ridge_params[j]
-        print 'Found a ridge_par =', self.ridge_param, 'with a val. error of:', self.val_error, 'Total nr. of selected inputs =', len(self._selected_inputs)-self.with_bias
+        if self.verbose:
+            print 'Found a ridge_par =', self.ridge_param, 'with a val. error of:', self.val_error, 'Total nr. of selected inputs =', len(self._selected_inputs)-self.with_bias
 
         if self.other_error_measure:
             calc_error = self._calc_other_error_bfs
@@ -273,7 +293,10 @@ class BFSRidgeRegressionNode(RidgeRegressionNode):
             calc_error = self._calc_mse_bfs
         while len(self._selected_inputs) > 1:
             errors = np.zeros((len(self._ridge_params), len(self._selected_inputs)-self.with_bias))
-            for k in mdp.utils.progressinfo(range(len(self._xTx_list)), style='timer'):
+            val_sets = range(len(train_samples))
+            if self.verbose:
+                val_sets = mdp.utils.progressinfo(val_sets, style='timer')
+            for k in val_sets:
                 errors += calc_error(train_samples[k], val_samples[k])
             errors /= len(self._xTx_list)
             r, f = np.where(errors == np.nanmin(errors))
@@ -281,12 +304,14 @@ class BFSRidgeRegressionNode(RidgeRegressionNode):
             if errors[r,f] < self.val_error:
                 self.val_error = errors[r,f]
                 self.ridge_param = self._ridge_params[r]
-                #The following print also removes the feature from the list, pay attention to this when commenting it...
-                print 'Removed input', self._selected_inputs.pop(f), 'and ridge_param', self.ridge_param, 'with a val. error of', self.val_error, 'Total nr. of selected inputs =', len(self._selected_inputs)-self.with_bias
+                removed_input = self._selected_inputs.pop(f)
+                if self.verbose:
+                    print 'Removed input',removed_input, 'and ridge_param', self.ridge_param, 'with a val. error of', self.val_error, 'Total nr. of selected inputs =', len(self._selected_inputs)-self.with_bias
             else:
                 break
 
-        print 'Total time:', time.time()-t_start, 's'
+        if self.verbose:
+            print 'Total time:', time.time()-t_start, 's'
 
         self._final_training()
         self._clear_memory()
