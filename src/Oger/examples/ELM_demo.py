@@ -52,7 +52,7 @@ yh_t_bfs = flow(x_t) #OP-ELM test output
 
 print '\nELM: Test NRMSE =', Oger.utils.nrmse(yh_t_elm, y_t)
 print 'OP-ELM: Test NRMSE =', Oger.utils.nrmse(yh_t_opelm, y_t)
-print 'BFS with Regularization: Test NRMSE =', Oger.utils.nrmse(yh_t_bfs, y_t), '\n'
+print 'RBFS-ELM (BFS with Regularization): Test NRMSE =', Oger.utils.nrmse(yh_t_bfs, y_t), '\n'
 
 
 pylab.scatter(X,Y, c='k', marker='+')
@@ -70,5 +70,5 @@ pylab.figure()
 pylab.scatter(X,Y, c='k', marker='+')
 pylab.plot(X_orr, Y_orr, linewidth=2)
 pylab.scatter(x_t,yh_t_opelm,c='r',linewidths=2)
-pylab.title('Backward Feature Selection with Regularization')
+pylab.title('RBFS-ELM (Backward Feature Selection with Regularization)')
 pylab.show()
