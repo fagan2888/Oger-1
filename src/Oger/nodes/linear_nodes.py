@@ -408,7 +408,10 @@ class FFSRidgeRegressionNode(BFSRidgeRegressionNode):
         train_samples, val_samples = self.cross_validate_function(n_samples=len(self._xTx_list), *self._args, **self._kwargs)
         while len(self._selected_inputs) < (self._input_dim + self.with_bias):
             errors = np.zeros((len(self._ridge_params), self._input_dim + self.with_bias - len(self._selected_inputs)))
-            for k in mdp.utils.progressinfo(range(len(train_samples)), style='timer'):
+            val_sets = range(len(train_samples))
+            if self.verbose:
+                val_sets = mdp.utils.progressinfo(val_sets, style='timer')
+            for k in val_sets:
                 errors += calc_error(train_samples[k], val_samples[k])
             errors /= len(train_samples)
 
@@ -421,12 +424,14 @@ class FFSRidgeRegressionNode(BFSRidgeRegressionNode):
                 for i in self._selected_inputs:
                     us.remove(i)
                 self._selected_inputs.append(us[f])
-                print 'Selected input', us[f], 'and ridge_param', self.ridge_param, ' with a val. error of', self.val_error, 'Total nr. of selected inputs =', len(self._selected_inputs)-self.with_bias
+                if self.verbose:
+                    print 'Selected input', us[f], 'and ridge_param', self.ridge_param, ' with a val. error of', self.val_error, 'Total nr. of selected inputs =', len(self._selected_inputs)-self.with_bias
             else:
                 self._selected_inputs.sort()
                 break
 
-        print 'Total time:', time.time()-t_start, 's'
+        if self.verbose:
+            print 'Total time:', time.time()-t_start, 's'
 
         self._final_training()
         self._clear_memory()
@@ -825,8 +830,11 @@ class LARSNode(RidgeRegressionNode):
             calc_error = self._calc_mse_lars
         train_samples, val_samples = self.cross_validate_function(n_samples=len(self._xTx_list), *self._args, **self._kwargs)
         errors = np.zeros((self._input_dim + self.with_bias, self._output_dim))
-        for i in mdp.utils.progressinfo(range(len(self._len_list)), style='timer'):
-            errors += calc_error(train_samples[i], val_samples[i])
+        val_sets = range(len(train_samples))
+        if self.verbose:
+            val_sets = mdp.utils.progressinfo(val_sets, style='timer')
+        for k in val_sets:
+            errors += calc_error(train_samples[k], val_samples[k])
 
         if self.plot_errors:
             import pylab
@@ -897,6 +905,11 @@ class OPRidgeRegressionNode(BFSRidgeRegressionNode, LARSNode):
     '''
     Optimally Pruned Ridge Regression Node
     '''
+    def __init__(self, ridge_param=mdp.numx.power(10, mdp.numx.arange(-15,15,0.2)), verbose=False, *args, **kwargs):
+        '''
+        see RidgeRegressionNode
+        '''
+        super(OPRidgeRegressionNode, self).__init__(ridge_param=ridge_param, verbose=verbose, *args, **kwargs)
 
     def _stop_training(self):
         if not type(self.ridge_param) is list and not type(self.ridge_param) is np.ndarray:
@@ -915,7 +928,10 @@ class OPRidgeRegressionNode(BFSRidgeRegressionNode, LARSNode):
 
         train_samples, val_samples = self.cross_validate_function(n_samples=len(self._xTx_list), *self._args, **self._kwargs)
         errors = np.zeros((len(self._ridge_params), len(ranking)))
-        for k in mdp.utils.progressinfo(range(len(train_samples)), style='timer'):
+        val_sets = range(len(train_samples))
+        if self.verbose:
+            val_sets = mdp.utils.progressinfo(val_sets, style='timer')
+        for k in val_sets:
             for i in range(len(ranking)):
                 errors[:,i] += np.sum(calc_error(train_samples[k], val_samples[k], ranking[i]), axis=1)
         errors /= len(train_samples)
@@ -925,7 +941,8 @@ class OPRidgeRegressionNode(BFSRidgeRegressionNode, LARSNode):
         self.val_error = errors[r,i]
         self.ridge_param = self._ridge_params[r]
         self._selected_inputs = ranking[i]
-        print 'Found a ridge_par =', self.ridge_param, ' with a validation error of:', self.val_error, 'and selected', i+1, 'features.'
+        if self.verbose:
+            print 'Found a ridge_par =', self.ridge_param, ' with a validation error of:', self.val_error, 'and selected', i+1, 'features.'
         if self.plot_errors:
             import pylab
             pylab.plot(range(1, errors.shape[1]+1), np.nanmin(errors, axis=0))

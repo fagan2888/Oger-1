@@ -43,7 +43,7 @@ flow.train([x, zip(x,y)])
 yh_t_opelm = flow(x_t) #OP-ELM test output
 
 #Backward Feature Selection training using BFSRidgeRegressionNode (with regularization)
-readout = Oger.nodes.BFSRidgeRegressionNode()
+readout = Oger.nodes.BFSRidgeRegressionNode(verbose=False)
 flow = mdp.Flow([elm, readout],verbose=True)
 print '\nTraining Backward Feature Selection with Regularization...\n'
 flow.train([x, zip(x,y)])
