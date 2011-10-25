@@ -38,20 +38,19 @@ class ELMNode(mdp.Node):
         self._mean += np.sum(x, axis=0)
         self._std += np.sum(x**2, axis=0)
         self._len += len(x)
-        if self.use_gaussian:
-            #save data points to create gaussian kernel
-            if self._x == None:
-                self._x = x
-                self._n_batches = 1
-            elif len(self._x) + len(x) > self._max_mem and self._n_batches > 2:
-                # reduce memory use, originates from Matlab toolbox
-                self._n_batches += 1
-                self._x = self._x[np.random.permutation(len(self._x))[0:self._max_mem],:]
-                n = np.round(0.0 + self._max_mem / self._n_batches)
-                self._x[-n:,:] = x[np.random.permutation(len(x))[0:n],:]
-            else:
-                self._x = np.concatenate((self._x, x), axis=0)
-                self._n_batches += 1
+        #save data points to create gaussian kernel, is executed even if use_gauss=False to work well in combination with the optimizer
+        if self._x == None:
+            self._x = x
+            self._n_batches = 1
+        elif len(self._x) + len(x) > self._max_mem and self._n_batches > 2:
+            # reduce memory use, originates from Matlab toolbox
+            self._n_batches += 1
+            self._x = self._x[np.random.permutation(len(self._x))[0:self._max_mem],:]
+            n = np.round(0.0 + self._max_mem / self._n_batches)
+            self._x[-n:,:] = x[np.random.permutation(len(x))[0:n],:]
+        else:
+            self._x = np.concatenate((self._x, x), axis=0)
+            self._n_batches += 1
 
     def _sigm_initialize(self, N):
         N = int(N)
@@ -70,12 +69,13 @@ class ELMNode(mdp.Node):
         MP = np.random.permutation(len(self._x))
         self._gauss_c = self._x[MP[0:N], :]
         self._gauss_sig2 = (np.random.rand(N,1) * (a90 - a10) + a10)**2
-        self._x = None
 
     def _stop_training(self):
         self._mean /= self._len
         self._std = np.sqrt(self._std / self._len - self._mean**2)
+        self.initialize()
 
+    def initialize(self):
         N = self._output_dim - (self._input_dim) * self.use_linear
         if self.use_sigmoid and self.use_gaussian:
             self._sigm_initialize(np.ceil(N / 2.0))
