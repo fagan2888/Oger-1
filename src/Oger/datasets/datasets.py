@@ -81,7 +81,7 @@ def pickled_data(file_or_folder = None, n_files=None):
             import warnings.warn
             warnings.warn('n_files is set to ' + str(n_files) + ' but only ' + str(len(files)) + ' were found.')
             n_files = len(files)
-        files = files[1:n_files]
+        files = files[:n_files]
     
     X, Y = [], []
     for f in files:
