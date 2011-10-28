@@ -18,7 +18,7 @@ if __name__ == '__main__':
     flow = mdp.Flow([reservoir, readout])
 
     # Nested dictionary
-    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 0.5, 0.1), 'spectral_radius':mdp.numx.arange(0.6, 1.3, 0.2), '_instance':range(2)}}
+    gridsearch_parameters = {reservoir:{'input_scaling': mdp.numx.arange(0.1, 0.5, 0.1), 'spectral_radius':mdp.numx.arange(0.6, 1.3, 0.2), '_instance':range(5)}}
 
     # Instantiate an optimizer
     opt = Oger.evaluation.Optimizer(gridsearch_parameters, Oger.utils.nrmse)
@@ -34,8 +34,3 @@ if __name__ == '__main__':
 
     errors = Oger.evaluation.validate(data, opt_flow, Oger.utils.nrmse, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5)
     print 'Mean error over folds: ' + str(sp.mean(errors))
-
-    err, var, param = opt.mean_and_var(node_param_list=[(reservoir, '_instance')])
-    for i in range(len(err)):
-        print err[i], var[i], param[i]
-    print '\n', opt.get_minimal_error(node_param_list=[(reservoir, '_instance')])
