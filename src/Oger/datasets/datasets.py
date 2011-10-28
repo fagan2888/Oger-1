@@ -65,7 +65,7 @@ def memtest(n_samples=10, sample_len=1000, n_delays=10):
     return inputs, outputs 
 
 
-def pickled_data(file_or_folder = None):
+def pickled_data(file_or_folder = None, n_files=None):
     '''
     Loads data from a pickle file or folder containing pickle files
     
@@ -75,6 +75,13 @@ def pickled_data(file_or_folder = None):
         files = glob.glob(os.path.join(file_or_folder, '*.pickle'))
     else:
         files = [file_or_folder]
+
+    if n_files:
+        if len(files) < n_files:
+            import warnings.warn
+            warnings.warn('n_files is set to ' + str(n_files) + ' but only ' + str(len(files)) + ' were found.')
+            n_files = len(files)
+        files = files[1:n_files]
     
     X, Y = [], []
     for f in files:

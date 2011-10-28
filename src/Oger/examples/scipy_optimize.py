@@ -34,3 +34,4 @@ if __name__ == '__main__':
     errors = Oger.evaluation.validate(data, opt_flow, Oger.utils.nrmse, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, progress=False)
     print 'Mean error over folds: ' + str(sp.mean(errors))
 
+    print 'IS', opt_flow[0].input_scaling, 'SR', opt_flow[0].spectral_radius
