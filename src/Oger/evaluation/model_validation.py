@@ -106,6 +106,8 @@ def validate(data, flow, error_measure, cross_validate_function=n_fold_random, p
 
         # test on all test samples
         for test_sample in test_sample_list:
+            if len(test_sample[-1]) == 0:
+                raise Exception('No data iterable supplied for last node. This is necessary for validation.')
             if len(test_sample[-1][0]) == 1:
                 t_i = test_sample[-1][0][0]
                 t_t = test_sample[-1][0][0]
