@@ -93,7 +93,7 @@ class ReservoirNodeTest(unittest.TestCase):
         ''' Test if passing your own bias weight matrix gives expected results 
         '''
         # Check if weight matrix is initialized correctly
-        r = Oger.nodes.ReservoirNode (input_dim = 1, output_dim=2, w_bias=sp.array([1, 2]))
+        r = Oger.nodes.ReservoirNode (input_dim = 1, output_dim=2, w_bias=sp.array([[1, 2]]))
         assert sp.all(r.w_bias == sp.array([1, 2]))
         r.w_bias = []
         r.initialize()
@@ -106,7 +106,7 @@ class ReservoirNodeTest(unittest.TestCase):
         ''' Test if passing your own bias weight matrix generation function gives expected results 
         '''
         # Check if weight matrix is initialized correctly
-        r = Oger.nodes.ReservoirNode (input_dim = 1, output_dim=2, w_bias=sp.ones((2)))
+        r = Oger.nodes.ReservoirNode (input_dim = 1, output_dim=2, w_bias=sp.ones((1,2)))
         assert sp.all(r.w_bias == sp.array([1, 1]))
         r.w_bias = []
         r.initialize()

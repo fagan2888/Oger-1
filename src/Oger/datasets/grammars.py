@@ -26,8 +26,8 @@ class simple_pcfg:
             self.END = 1
             self.WITH = 2
             self.FROM = 3
-            self.nouns = range(4, 4 + len(nouns))
-            self.verbs = range(4 + len(nouns), 4 + len(nouns) + len(verbs))
+            self.nouns = time_range(4, 4 + len(nouns))
+            self.verbs = time_range(4 + len(nouns), 4 + len(nouns) + len(verbs))
     
     def S(self):
         return self.NP() + self.V() + self.NP() + [self.END]

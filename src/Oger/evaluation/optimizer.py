@@ -16,7 +16,7 @@ class Optimizer(object):
             optimization_dict: a dictionary of dictionaries. 
             In the top-level dictionary, every key is a node, and the corresponding item is again a dictionary 
             where the key is the parameter name to be optimize and the corresponding item is a list of values for the parameter
-            Example: to gridsearch the spectral radius and input scaling of reservoirnode1, and the input scaling of reservoirnode2 over the range .1:.1:1 this would be:
+            Example: to gridsearch the spectral radius and input scaling of reservoirnode1, and the input scaling of reservoirnode2 over the time_range .1:.1:1 this would be:
             opt_dict = {reservoirnode1: {'spec_radius': np.arange(.1,1,.1), 'input_scaling': np.arange(.1,1,.1)}, reservoirnode2: {'input_scaling': np.arange(.1,1,.1)}}
             loss_function: the function used to compute the loss
         '''
