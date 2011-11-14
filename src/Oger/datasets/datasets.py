@@ -72,7 +72,7 @@ def pickled_data(file_or_folder = None, n_files=None):
     Data must be saved in tuples of the form '(x,y)' and the filename must end with '.pickle'
     '''
     if os.path.isdir(file_or_folder):
-        files = glob.glob(os.path.join(file_or_folder, '*.pickle'))
+        files = sorted(glob.glob(os.path.join(file_or_folder, '*.pickle')))
     else:
         files = [file_or_folder]
 
