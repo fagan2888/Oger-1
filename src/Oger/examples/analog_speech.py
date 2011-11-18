@@ -28,14 +28,14 @@ if __name__ == "__main__":
 
     # construct individual nodes
     reservoir = Oger.nodes.LeakyReservoirNode(input_dim=input_dim, output_dim=100, input_scaling=.1, leak_rate=.3)
-    readout = Oger.nodes.RidgeRegressionNode()
+    readout = Oger.nodes.RidgeRegressionNode(0)
 
     flow = mdp.Flow([reservoir, readout])
 
-    # Tell the reservoir to save its states for later plotting 
+    # Tell the reservoir to save its states for later plotting
     Oger.utils.make_inspectable(Oger.nodes.LeakyReservoirNode)
 
-    # Plot an example input to the reservoir 
+    # Plot an example input to the reservoir
     pylab.subplot(n_subplots_x, n_subplots_y, 1)
     pylab.imshow(inputs[0].T, aspect='auto', interpolation='nearest')
     pylab.title("Cochleogram (input to reservoir)")
@@ -59,12 +59,12 @@ if __name__ == "__main__":
 
     print "Error : " + str(mdp.numx.mean([loss_01_time(sample, target) for (sample, target) in zip(ytest, outputs[n_train_samples:])]))
 
-    ymean = sp.array([sp.argmax(mdp.numx.atleast_2d(mdp.numx.mean(sample, axis=0))) for sample in
-                      outputs[n_train_samples:]])
-    ytestmean = sp.array([sp.argmax(mdp.numx.atleast_2d(mdp.numx.mean(sample, axis=0))) for sample in ytest])
+    ymean = sp.atleast_2d(sp.array([sp.argmax(mdp.numx.atleast_2d(mdp.numx.mean(sample, axis=0))) for sample in
+                      outputs[n_train_samples:]])).T
+    ytestmean = sp.atleast_2d(sp.array([sp.argmax(mdp.numx.atleast_2d(mdp.numx.mean(sample, axis=0))) for sample in ytest])).T
 
-    # use ConfusionMatrix to compute some more information about the 
-    confusion_matrix = ConfusionMatrix.from_data(10, ytestmean, ymean) # 10 classes
+    # use ConfusionMatrix to compute some more information about the
+    confusion_matrix = ConfusionMatrix.from_data(10, ytestmean , ymean) # 10 classes
     print "Error rate: %.4f" % confusion_matrix.error_rate # this comes down to 0-1 loss
     print "Balanced error rate: %.4f" % confusion_matrix.ber
     print
