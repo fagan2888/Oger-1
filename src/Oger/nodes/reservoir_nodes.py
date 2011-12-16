@@ -358,9 +358,9 @@ class SparseLeakyReservoirNode(SparseReservoirNode, LeakyReservoirNode):
         In case reset_states = False, note that because state needs to be stored in the Node object,
         This Node type is not parallelizable using threads.
         """
-    def __init__(self, input_dim=None, output_dim=None, spectral_radius=0.9,
+    def __init__(self, leak_rate = 1, input_dim=None, output_dim=None, spectral_radius=0.9,
              nonlin_func=np.tanh, reset_states=True, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
-             w_bias=None, fan_in_w = 10, fan_in_i = 1, leak_rate = 1):
+             w_bias=None, fan_in_w = 10, fan_in_i = 1):
         # Leak rate, if 1 it is a standard neuron, lower values give slower dynamics 
         super(SparseLeakyReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim, spectral_radius=spectral_radius, nonlin_func=nonlin_func, reset_states=reset_states, bias_scaling=bias_scaling, input_scaling=input_scaling, dtype=dtype, _instance=_instance, w_bias=w_bias, fan_in_w = fan_in_w, fan_in_i = fan_in_i )
         self.leak_rate = leak_rate
