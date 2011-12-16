@@ -268,45 +268,46 @@ class SparseReservoirNode(ReservoirNode):
              nonlin_func=np.tanh, reset_states=True, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
              w_bias=None, fan_in_w = 10, fan_in_i = 1):
 
-        # Use sparse matrices for generating the weights
-        import scipy.sparse
-        from scipy.sparse.linalg import eigs
-        def sparse_w(out_size, fan_in, specrad):
-            converged = False
-            # Initialize reservoir weight matrix
-            nrentries = mdp.numx.int32(out_size*fan_in)
-            # Keep generating random matrices until convergence
-            while not converged:
-                try:
-                    #$%ij = mdp.numx.zeros((2,nrentries))
-                    ij = mdp.numx.random.randint(0,out_size,(2,nrentries))
-                    datavec =  mdp.numx.random.randn(nrentries)
-                    w = scipy.sparse.csc_matrix((datavec, ij),dtype=self._dtype, shape=(out_size, out_size))
-                    we = eigs(w,return_eigenvectors=False,k=3)
-                    converged = True
-                    w *= (specrad / mdp.numx.amax(mdp.numx.absolute(we)))
-                except:
-                    pass
-            return w
-
-        def sparse_w_in(out_size, in_size, fan_in, scaling):
-            # Initialize reservoir weight matrix
-            nrentries = mdp.numx.int32(out_size*fan_in_i)
-            # Keep generating random matrices until convergence
-            ij = mdp.numx.zeros((2,nrentries))
-            ij[0,:] = mdp.numx.random.randint(0,out_size,(1,nrentries))
-            ij[1,:] = mdp.numx.random.randint(0,in_size,(1,nrentries))
-            datavec =  mdp.numx.random.rand(nrentries)
-            w = scaling * scipy.sparse.csc_matrix((datavec, ij),dtype=self._dtype, shape=(out_size, in_size))
-            return w
-
-        w = lambda output_dim, specrad: sparse_w(output_dim, fan_in_w, specrad, )
-        w_in = lambda output_dim, input_dim, input_scaling: sparse_w_in(output_dim, input_dim, fan_in_i, input_scaling, )
+        self.fan_in_w = fan_in_w
+        self.fan_in_i = fan_in_i
 
         # Call the parent init function to set the weight matrix generation functions
         super(SparseReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim, spectral_radius=spectral_radius,
                  nonlin_func=nonlin_func, reset_states=reset_states, bias_scaling=bias_scaling, input_scaling=input_scaling, dtype=dtype, _instance=_instance,
-                 w_in=w_in, w_bias=w_bias, w=w)
+                 w_in=self.sparse_w_in, w_bias=w_bias, w=self.sparse_w)
+
+    # Use sparse matrices for generating the weights
+    def sparse_w(self, out_size, specrad):
+        import scipy.sparse
+        from scipy.sparse.linalg import eigs
+        converged = False
+        # Initialize reservoir weight matrix
+        nrentries = mdp.numx.int32(out_size * self.fan_in_w)
+        # Keep generating random matrices until convergence
+        while not converged:
+            try:
+                #$%ij = mdp.numx.zeros((2,nrentries))
+                ij = mdp.numx.random.randint(0,out_size,(2,nrentries))
+                datavec =  mdp.numx.random.randn(nrentries)
+                w = scipy.sparse.csc_matrix((datavec, ij),dtype=self._dtype, shape=(out_size, out_size))
+                we = eigs(w,return_eigenvectors=False,k=3)
+                converged = True
+                w *= (specrad / mdp.numx.amax(mdp.numx.absolute(we)))
+            except:
+                pass
+        return w
+
+    def sparse_w_in(self, out_size, in_size, scaling):
+        import scipy.sparse
+        # Initialize reservoir weight matrix
+        nrentries = mdp.numx.int32(out_size * self.fan_in_i)
+        # Keep generating random matrices until convergence
+        ij = mdp.numx.zeros((2,nrentries))
+        ij[0,:] = mdp.numx.random.randint(0,out_size,(1,nrentries))
+        ij[1,:] = mdp.numx.random.randint(0,in_size,(1,nrentries))
+        datavec =  mdp.numx.random.rand(nrentries)
+        w = scaling * scipy.sparse.csc_matrix((datavec, ij),dtype=self._dtype, shape=(out_size, in_size))
+        return w
 
     def _execute(self, x):
         """ Executes simulation with input vector x.
@@ -359,7 +360,7 @@ class SparseLeakyReservoirNode(SparseReservoirNode, LeakyReservoirNode):
         """
     def __init__(self, input_dim=None, output_dim=None, spectral_radius=0.9,
              nonlin_func=np.tanh, reset_states=True, bias_scaling=0, input_scaling=1, dtype='float64', _instance=0,
-             w_in=None, w_bias=None, fan_in_w = 10, fan_in_i = 1, leak_rate = 1):
+             w_bias=None, fan_in_w = 10, fan_in_i = 1, leak_rate = 1):
         # Leak rate, if 1 it is a standard neuron, lower values give slower dynamics 
         super(SparseLeakyReservoirNode, self).__init__(input_dim=input_dim, output_dim=output_dim, spectral_radius=spectral_radius, nonlin_func=nonlin_func, reset_states=reset_states, bias_scaling=bias_scaling, input_scaling=input_scaling, dtype=dtype, _instance=_instance, w_bias=w_bias, fan_in_w = fan_in_w, fan_in_i = fan_in_i )
         self.leak_rate = leak_rate
