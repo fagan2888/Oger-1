@@ -55,9 +55,9 @@ class ELMNode(mdp.Node):
     def _sigm_initialize(self, N):
         N = int(N)
         self._n_sigm = N
-        #magic 10**(-5) originates from matlab toolbox. scaling relative to the number of inputs might be more logical though
-        self._w_sigm = np.random.rand(self._input_dim, N) * 10**(-5) #weights
-        self._b_sigm = np.random.rand(1, N) * 10**(-5) #bias
+        #magic 10**(-5) rescaling was used in orriginal matlab toolbox
+        self._w_sigm = np.random.randn(self._input_dim, N) / np.sqrt(self.input_dim) #weights
+        self._b_sigm = np.random.randn(1, N) #bias
 
     def _gauss_initialize(self, N):
         N = int(N)
@@ -74,6 +74,9 @@ class ELMNode(mdp.Node):
         self._mean /= self._len
         self._std = np.sqrt(self._std / self._len - self._mean**2)
         self.initialize()
+        if np.rank(self._x) < self.input_dim:
+            import warnings
+            warnings.warn('One or more inputs seem correlated. Better performance is often achieved with uncorrelated inputs.')
 
     def initialize(self):
         N = self._output_dim - (self._input_dim) * self.use_linear
