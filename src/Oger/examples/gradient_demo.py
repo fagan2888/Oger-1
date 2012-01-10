@@ -17,19 +17,26 @@ percnode1 = Oger.nodes.PerceptronNode(1, 12, transfer_func=Oger.utils.TanhFuncti
 percnode2 = Oger.nodes.PerceptronNode(12, 1)
 myflow = percnode1 + percnode2
 
-choice = input("""What optimization method do you want to use?
-0: Conjugate gradient
-1: BFGS (low memory Newton)
-2: gradient descent
-3: RPROP
-4: L-BFGS-B
-...""")
-choices = [Oger.gradient.CGTrainer(), Oger.gradient.BFGSTrainer(),
-           Oger.gradient.GradientDescentTrainer(epochs=30000),
-           Oger.gradient.RPROPTrainer(epochs=30000), Oger.gradient.LBFGSBTrainer(weight_bounds=(-10, 10))]
-
-bpnode = Oger.gradient.BackpropNode(myflow, choices[choice], loss_func=Oger.utils.mse)
-bpnode.train(x=data_in, t=data_out)
+#choice = input("""What optimization method do you want to use?
+#0: Conjugate gradient
+#1: BFGS (low memory Newton)
+#2: gradient descent
+#3: RPROP
+#4: L-BFGS-B
+#...""")
+#choices = [Oger.gradient.CGTrainer(), Oger.gradient.BFGSTrainer(),
+#           Oger.gradient.GradientDescentTrainer(epochs=30000),
+#           Oger.gradient.RPROPTrainer(epochs=30000), Oger.gradient.LBFGSBTrainer(weight_bounds=(-10, 10))]
+#
+#bpnode = Oger.gradient.BackpropNode(myflow, choices[choice], loss_func=Oger.utils.mse)
+bpnode = Oger.gradient.StochasticBackpropNode(myflow, Oger.gradient.GradientDescentTrainer(), loss_func=Oger.utils.mse, n_epochs=10000000)
+x,t = [],[]
+for i in range(len(data_in)):
+    x.append(data_in[i:i+1,:])
+    t.append(data_in[i:i+1,:])
+import mdp
+flow=mdp.Flow([bpnode])
+flow.train([zip(x, t)])
 
 data_in2 = np.arange(-2, 2, .005)
 data_in2.shape += (1,)

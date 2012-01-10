@@ -11,13 +11,15 @@ class ELMNode(mdp.Node):
     Implements code from the OP-ELM toolbox in Python. For OP-ELM behaviour use OPRidgeRegressionNode(ridge_param=0) for training.
     """
 
-    def __init__(self, output_dim=100, use_linear=True, use_sigmoid=True, use_gaussian=True, input_dim=None, dtype='float64'):
+    def __init__(self, output_dim=100, use_linear=True, use_sigmoid=True, use_gaussian=True, zero_mean=True, unit_var=True, input_dim=None, dtype='float64'):
         """ Initializes and constructs a random ELM.
         Parameters are:
             - output_dim: number of hidden neurons (output dimension), includes the linear nodes
             - use_linear: use linear nodes
             - use_sigmoid: use sigmoid nodes
             - use_gaussian: use gaussian nodes
+            - zero_mean: make input zero mean
+            - unit_var: make input unit variance
 
         This node needs training to rescale the input and to initialize the gaussian kernel
         """
@@ -29,6 +31,8 @@ class ELMNode(mdp.Node):
         self.use_sigmoid = use_sigmoid
         self.use_gaussian = use_gaussian
         self._max_mem = 20000 #maximum number of training samples in memory
+        self.zero_mean = zero_mean
+        self.unit_var = unit_var
 
         self._mean, self._std, self._len = 0, 0, 0
         self._x = None
@@ -71,8 +75,14 @@ class ELMNode(mdp.Node):
         self._gauss_sig2 = (np.random.rand(N,1) * (a90 - a10) + a10)**2
 
     def _stop_training(self):
-        self._mean /= self._len
-        self._std = np.sqrt(self._std / self._len - self._mean**2)
+        if self.zero_mean:
+            self._mean /= self._len
+        else:
+            self._mean = 0
+        if self.unit_var:
+            self._std = np.sqrt(self._std / self._len - self._mean**2)
+        else:
+            self._std = 1
         self.initialize()
         if np.rank(self._x) < self.input_dim:
             import warnings

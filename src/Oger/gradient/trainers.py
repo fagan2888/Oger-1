@@ -86,7 +86,7 @@ class LBFGSBTrainer(ScipyTrainer):
         return opt.fmin_l_bfgs_b(fobj, x0, fprime=fprime, bounds=bounds, *self.args, **self.kwargs)[0]
 
 class GradientDescentTrainer:
-    def __init__(self, learning_rate=.01, momentum=0, epochs=1, decay=0):
+    def __init__(self, learning_rate=.01, momentum=0, epochs=1, decay=0, learning_rate_decay=0.9999):
         """
             - learning_rate: size of the gradient steps (default = .001)
             - momentum: momentum term (default = 0)
@@ -97,6 +97,7 @@ class GradientDescentTrainer:
         self.momentum = momentum
         self.epochs = epochs
         self.decay = decay
+        self.learning_rate_decay = learning_rate_decay
 
         self.dparams = None
 
@@ -119,6 +120,7 @@ class GradientDescentTrainer:
             self.dparams = self.momentum * self.dparams - self.learning_rate * gradient
             # TODO: how do we make sure that we do not decay the bias terms?
             updated_params += self.dparams - self.decay * updated_params
+            self.learning_rate *= self.learning_rate_decay
 
         return updated_params
 

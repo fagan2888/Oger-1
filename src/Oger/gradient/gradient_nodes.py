@@ -10,6 +10,7 @@ import mdp
 import Oger
 from mdp import numx
 from mdp.utils import mult
+import numpy as np
 
 def traverseHinet(item):
     # TODO: could be implemented with a generetor
@@ -136,7 +137,7 @@ class BackpropNode(mdp.Node):
         input_dim = gflow[0].get_input_dim()
         output_dim = gflow[-1].get_output_dim()
 
-        self._n_epochs = n_epochs
+        self.n_epochs = n_epochs #Seems unused in this node?! It is however used in Stochastic Backprop Node
 
         super(BackpropNode, self).__init__(input_dim, output_dim, dtype)
 
@@ -288,3 +289,66 @@ class GradientRBMNode(GradientExtensionNode, Oger.nodes.ERBMNode):
         """Calls _gradient_inverse instead of the default _inverse."""
         return self._calculate_gradient(y)
 
+
+class GradientReservoirNode(GradientExtensionNode, Oger.nodes.ReservoirNode):
+    """
+    Gradient version of Reservoir Node
+    Allows training of the input weights and bias using one-step backpropagation...
+    This is for Backpropagation through time...
+
+    Only works well with Stochastic BackpropNode and GradientDescent trainer
+    """
+
+    def _params(self):
+        return numx.concatenate((self.w_in.ravel(), self.w_bias.ravel(), self.w.ravel()))
+
+    def _set_params(self, x):
+        self.w_in.flat = x[:self.w_in.size]
+        self.w_bias.flat = x[self.w_in.size:self.w_in.size+self.w_bias.size]
+        self.w.flat = x[self.w_in.size+self.w_bias.size:]
+
+    def _calculate_gradient(self, e_b):
+        '''
+        e_b is the back propagated error from the previous layer multiplied with the weights between this and the previous layer
+        '''
+        if not hasattr(self, 'leak_rate'): #maybe convert this to post update hook
+            self.leak_rate = 1
+
+        e_b = e_b.copy() # don't know if this is necessary...
+        d_y = self.nonlin_func.df(self._last_x, self._last_y)
+
+        for j in range(2,len(self._last_x)+1):
+            e_b[-j,:] += self.leak_rate * np.dot(e_b[-j+1,:] * d_y[-j+1,:], self.w.T) + (1-self.leak_rate) * e_b[-j+1,:]
+        e_b *= d_y
+
+        self._gradient_vector = np.concatenate((np.dot(self._last_x.T, e_b).ravel(), e_b.sum(axis=0), np.dot(self._last_y[:-1,:].T, e_b[1:,:]).ravel()))
+        return np.dot(e_b, self.w_in)
+
+    def _param_size(self):
+        return self.w_in.size + self.w_bias.size + self.w.size
+
+class StochasticBackpropNode(BackpropNode):
+    '''
+    Only works well with Gradient Descent Trainer!!!!
+
+    Easiest way to implement stochastic gradient descent in the current framework...
+    '''
+    def _train(self, x, t):
+        if not hasattr(self, '_x_list'):
+            self._x_list = []
+            self._t_list = []
+        self._x_list.append(x)
+        self._t_list.append(t)
+
+    @mdp.with_extension('gradient')
+    def _stop_training(self):
+        for _ in range(self.n_epochs):
+            i = numx.random.randint(len(self._x_list))
+
+            def func(params):
+                return self._objective(self._x_list[i], self._t_list[i], params)
+
+            update = self.gtrainer.train(func, self._params())
+            self._set_params(update)
+
+        self._x_list = self._t_list = []
