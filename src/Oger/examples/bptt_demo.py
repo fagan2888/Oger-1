@@ -39,7 +39,7 @@ if __name__ == "__main__":
     back_propflow = mdp.Flow([reservoir, readout])
 
     # make a node that can be trained using stochastic gradient descent
-    bptt_node = Oger.gradient.StochasticBackpropNode(back_propflow, Oger.gradient.GradientDescentTrainer(learning_rate=0.00001), n_epochs=10000)#, loss_func=Oger.utils.mse)
+    bptt_node = Oger.gradient.StochasticBackpropNode(back_propflow, Oger.gradient.GradientDescentTrainer(learning_rate=0.00001), n_epochs=10000, loss_func=Oger.utils.mse)
     flow = mdp.Flow([bptt_node])
 
     print "Training..."

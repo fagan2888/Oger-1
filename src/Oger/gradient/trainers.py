@@ -86,20 +86,25 @@ class LBFGSBTrainer(ScipyTrainer):
         return opt.fmin_l_bfgs_b(fobj, x0, fprime=fprime, bounds=bounds, *self.args, **self.kwargs)[0]
 
 class GradientDescentTrainer:
-    def __init__(self, learning_rate=.01, momentum=0, epochs=1, decay=0, learning_rate_decay=0.9999):
+    def __init__(self, learning_rate=.01, momentum=0, epochs=1, decay=0, learning_rate_decay=0.9999, verbose_iter=0):
         """
             - learning_rate: size of the gradient steps (default = .001)
             - momentum: momentum term (default = 0)
             - epochs: number of times to do updates on the same data (default = 1)
             - decay: weight decay term (default = 0)
+            - learning_rate_decay: decreases the learning rate each iteration: learning_rage *= learning_rate_decay
+            - verbose_iter prints error each number of iterations, 0 is no print, 10 = every 10 iterations
         """
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.epochs = epochs
         self.decay = decay
         self.learning_rate_decay = learning_rate_decay
+        self.verbose_iter = verbose_iter
 
         self.dparams = None
+        self._n_iter = 0
+        self._error = 0
 
     def train(self, func, x0):
         """Optimize parameters to minimze loss.
@@ -116,11 +121,21 @@ class GradientDescentTrainer:
         updated_params = x0
 
         for _ in range(self.epochs):
-            gradient = func(updated_params)[0]
+            gradient, e = func(updated_params)
             self.dparams = self.momentum * self.dparams - self.learning_rate * gradient
             # TODO: how do we make sure that we do not decay the bias terms?
             updated_params += self.dparams - self.decay * updated_params
             self.learning_rate *= self.learning_rate_decay
+            self._n_iter += 1
+            if self.verbose_iter>0:
+                if e==None:
+                    import warnings
+                    warnings.warn('No error measure declared.')
+                else:
+                    self._error += e
+                    if numx.mod(self._n_iter, self.verbose_iter)==0:
+                        print 'Mean err. last', self.verbose_iter, 'of', self._n_iter, ':', self._error / self.verbose_iter
+                        self._error=0
 
         return updated_params
 

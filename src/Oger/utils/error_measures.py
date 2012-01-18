@@ -190,7 +190,7 @@ def threshold_before_error(input_signal, target_signal, error_measure=loss_01, t
 
     if thresh == None:
         thresh = (max(target_signal) + min(target_signal)) / 2
-    return error_measure(input_signal > thresh, target_signal > thresh)
+    return error_measure(np.double(input_signal > thresh), np.double(target_signal > thresh))
 
 
 def calcROC(Yh,Y):

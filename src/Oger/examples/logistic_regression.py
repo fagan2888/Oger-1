@@ -60,12 +60,8 @@ for node, name in zip(nodes, names):
     y = flow.execute(xtest)
 
     # Compute the discriminant line
-    if isinstance(node, RidgeRegressionNode):
-        y1 = (node.beta[1] * r[0] + node.beta[0] - .5) / -node.beta[2]
-        y2 = (node.beta[1] * r[1] + node.beta[0] - .5) / -node.beta[2]
-    else:
-        y1 = (node.w[0] * r[0] + node.b) / -node.w[1]
-        y2 = (node.w[0] * r[1] + node.b) / -node.w[1]
+    y1 = (node.w[0] * r[0] + node.b - 0.5) / -node.w[1]
+    y2 = (node.w[0] * r[1] + node.b - 0.5) / -node.w[1]
 
     # Plot the discriminant line
     pylab.plot(r, [y1, y2], label=name)
