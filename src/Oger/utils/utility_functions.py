@@ -153,12 +153,8 @@ class SoftmaxFunction:
     """
     @staticmethod
     def f(x):
-        n, d = x.shape
-        out = mdp.numx.zeros((n, d))
-        for i in range(n):
-            activation = mdp.numx.exp(x[i, :])
-            out[i, :] = activation / mdp.numx.sum(activation)
-        return out
+        out = mdp.numx.exp(x - x.max()) #avoid NaNs
+        return out / mdp.numx.atleast_2d(out.sum(axis=1)).T
                    
     @staticmethod
     def df(x, y):
