@@ -10,7 +10,7 @@ class RidgeRegressionNode(mdp.Node):
     '''
     Ridge Regression Node that also optimizes the regularization parameter
     '''
-    def __init__(self, ridge_param=mdp.numx.power(10, mdp.numx.arange(-15,15,0.2)), eq_noise_var=0, other_error_measure=None, cross_validate_function=None, low_memory=False, verbose=False, plot_errors=False, with_bias=True, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
+    def __init__(self, ridge_param=mdp.numx.power(10, mdp.numx.arange(-15,15,0.2)), eq_noise_var=0, other_error_measure=None, cross_validate_function=None, low_memory=False, verbose=False, plot_errors=False, with_bias=True, clear_memory=True, input_dim=None, output_dim=None, dtype=None, *args, **kwargs):
         '''
 
         ridge_params contains the list of regularization parameters to be tested. If it is set to 0 no regularization
@@ -48,6 +48,7 @@ class RidgeRegressionNode(mdp.Node):
             cross_validate_function = Oger.evaluation.leave_one_out
         self.cross_validate_function = cross_validate_function
         self._args, self._kwargs = args, kwargs
+        self.clear_memory = clear_memory
 
         self._xTx_list, self._xTy_list, self._yTy_list, self._len_list = [], [], [], []
         if other_error_measure:
@@ -112,7 +113,7 @@ class RidgeRegressionNode(mdp.Node):
                 import warnings
                 warnings.warn('Only one fold found, optimization is not supported. Instead no regularization or eq_noise_var is used!')
                 self.ridge_param = 0
-            if self.ridge_param == 0:
+            elif self.ridge_param == 0:
                 self.ridge_param = self.eq_noise_var**2 * np.sum(self._len_list)
             self.ridge_param = self.ridge_param * np.ones((self._output_dim,))
 
@@ -135,6 +136,7 @@ class RidgeRegressionNode(mdp.Node):
     def _get_one(self, name, i):
         t = getattr(self, '_' + name + '_list')
         if self.low_memory and not name.count('yTy') and not name.count('len'):
+            print i
             t[i].seek(0)
             return pickle.load(t[i])
         else:
@@ -198,7 +200,8 @@ class RidgeRegressionNode(mdp.Node):
             self.w = W
 
     def _clear_memory(self):
-        self._xTx_list = self._xTy_list = self._yTy_list = self._len_list = None
+        if self.clear_memory:
+            self._xTx_list, self._xTy_list, self._yTy_list, self._len_list = [],[],[],[]
 
 
 
@@ -817,7 +820,7 @@ class LARSNode(RidgeRegressionNode):
             self.other_error_measure = 'mse_lasso'
             self._x_list = []
             self._y_list = []
-        if not method == 'lar' or method == 'lasso':
+        if not method == 'lar' and not method == 'lasso':
             import warnings
             warnings.warn('No correct method given, lar chosen instead. Set method to lar or lasso to avoid this warning.')
             method = 'lar'

@@ -321,8 +321,8 @@ class GradientReservoirNode(GradientExtensionNode, Oger.nodes.ReservoirNode):
             e_b[-j,:] += self.leak_rate * np.dot(e_b[-j+1,:] * d_y[-j+1,:], self.w.T) + (1-self.leak_rate) * e_b[-j+1,:]
         e_b *= d_y
 
-        self._gradient_vector = np.concatenate((np.dot(self._last_x.T, e_b).ravel(), e_b.sum(axis=0), np.dot(self._last_y[:-1,:].T, e_b[1:,:]).ravel()))
-        return np.dot(e_b, self.w_in)
+        self._gradient_vector = np.concatenate((np.dot(self._last_x.T, e_b).T.ravel(), e_b.sum(axis=0), np.dot(self._last_y[:-1,:].T, e_b[1:,:]).T.ravel()))
+        return np.dot(e_b, self.w_in).T
 
     def _param_size(self):
         return self.w_in.size + self.w_bias.size + self.w.size

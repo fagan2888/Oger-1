@@ -16,7 +16,7 @@ class ThresholdNode(mdp.Node):
     
     """
 
-    def __init__(self, input_dim=None, output_dim=None, threshold=0, output_values=(-1, 1), dtype='float64'):
+    def __init__(self, input_dim=None, output_dim=None, threshold=0, output_values=(-1., 1.), dtype='float64'):
         super(ThresholdNode, self).__init__(input_dim, output_dim, dtype)
         self.threshold = threshold
         if len(output_values) != 2:
