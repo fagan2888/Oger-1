@@ -71,6 +71,31 @@ def n_fold_random(n_samples, n_folds):
         train_indices.append(mdp.numx.array(mdp.numx.setdiff1d(randperm, test_indices[-1])))
     return train_indices, test_indices
 
+def n_fold_sequential(n_samples, n_folds):
+    '''
+    n_fold_sequential(n_samples, n_folds) -> train_indices, test_indices
+    
+    Return indices to do n_fold cross_validation keeping the order of the samples. Two lists are returned, with n_folds elements each.
+        - train_indices contains the indices of the dataset used for training
+        - test_indices contains the indices of the dataset used for testing
+    '''
+
+    if n_folds <= 1:
+        raise Exception('Number of folds should be larger than one.')
+
+    if n_folds > n_samples:
+        raise Exception('Number of folds (%d) cannot be larger than the number of samples (%d).'%(n_folds, n_samples))
+
+
+    train_indices, test_indices = [], []
+    foldsize = mdp.numx.floor(float(n_samples) / n_folds)
+
+    for fold in range(n_folds):
+        # Select the sample indices used for testing
+        test_indices.append(range(int(fold * foldsize), int(foldsize * (fold + 1))))
+        # Select the rest for training
+        train_indices.append(mdp.numx.array(mdp.numx.setdiff1d(range(n_samples), test_indices[-1])))
+    return train_indices, test_indices
 
 def validate(data, flow, error_measure, cross_validate_function=n_fold_random, progress=True, internal_gridsearch_parameters=None, validation_suffix_flow=None, error_aggregation_function=mdp.numx.mean, *args, **kwargs):
     '''

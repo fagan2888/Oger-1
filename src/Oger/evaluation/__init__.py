@@ -3,9 +3,9 @@ This subpackage contains functions to perform cross-validation and grid-searchin
 """
 
 from optimizer import Optimizer
-from model_validation import (validate, validate_gen, train_test_only, leave_one_out, n_fold_random, data_subset)
+from model_validation import (validate, validate_gen, train_test_only, leave_one_out, n_fold_random, n_fold_sequential, data_subset)
 
 del optimizer
 del model_validation
 
-__all__ = ['Optimizer', 'validate', 'validate_gen', 'train_test_only', 'leave_one_out', 'n_fold_random', 'data_subset']
+__all__ = ['Optimizer', 'validate', 'validate_gen', 'train_test_only', 'leave_one_out', 'n_fold_random', 'n_fold_sequential', 'data_subset']
