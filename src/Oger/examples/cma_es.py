@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # Get the optimal flow and run cross-validation with it 
     opt_flow = opt.get_optimal_flow()
 
-    print 'Performing cross-validation with the optimal flow. Note that this result can differ slightly from the one above because of different choices of randomization of the folds.'
+    print 'Performing cross-validation with the optimal flow.'
 
     errors = Oger.evaluation.validate(data, opt_flow, Oger.utils.nrmse, cross_validate_function=Oger.evaluation.n_fold_random, n_folds=5, progress=False)
     print 'Mean error over folds: ' + str(sp.mean(errors))

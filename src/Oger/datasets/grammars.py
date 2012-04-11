@@ -2,7 +2,7 @@ from numpy import random
 
 if __name__ == '__main__':
     print 'This module is meant to be imported by grammar_task.py'
-
+ 
 class simple_pcfg:
     """A very simple grammar that allows for variable vocabulary sizes.
     """

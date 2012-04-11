@@ -147,7 +147,7 @@ def cma_es (self, data, flow, cross_validate_function, options=None, internal_gr
     # Initialize a CMA instance
     es = cma.CMAEvolutionStrategy(x0, 1, options)
 
-    while not es.stop:
+    while not es.stop():
         print 'Iteration ' + str(iteration)
 
         data_parallel = []
@@ -163,19 +163,19 @@ def cma_es (self, data, flow, cross_validate_function, options=None, internal_gr
                 node_index = flow.flow.index(node_parameter[0])
                 params[node_index] = {}
                 params[node_index][node_parameter[1]] = parameter_vector[parameter_index] * std
-            data_parallel.append([[params, data]])
+            data_parallel.append([[(params, None)]])
 
         # Re-initialize all nodes that have the initialize method (e.g. reservoirs nodes)
         for node in flow:
             if hasattr(node, 'initialize'):
                 node._is_initialized = False
 
-        parallel_flow = mdp.parallel.ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, *args, **kwargs), ])
+        parallel_flow = ParallelFlow([ParameterSettingNode(flow, self.loss_function, cross_validate_function, internal_gridsearch_parameters = internal_gridsearch_parameters, *args, **kwargs), ], data)
 
         results = parallel_flow.execute(data_parallel, scheduler=self.scheduler, execute_callable_class=FlowExecuteCallableNoChecks)
 
-        error_list = results[::2]
-        flow_list = results[1::2]
+        error_list = list(results[::3])
+        flow_list = results[1::3]
 
         es.tell(parameter_vectors, error_list)
         for parameters in mdp.numx.array(parameter_vectors).T:
