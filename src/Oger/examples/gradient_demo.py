@@ -25,7 +25,7 @@ choice = input("""What optimization method do you want to use?
 4: L-BFGS-B
 ...""")
 choices = [Oger.gradient.CGTrainer(), Oger.gradient.BFGSTrainer(),
-           Oger.gradient.GradientDescentTrainer(epochs=300000),
+           Oger.gradient.GradientDescentTrainer(epochs=50000, learning_rate_decay=1),
            Oger.gradient.RPROPTrainer(epochs=30000), Oger.gradient.LBFGSBTrainer(weight_bounds=(-10, 10))]
 
 bpnode = Oger.gradient.BackpropNode(myflow, choices[choice], loss_func=Oger.utils.mse)
