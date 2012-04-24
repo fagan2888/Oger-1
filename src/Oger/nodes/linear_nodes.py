@@ -136,7 +136,6 @@ class RidgeRegressionNode(mdp.Node):
     def _get_one(self, name, i):
         t = getattr(self, '_' + name + '_list')
         if self.low_memory and not name.count('yTy') and not name.count('len'):
-            print i
             t[i].seek(0)
             return pickle.load(t[i])
         else:
@@ -969,11 +968,12 @@ class ClassReweightedOPRidgeRegressionNode(OPRidgeRegressionNode, ClassReweighte
 
 class BayesianWeightedRegressionNode(RidgeRegressionNode):
 
-    def __init__(self, mu=None, threshold=0.00001, max_iter=100, with_bias=True, input_dim=None, output_dim=None, dtype=None):
+    def __init__(self, mu=None, threshold=0.00001, max_iter=100, with_bias=True, clear_memory=True, input_dim=None, output_dim=None, dtype=None):
         super(BayesianWeightedRegressionNode, self).__init__(with_bias=with_bias, input_dim=input_dim, output_dim=output_dim, dtype=dtype)
         self.mu = mu
         self.threshold=threshold
         self.max_iter = max_iter
+        self.clear_memory = clear_memory
 
     def _get_one(self, name, i):
         return self.beta[i] * super(BayesianWeightedRegressionNode, self)._get_one(name, i)
