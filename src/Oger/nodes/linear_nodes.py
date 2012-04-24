@@ -1005,3 +1005,20 @@ class BayesianWeightedRegressionNode(RidgeRegressionNode):
             self.w = w
             self.b = 0
         self._clear_memory()
+
+class ParallelLinearRegressionNode(mdp.parallel.ParallelExtensionNode, RidgeRegressionNode):
+    """Parallel extension for the LinearRegressionNode and all its derived classes
+    (eg. RidgeRegressionNode).
+    """
+    def _fork(self):
+        return self._default_fork()
+
+    def _join(self, forked_node):
+        if self._xTx is None:
+            self._xTx = forked_node._xTx
+            self._xTy = forked_node._xTy
+            self._tlen = forked_node._tlen
+        else:
+            self._xTx += forked_node._xTx
+            self._xTy += forked_node._xTy
+            self._tlen += forked_node._tlen

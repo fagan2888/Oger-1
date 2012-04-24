@@ -10,7 +10,7 @@ def run_IP(sr, data):
     [x,y] = data
 
     # construct individual nodes
-    reservoir = Oger.nodes.GaussianIPReservoirNode(input_dim=1, output_dim=100, w_in=np.random.randn, spectral_radius=sr, eta=.001, sigma_squared=.04)
+    reservoir = Oger.nodes.GaussianIPReservoirNode(input_dim=1, output_dim=100, w_in=lambda x,y,z:z*np.random.randn(x,y), spectral_radius=sr, eta=.001, sigma_squared=.04)
     
     states_before = reservoir.execute(x[0])
 

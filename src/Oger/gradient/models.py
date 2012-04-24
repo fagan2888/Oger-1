@@ -12,7 +12,7 @@ class MLPNode(mdp.Node):
     """Defines a multilayer perceptron with a hidden layer of tanh units.r
     """
 
-    def __init__(self, input_dim, output_dim, hidden_dim=100,
+    def __init__(self, input_dim=None, output_dim=None, hidden_dim=100,
                  trainer=trainers.GradientDescentTrainer(), loss='mse', dtype='float64'):
         """Initializes and constructs a multilayer perceptron.
 
@@ -70,7 +70,7 @@ class MLPNode(mdp.Node):
 class AutoencoderNode(MLPNode):
     """Use a multilayer perceptron to reconstruct its input."""
 
-    def __init__(self, input_dim, hidden_dim=100, trainer=trainers.GradientDescentTrainer(),
+    def __init__(self, input_dim=None, hidden_dim=100, trainer=trainers.GradientDescentTrainer(),
                  dtype='float64'):
         
         super(AutoencoderNode, self).__init__(input_dim, input_dim, hidden_dim, trainer,
